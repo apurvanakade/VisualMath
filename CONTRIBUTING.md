@@ -20,7 +20,7 @@ Please copy, paste, and update the template matching your file's language:
 For Markdown and Quarto files, wrap the header in standard HTML comment tags at the very beginning of the document:
 ```markdown
 <!--
-Copyright (c) 2026 [Your Name]. All rights reserved.
+Copyright (c) [Year] [Your Name]. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: [Your Name]
 -->
@@ -32,7 +32,7 @@ Authors: [Your Name]
 For Jupyter Notebooks, create a **Markdown cell** at the very top of your notebook and paste the following:
 
 ```markdown
-> **Copyright (c) 2026 [Your Name]. All rights reserved.**  
+> **Copyright (c) [Year] [Your Name]. All rights reserved.**  
 > *Released under Apache 2.0 license as described in the file LICENSE.*  
 > **Authors:** [Your Name]
 
@@ -42,7 +42,7 @@ For Jupyter Notebooks, create a **Markdown cell** at the very top of your notebo
 
 ```javascript
 /**
- * Copyright (c) 2026 [Your Name]. All rights reserved.
+ * Copyright (c) [Year] [Your Name]. All rights reserved.
  * Released under Apache 2.0 license as described in the file LICENSE.
  * Authors: [Your Name]
  */
@@ -62,7 +62,7 @@ For Jupyter Notebooks, create a **Markdown cell** at the very top of your notebo
 
 ```html
 <!--
-Copyright (c) 2026 [Your Name]. All rights reserved.
+Copyright (c) [Year] [Your Name]. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: [Your Name]
 -->
