@@ -1,0 +1,167 @@
+---
+title: "Function Plotter"
+format:
+  html:
+    theme: cosmo
+    code-fold: true
+---
+
+```{ojs}
+math = require("https://cdn.jsdelivr.net/npm/mathjs@12.4.1/lib/browser/math.js")
+```
+
+Enter a function of \(x\), choose a plotting range, and the graph updates automatically.
+
+Examples:
+
+```text
+sin(x)
+cos(x)
+x^2
+exp(-x^2)
+sin(x)/x
+sqrt(abs(x))
+```
+
+## Inputs
+
+```{ojs}
+viewof funcText = Inputs.text({
+  label: "Function f(x)",
+  value: "sin(x)",
+  placeholder: "e.g. sin(x), x^2, exp(-x^2)"
+})
+
+viewof xmin = Inputs.number({
+  label: "x minimum",
+  value: -10,
+  step: 0.1
+})
+
+viewof xmax = Inputs.number({
+  label: "x maximum",
+  value: 10,
+  step: 0.1
+})
+
+viewof npoints = Inputs.range([100, 3000], {
+  label: "Number of points",
+  value: 1000,
+  step: 100
+})
+
+viewof autoY = Inputs.toggle({
+  label: "Auto y-axis",
+  value: true
+})
+
+viewof ymin = Inputs.number({
+  label: "Manual y minimum",
+  value: -2,
+  step: 0.1
+})
+
+viewof ymax = Inputs.number({
+  label: "Manual y maximum",
+  value: 2,
+  step: 0.1
+})
+```
+
+## Plot
+
+```{ojs}
+compiledFunction = {
+  try {
+    return math.compile(funcText);
+  } catch (error) {
+    return null;
+  }
+}
+```
+
+```{ojs}
+errorMessage = {
+  try {
+    math.compile(funcText);
+    return "";
+  } catch (error) {
+    return error.message;
+  }
+}
+```
+
+```{ojs}
+html`<p style="color:red;">${errorMessage}</p>`
+```
+
+```{ojs}
+data = {
+  const points = [];
+
+  if (!compiledFunction || xmax <= xmin) {
+    return points;
+  }
+
+  const dx = (xmax - xmin) / (npoints - 1);
+
+  for (let i = 0; i < npoints; i++) {
+    const x = xmin + i * dx;
+
+    let y;
+    try {
+      y = compiledFunction.evaluate({x});
+    } catch (error) {
+      y = NaN;
+    }
+
+    if (Number.isFinite(y)) {
+      points.push({x, y});
+    }
+  }
+
+  return points;
+}
+```
+
+```{ojs}
+yDomain = {
+  if (autoY || data.length === 0) {
+    return undefined;
+  } else {
+    return [ymin, ymax];
+  }
+}
+```
+
+```{ojs}
+Plot.plot({
+  width: 750,
+  height: 450,
+  grid: true,
+  x: {
+    label: "x",
+    domain: [xmin, xmax]
+  },
+  y: {
+    label: "f(x)",
+    domain: yDomain
+  },
+  marks: [
+    Plot.line(data, {
+      x: "x",
+      y: "y",
+      stroke: "steelblue",
+      strokeWidth: 2
+    }),
+    Plot.ruleY([0], {stroke: "black", strokeOpacity: 0.4}),
+    Plot.ruleX([0], {stroke: "black", strokeOpacity: 0.4})
+  ]
+})
+```
+
+## Current function
+
+```{ojs}
+html`<p>You are plotting: <b>f(x) = ${funcText}</b></p>`
+```
