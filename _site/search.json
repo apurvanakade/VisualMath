@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Function Plotter",
+    "section": "",
+    "text": "Code\nmath = require(\"https://cdn.jsdelivr.net/npm/mathjs@12.4.1/lib/browser/math.js\")\nEnter a function of (x), choose a plotting range, and the graph updates automatically.\nExamples:"
+  },
+  {
+    "objectID": "index.html#inputs",
+    "href": "index.html#inputs",
+    "title": "Function Plotter",
+    "section": "Inputs",
+    "text": "Inputs\n\n\nCode\nviewof funcText = Inputs.text({\n  label: \"Function f(x)\",\n  value: \"sin(x)\",\n  placeholder: \"e.g. sin(x), x^2, exp(-x^2)\"\n})\n\nviewof xmin = Inputs.number({\n  label: \"x minimum\",\n  value: -10,\n  step: 0.1\n})\n\nviewof xmax = Inputs.number({\n  label: \"x maximum\",\n  value: 10,\n  step: 0.1\n})\n\nviewof npoints = Inputs.range([100, 3000], {\n  label: \"Number of points\",\n  value: 1000,\n  step: 100\n})\n\nviewof autoY = Inputs.toggle({\n  label: \"Auto y-axis\",\n  value: true\n})\n\nviewof ymin = Inputs.number({\n  label: \"Manual y minimum\",\n  value: -2,\n  step: 0.1\n})\n\nviewof ymax = Inputs.number({\n  label: \"Manual y maximum\",\n  value: 2,\n  step: 0.1\n})"
+  },
+  {
+    "objectID": "index.html#plot",
+    "href": "index.html#plot",
+    "title": "Function Plotter",
+    "section": "Plot",
+    "text": "Plot\n\n\nCode\ncompiledFunction = {\n  try {\n    return math.compile(funcText);\n  } catch (error) {\n    return null;\n  }\n}\n\n\n\n\n\n\n\n\n\nCode\nerrorMessage = {\n  try {\n    math.compile(funcText);\n    return \"\";\n  } catch (error) {\n    return error.message;\n  }\n}\n\n\n\n\n\n\n\n\n\nCode\nhtml`&lt;p style=\"color:red;\"&gt;${errorMessage}&lt;/p&gt;`\n\n\n\n\n\n\n\n\n\nCode\ndata = {\n  const points = [];\n\n  if (!compiledFunction || xmax &lt;= xmin) {\n    return points;\n  }\n\n  const dx = (xmax - xmin) / (npoints - 1);\n\n  for (let i = 0; i &lt; npoints; i++) {\n    const x = xmin + i * dx;\n\n    let y;\n    try {\n      y = compiledFunction.evaluate({x});\n    } catch (error) {\n      y = NaN;\n    }\n\n    if (Number.isFinite(y)) {\n      points.push({x, y});\n    }\n  }\n\n  return points;\n}\n\n\n\n\n\n\n\n\n\nCode\nyDomain = {\n  if (autoY || data.length === 0) {\n    return undefined;\n  } else {\n    return [ymin, ymax];\n  }\n}\n\n\n\n\n\n\n\n\n\nCode\nPlot.plot({\n  width: 750,\n  height: 450,\n  grid: true,\n  x: {\n    label: \"x\",\n    domain: [xmin, xmax]\n  },\n  y: {\n    label: \"f(x)\",\n    domain: yDomain\n  },\n  marks: [\n    Plot.line(data, {\n      x: \"x\",\n      y: \"y\",\n      stroke: \"steelblue\",\n      strokeWidth: 2\n    }),\n    Plot.ruleY([0], {stroke: \"black\", strokeOpacity: 0.4}),\n    Plot.ruleX([0], {stroke: \"black\", strokeOpacity: 0.4})\n  ]\n})"
+  },
+  {
+    "objectID": "index.html#current-function",
+    "href": "index.html#current-function",
+    "title": "Function Plotter",
+    "section": "Current function",
+    "text": "Current function\n\n\nCode\nhtml`&lt;p&gt;You are plotting: &lt;b&gt;f(x) = ${funcText}&lt;/b&gt;&lt;/p&gt;`"
+  }
+]
