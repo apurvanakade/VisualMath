@@ -1,0 +1,40 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Visual Math"
+
+  navbar:
+    background: primary
+    search: true
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+
+  sidebar:
+    - title: "Root Finding"
+      style: "docked"
+      background: light
+      contents:
+        - href: root-finding/index.qmd
+          text: Overview
+        - href: root-finding/fixed-point.qmd
+          text: Fixed Point Iteration
+        - href: root-finding/newton.qmd
+          text: Newton's Method
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    page-layout: full
+    html-math-method: mathjax
+    grid:
+      sidebar-width: 250px
+      body-width: 1300px
+      margin-width: 250px
+
