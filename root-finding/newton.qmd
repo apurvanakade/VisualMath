@@ -1,0 +1,456 @@
+---
+title: "Newton's Method"
+page-layout: full
+filters:
+  - ../_extensions/quarto-ext/shinylive/shinylive.lua
+---
+
+## Interactive App
+
+<div class="app-container">
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 900
+
+
+from shiny import App, ui, render, reactive
+import numpy as np
+import matplotlib.pyplot as plt
+import sympy as sp
+
+x_symbol = sp.Symbol("x")
+
+ALLOWED_SYMPY = {
+    "x": x_symbol,
+    "sin": sp.sin,
+    "cos": sp.cos,
+    "tan": sp.tan,
+    "exp": sp.exp,
+    "log": sp.log,
+    "sqrt": sp.sqrt,
+    "abs": sp.Abs,
+    "pi": sp.pi,
+    "E": sp.E,
+    "e": sp.E,
+}
+
+def parse_expression(expr_text):
+    """
+    Parse user input using SymPy's sympify.
+
+    The input box expects plain expressions such as:
+        cos(x)
+        x^3 - x - 2
+        exp(-x)
+
+    It does not expect LaTeX such as:
+        $cos(x)$
+        $$x^2 - 2$$
+
+    This function removes accidental dollar signs and converts ^ to **.
+    """
+    expr_text = str(expr_text).strip()
+
+    # Remove accidental LaTeX math delimiters
+    if expr_text.startswith("$$") and expr_text.endswith("$$"):
+        expr_text = expr_text[2:-2].strip()
+    elif expr_text.startswith("$") and expr_text.endswith("$"):
+        expr_text = expr_text[1:-1].strip()
+
+    # Convert common power notation to Python/SymPy notation
+    expr_text = expr_text.replace("^", "**")
+
+    # Give a clearer error for subscript-style LaTeX variables
+    if "_" in expr_text:
+        raise ValueError(
+            "The input box expects a function of x, such as cos(x) or x^2 - 2. "
+            "Do not enter LaTeX such as x_0."
+        )
+
+    expr = sp.sympify(expr_text, locals=ALLOWED_SYMPY)
+    return expr
+
+def make_numeric_function_and_derivative(expr_text):
+    expr = parse_expression(expr_text)
+    derivative_expr = sp.diff(expr, x_symbol)
+
+    f_np = sp.lambdify(x_symbol, expr, modules=["numpy"])
+    df_np = sp.lambdify(x_symbol, derivative_expr, modules=["numpy"])
+
+    return expr, derivative_expr, f_np, df_np
+
+def safe_eval_scalar(f_np, value):
+    try:
+        result = f_np(value)
+        return float(result)
+    except Exception:
+        return np.nan
+
+def safe_eval_array(f_np, values):
+    try:
+        result = f_np(values)
+        result = np.array(result, dtype=float)
+
+        if result.shape == ():
+            result = np.full_like(values, float(result), dtype=float)
+
+        return result
+    except Exception:
+        return np.full_like(values, np.nan, dtype=float)
+
+app_ui = ui.page_fluid(
+    ui.h2("Newton's Method"),
+
+    ui.p(
+        "Enter a function f(x), choose a starting value, and press Next step to see the tangent-line update."
+    ),
+
+    ui.layout_sidebar(
+        ui.sidebar(
+            ui.input_text(
+                "f_expr",
+                "Enter f(x):",
+                value="x^3 - x - 2"
+            ),
+
+            ui.input_numeric(
+                "x0",
+                "Initial value x0:",
+                value=1.5,
+                step=0.1
+            ),
+
+            ui.input_numeric(
+                "xmin",
+                "Plot minimum x:",
+                value=-3,
+                step=0.5
+            ),
+
+            ui.input_numeric(
+                "xmax",
+                "Plot maximum x:",
+                value=3,
+                step=0.5
+            ),
+
+            ui.input_action_button(
+                "reset",
+                "Reset",
+                class_="btn-warning"
+            ),
+
+            ui.input_action_button(
+                "next_step",
+                "Next step",
+                class_="btn-primary"
+            ),
+
+            ui.hr(),
+
+            ui.markdown(
+                """
+                **Example inputs**
+
+                - `x^3 - x - 2`
+                - `cos(x) - x`
+                - `x^2 - 2`
+                - `exp(-x) - x`
+
+                You may use either `^` or `**` for powers.
+                """
+            ),
+
+            ui.hr(),
+
+            ui.output_text_verbatim("iteration_info")
+        ),
+
+        ui.output_plot("newton_plot", height="650px")
+    )
+)
+
+def server(input, output, session):
+
+    xs = reactive.Value([1.5])
+    error_message = reactive.Value("")
+
+    @reactive.Effect
+    @reactive.event(input.reset)
+    def reset_iterations():
+        xs.set([float(input.x0())])
+        error_message.set("")
+
+    @reactive.Effect
+    @reactive.event(input.next_step)
+    def take_step():
+        current_xs = xs.get().copy()
+
+        if len(current_xs) == 0:
+            current_xs = [float(input.x0())]
+
+        x_old = current_xs[-1]
+
+        try:
+            expr, derivative_expr, f_np, df_np = make_numeric_function_and_derivative(input.f_expr())
+
+            f_old = safe_eval_scalar(f_np, x_old)
+            df_old = safe_eval_scalar(df_np, x_old)
+
+            if not np.isfinite(f_old) or not np.isfinite(df_old):
+                x_new = np.nan
+                error_message.set("f(x) or f'(x) is not finite at the current iterate.")
+            elif abs(df_old) < 1e-14:
+                x_new = np.nan
+                error_message.set("The derivative is too close to zero, so Newton's method cannot safely continue.")
+            else:
+                x_new = x_old - f_old / df_old
+                error_message.set("")
+
+        except Exception as e:
+            x_new = np.nan
+            error_message.set(f"Could not parse or evaluate f(x): {e}")
+
+        current_xs.append(x_new)
+        xs.set(current_xs)
+
+    @output
+    @render.plot
+
+    def newton_plot():
+        xmin = float(input.xmin())
+        xmax = float(input.xmax())
+
+        if xmin >= xmax:
+            xmin, xmax = -3, 3
+
+        fig, ax = plt.subplots(figsize=(11, 7))
+
+        xgrid = np.linspace(xmin, xmax, 1200)
+
+        try:
+            expr, derivative_expr, f_np, df_np = make_numeric_function_and_derivative(input.f_expr())
+            ygrid = safe_eval_array(f_np, xgrid)
+            plot_title = f"Newton's Method for f(x) = {sp.sstr(expr)}"
+        except Exception as e:
+            ygrid = np.full_like(xgrid, np.nan)
+            plot_title = "Newton's Method"
+            error_message.set(f"Could not parse f(x): {e}")
+
+        ax.plot(
+            xgrid,
+            ygrid,
+            color="#0d6efd",
+            linewidth=2.5,
+            label=r"$y=f(x)$"
+        )
+
+        ax.axhline(
+            0,
+            color="black",
+            linewidth=1.5,
+            label=r"$y=0$"
+        )
+
+        current_xs = xs.get()
+
+        try:
+            expr, derivative_expr, f_np, df_np = make_numeric_function_and_derivative(input.f_expr())
+        except Exception:
+            f_np = None
+            df_np = None
+
+        if f_np is not None and df_np is not None:
+            for i in range(len(current_xs)):
+                x_i = current_xs[i]
+
+                if not np.isfinite(x_i):
+                    continue
+
+                f_i = safe_eval_scalar(f_np, x_i)
+                df_i = safe_eval_scalar(df_np, x_i)
+
+                if not np.isfinite(f_i):
+                    continue
+
+                ax.scatter(
+                    [x_i],
+                    [f_i],
+                    color="red",
+                    s=70,
+                    zorder=6
+                )
+
+                ax.annotate(
+                    rf"$x_{i}$",
+                    (x_i, f_i),
+                    textcoords="offset points",
+                    xytext=(8, 8),
+                    fontsize=11,
+                    color="red"
+                )
+
+                ax.plot(
+                    [x_i, x_i],
+                    [0, f_i],
+                    color="gray",
+                    linestyle=":",
+                    linewidth=1.5
+                )
+
+                if i < len(current_xs) - 1:
+                    x_next = current_xs[i + 1]
+
+                    if np.isfinite(x_next) and np.isfinite(df_i) and abs(df_i) > 1e-14:
+                        tangent_x = np.linspace(
+                            max(xmin, min(x_i, x_next) - 0.75),
+                            min(xmax, max(x_i, x_next) + 0.75),
+                            200
+                        )
+
+                        tangent_y = f_i + df_i * (tangent_x - x_i)
+
+                        ax.plot(
+                            tangent_x,
+                            tangent_y,
+                            color="red",
+                            linestyle="--",
+                            linewidth=2,
+                            alpha=0.85,
+                            label="Tangent line" if i == 0 else None
+                        )
+
+                        ax.scatter(
+                            [x_next],
+                            [0],
+                            color="green",
+                            s=80,
+                            zorder=7
+                        )
+
+                        ax.annotate(
+                            rf"$x_{i+1}$",
+                            (x_next, 0),
+                            textcoords="offset points",
+                            xytext=(8, -18),
+                            fontsize=11,
+                            color="green"
+                        )
+
+        ax.set_xlim(xmin, xmax)
+
+        finite_y = ygrid[np.isfinite(ygrid)]
+        if len(finite_y) > 0:
+            y_low = np.percentile(finite_y, 3)
+            y_high = np.percentile(finite_y, 97)
+
+            if abs(y_high - y_low) < 1e-10:
+                y_low -= 1
+                y_high += 1
+
+            padding = 0.25 * max(1, y_high - y_low)
+            ax.set_ylim(y_low - padding, y_high + padding)
+        else:
+            ax.set_ylim(-5, 5)
+
+        ax.set_xlabel("x", fontsize=12)
+        ax.set_ylabel("f(x)", fontsize=12)
+        ax.set_title(plot_title, fontsize=14)
+        ax.grid(True, alpha=0.3)
+        ax.legend(loc="best")
+
+        return fig
+
+    @output
+    @render.text
+    def iteration_info():
+        current_xs = xs.get()
+        lines = []
+
+        msg = error_message.get()
+        if msg:
+            lines.append("Message:")
+            lines.append(msg)
+            lines.append("")
+
+        try:
+            expr, derivative_expr, f_np, df_np = make_numeric_function_and_derivative(input.f_expr())
+            lines.append(f"Parsed f(x): {sp.sstr(expr)}")
+            lines.append(f"Symbolic f'(x): {sp.sstr(derivative_expr)}")
+            lines.append("")
+        except Exception as e:
+            lines.append(f"Could not parse f(x): {e}")
+            lines.append("")
+            f_np = None
+            df_np = None
+
+        lines.append(f"Number of completed steps: {max(0, len(current_xs)-1)}")
+        lines.append("")
+
+        for i, value in enumerate(current_xs):
+            if np.isfinite(value):
+                if f_np is not None:
+                    f_value = safe_eval_scalar(f_np, value)
+                    lines.append(f"x_{i} = {value:.12g},    f(x_{i}) = {f_value:.12g}")
+                else:
+                    lines.append(f"x_{i} = {value:.12g}")
+            else:
+                lines.append(f"x_{i} = nan")
+
+        if len(current_xs) >= 2:
+            if np.isfinite(current_xs[-1]) and np.isfinite(current_xs[-2]):
+                err = abs(current_xs[-1] - current_xs[-2])
+                lines.append("")
+                lines.append(f"|x_n - x_(n-1)| = {err:.12g}")
+
+        return "\n".join(lines)
+
+app = App(app_ui, server)
+```
+
+</div>
+
+<div class="explanation">
+
+## Explanation
+
+Newton's method is one of the most common methods for solving equations of the form
+
+$$
+f(x)=0.
+$$
+
+Starting from an initial guess $x_0$, the method produces new approximations using
+
+$$
+x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}.
+$$
+
+## What the picture is showing
+
+At the current value $x_n$, Newton's method draws the tangent line to the graph of $y=f(x)$.
+
+The tangent line at $x_n$ is
+
+$$
+y=f(x_n)+f'(x_n)(x-x_n).
+$$
+
+The next approximation $x_{n+1}$ is where this tangent line crosses the $x$-axis.
+
+Setting $y=0$ gives
+
+$$
+0=f(x_n)+f'(x_n)(x_{n+1}-x_n).
+$$
+
+Solving for $x_{n+1}$ gives the Newton update:
+
+$$
+x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}.
+$$
+
+Newton's method can converge very quickly when the starting point is close to the root and the derivative at the root is not zero. But it can also fail if the derivative is too small or if the starting point is not chosen well.
+
+</div>

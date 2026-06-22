@@ -1,0 +1,32 @@
+---
+title: "About"
+page-layout: full
+---
+
+<div class="hero">
+
+<p>
+This website is being built as a collection of interactive teaching tools for computational mathematics.
+The goal is to make numerical methods feel more concrete by letting students experiment with the algorithms directly.
+</p>
+
+</div>
+
+<div class="explanation">
+
+## Purpose
+
+Many numerical methods are introduced through formulas and tables of iterates. Those are important, but they can sometimes hide the main idea of the method.
+
+The apps on this site are meant to give students a more visual way to explore the algorithms. For example, in root finding, students can choose an initial point, press a button, and see exactly how the next approximation is produced.
+
+## Current focus
+
+The current module is root finding. It includes:
+
+- Fixed point iteration
+- Newton's method
+
+More topics can be added later as the course materials develop.
+
+</div>
