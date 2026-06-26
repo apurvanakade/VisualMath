@@ -1,0 +1,707 @@
+<!--
+Copyright (c) 2026 Dhruv Azad. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Dhruv Azad
+-->
+
+---
+title: "Bisection Method"
+page-layout: full
+---
+
+```{=html}
+<script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+```
+
+<div class="vm-hero">
+
+<h2 class="vm-hero-title">Bisection Method</h2>
+
+<p class="vm-hero-subtitle">
+Visualize how the bisection method repeatedly halves an interval containing a sign change.
+Choose a function and starting bracket, then step through the narrowing intervals.
+</p>
+
+<div class="vm-pill-row">
+  <span class="vm-pill">Bracketing method</span>
+  <span class="vm-pill">Guaranteed for sign changes</span>
+  <span class="vm-pill">Interval halving</span>
+  <span class="vm-pill">Interactive Plotly visualization</span>
+</div>
+
+</div>
+
+<div class="ojs-app-vertical">
+
+<div class="ojs-controls-wide">
+
+### Controls
+
+<div class="ojs-control-grid">
+
+```{ojs}
+viewof fText = Inputs.text({
+  label: "Function f(x)",
+  value: "x^3 - x - 2",
+  placeholder: "Example: x^3 - x - 2, cos(x) - x"
+})
+```
+
+```{ojs}
+viewof a0 = Inputs.number({
+  label: "Left endpoint a",
+  value: 1,
+  step: 0.1
+})
+```
+
+```{ojs}
+viewof b0 = Inputs.number({
+  label: "Right endpoint b",
+  value: 2,
+  step: 0.1
+})
+```
+
+```{ojs}
+viewof tolerance = Inputs.number({
+  label: "Tolerance",
+  value: 1e-8,
+  step: 1e-8
+})
+```
+
+```{ojs}
+viewof maxIterations = Inputs.range([1, 100], {
+  label: "Maximum iterations",
+  value: 40,
+  step: 1
+})
+```
+
+```{ojs}
+viewof autoRange = Inputs.checkbox(
+  ["Automatically adjust axes"],
+  {
+    label: "Plot range",
+    value: ["Automatically adjust axes"]
+  }
+)
+```
+
+```{ojs}
+viewof xminManual = Inputs.number({
+  label: "Manual x-min",
+  value: 0.5,
+  step: 0.1
+})
+```
+
+```{ojs}
+viewof xmaxManual = Inputs.number({
+  label: "Manual x-max",
+  value: 2.5,
+  step: 0.1
+})
+```
+
+</div>
+
+```{ojs}
+viewof stepControl = {
+  const div = html`
+    <div class="ojs-button-row">
+      <button class="ojs-next-button">Next iteration</button>
+      <button class="ojs-reset-button">Reset</button>
+      <span style="color:#475569;font-weight:600;"></span>
+    </div>
+  `
+
+  const nextButton = div.querySelector(".ojs-next-button")
+  const resetButton = div.querySelector(".ojs-reset-button")
+  const label = div.querySelector("span")
+
+  let value = 0
+  div.value = value
+  label.textContent = `Current step: ${value}`
+
+  nextButton.onclick = () => {
+    value = Math.min(value + 1, Number(maxIterations))
+    div.value = value
+    label.textContent = `Current step: ${value}`
+    div.dispatchEvent(new CustomEvent("input"))
+  }
+
+  resetButton.onclick = () => {
+    value = 0
+    div.value = value
+    label.textContent = `Current step: ${value}`
+    div.dispatchEvent(new CustomEvent("input"))
+  }
+
+  return div
+}
+```
+
+</div>
+
+<div class="ojs-output-wide">
+
+```{ojs}
+mathjs = window.math
+```
+
+```{ojs}
+cleanExpression = expr => {
+  return String(expr)
+    .trim()
+    .replaceAll("π", "pi")
+}
+```
+
+```{ojs}
+compiledF = {
+  try {
+    return mathjs.compile(cleanExpression(fText))
+  } catch (err) {
+    return null
+  }
+}
+```
+
+```{ojs}
+f = x => {
+  if (!compiledF) return NaN
+
+  try {
+    const y = compiledF.evaluate({x})
+    return Number(y)
+  } catch (err) {
+    return NaN
+  }
+}
+```
+
+```{ojs}
+bisectionResult = {
+  let a = Number(a0)
+  let b = Number(b0)
+  const tol = Number(tolerance)
+  const maxIter = Number(maxIterations)
+
+  if (!compiledF) {
+    return {
+      valid: false,
+      statusType: "bad",
+      message: "Could not parse the function. Try x^3 - x - 2, cos(x) - x, or exp(-x) - x.",
+      rows: []
+    }
+  }
+
+  if (!Number.isFinite(a) || !Number.isFinite(b)) {
+    return {
+      valid: false,
+      statusType: "bad",
+      message: "The endpoints must be finite numbers.",
+      rows: []
+    }
+  }
+
+  if (a === b) {
+    return {
+      valid: false,
+      statusType: "bad",
+      message: "The endpoints a and b must be different.",
+      rows: []
+    }
+  }
+
+  if (a > b) {
+    const temp = a
+    a = b
+    b = temp
+  }
+
+  let fa = f(a)
+  let fb = f(b)
+
+  if (!Number.isFinite(fa) || !Number.isFinite(fb)) {
+    return {
+      valid: false,
+      statusType: "bad",
+      message: "Could not evaluate f(a) or f(b). Check the function and interval.",
+      rows: []
+    }
+  }
+
+  if (fa === 0) {
+    return {
+      valid: true,
+      statusType: "good",
+      message: `The left endpoint a = ${a} is already a root.`,
+      rows: [{n: 0, a, b, m: a, fa, fb, fm: fa, width: b - a}]
+    }
+  }
+
+  if (fb === 0) {
+    return {
+      valid: true,
+      statusType: "good",
+      message: `The right endpoint b = ${b} is already a root.`,
+      rows: [{n: 0, a, b, m: b, fa, fb, fm: fb, width: b - a}]
+    }
+  }
+
+  if (fa * fb > 0) {
+    return {
+      valid: false,
+      statusType: "bad",
+      message: `Bisection requires f(a) and f(b) to have opposite signs. Here f(a) = ${fa.toPrecision(6)} and f(b) = ${fb.toPrecision(6)}.`,
+      rows: []
+    }
+  }
+
+  const rows = []
+
+  for (let n = 0; n <= maxIter; n++) {
+    const m = 0.5 * (a + b)
+    const fm = f(m)
+
+    rows.push({
+      n,
+      a,
+      b,
+      m,
+      fa,
+      fb,
+      fm,
+      width: b - a
+    })
+
+    if (!Number.isFinite(fm)) {
+      return {
+        valid: false,
+        statusType: "bad",
+        message: `Stopped because f(m) is not finite at step ${n}.`,
+        rows
+      }
+    }
+
+    if (Math.abs(fm) < tol || Math.abs(b - a) < tol) {
+      const last = rows[rows.length - 1]
+
+      return {
+        valid: true,
+        statusType: "good",
+        message: `Converged after ${n + 1} iteration${n + 1 === 1 ? "" : "s"}. Approximate root: m ≈ ${last.m.toPrecision(10)}.`,
+        rows
+      }
+    }
+
+    if (fa * fm < 0) {
+      b = m
+      fb = fm
+    } else {
+      a = m
+      fa = fm
+    }
+  }
+
+  const last = rows[rows.length - 1]
+
+  return {
+    valid: true,
+    statusType: "warn",
+    message: `Reached the maximum number of iterations. Last midpoint: m ≈ ${last.m.toPrecision(10)}, interval width = ${last.width.toExponential(3)}.`,
+    rows
+  }
+}
+```
+
+```{ojs}
+visibleRows = bisectionResult.rows.slice(
+  0,
+  Math.min(Number(stepControl), bisectionResult.rows.length - 1) + 1
+)
+```
+
+```{ojs}
+currentBisectionRow = {
+  if (visibleRows.length === 0) return null
+  return visibleRows[visibleRows.length - 1]
+}
+```
+
+```{ojs}
+bisectionXRange = {
+  const useAuto = autoRange.includes("Automatically adjust axes")
+
+  if (!useAuto) {
+    let lo = Number(xminManual)
+    let hi = Number(xmaxManual)
+
+    if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo === hi) {
+      lo = Number(a0) - 1
+      hi = Number(b0) + 1
+    }
+
+    if (lo > hi) {
+      const temp = lo
+      lo = hi
+      hi = temp
+    }
+
+    return {lo, hi}
+  }
+
+  const values = []
+
+  const aStart = Number(a0)
+  const bStart = Number(b0)
+
+  if (Number.isFinite(aStart)) values.push(aStart)
+  if (Number.isFinite(bStart)) values.push(bStart)
+
+  for (const row of visibleRows) {
+    if (Number.isFinite(row.a)) values.push(row.a)
+    if (Number.isFinite(row.b)) values.push(row.b)
+    if (Number.isFinite(row.m)) values.push(row.m)
+  }
+
+  let lo
+  let hi
+
+  if (values.length === 0) {
+    lo = -5
+    hi = 5
+  } else {
+    lo = Math.min(...values)
+    hi = Math.max(...values)
+
+    if (lo === hi) {
+      lo = lo - 2
+      hi = hi + 2
+    }
+  }
+
+  const width = hi - lo
+  const pad = Math.max(0.25 * width, 0.5)
+
+  return {
+    lo: lo - pad,
+    hi: hi + pad
+  }
+}
+```
+
+```{ojs}
+bisectionYRange = {
+  const lo = bisectionXRange.lo
+  const hi = bisectionXRange.hi
+  const values = [0]
+
+  const n = 500
+
+  for (let i = 0; i < n; i++) {
+    const x = lo + (hi - lo) * i / (n - 1)
+    const y = f(x)
+
+    if (Number.isFinite(y) && Math.abs(y) < 1e8) {
+      values.push(y)
+    }
+  }
+
+  for (const row of visibleRows) {
+    if (Number.isFinite(row.fa) && Math.abs(row.fa) < 1e8) values.push(row.fa)
+    if (Number.isFinite(row.fb) && Math.abs(row.fb) < 1e8) values.push(row.fb)
+    if (Number.isFinite(row.fm) && Math.abs(row.fm) < 1e8) values.push(row.fm)
+  }
+
+  let ymin = Math.min(...values)
+  let ymax = Math.max(...values)
+
+  if (ymin === ymax) {
+    ymin = ymin - 1
+    ymax = ymax + 1
+  }
+
+  const height = ymax - ymin
+  const pad = Math.max(0.15 * height, 0.5)
+
+  return {
+    lo: ymin - pad,
+    hi: ymax + pad
+  }
+}
+```
+
+```{ojs}
+bisectionPlot = {
+  const div = html`<div class="plotly-box-large"></div>`
+
+  const xlo = bisectionXRange.lo
+  const xhi = bisectionXRange.hi
+  const ylo = bisectionYRange.lo
+  const yhi = bisectionYRange.hi
+
+  const n = 700
+  const xs = Array.from({length: n}, (_, i) => xlo + (xhi - xlo) * i / (n - 1))
+  const ys = xs.map(x => f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
+
+  const data = [
+    {
+      x: xs,
+      y: ys,
+      type: "scatter",
+      mode: "lines",
+      name: "f(x)",
+      line: {
+        color: "#2563eb",
+        width: 3
+      }
+    },
+    {
+      x: [xlo, xhi],
+      y: [0, 0],
+      type: "scatter",
+      mode: "lines",
+      name: "y = 0",
+      line: {
+        color: "#111827",
+        width: 2
+      }
+    }
+  ]
+
+  const shapes = []
+
+  if (currentBisectionRow) {
+    const row = currentBisectionRow
+
+    shapes.push({
+      type: "rect",
+      xref: "x",
+      yref: "paper",
+      x0: row.a,
+      x1: row.b,
+      y0: 0,
+      y1: 1,
+      fillcolor: "rgba(37, 99, 235, 0.14)",
+      line: {
+        width: 0
+      }
+    })
+
+    data.push({
+      x: [row.a, row.b],
+      y: [row.fa, row.fb],
+      type: "scatter",
+      mode: "markers+text",
+      name: "Endpoints",
+      text: ["a", "b"],
+      textposition: "top center",
+      marker: {
+        color: "#2563eb",
+        size: 11,
+        line: {
+          color: "white",
+          width: 1
+        }
+      }
+    })
+
+    data.push({
+      x: [row.m],
+      y: [row.fm],
+      type: "scatter",
+      mode: "markers+text",
+      name: "Midpoint",
+      text: ["m"],
+      textposition: "top center",
+      marker: {
+        color: "#dc2626",
+        size: 13,
+        line: {
+          color: "white",
+          width: 1
+        }
+      }
+    })
+
+    data.push({
+      x: [row.a, row.a],
+      y: [0, row.fa],
+      type: "scatter",
+      mode: "lines",
+      name: "Endpoint guides",
+      showlegend: false,
+      line: {
+        color: "#94a3b8",
+        width: 1.5,
+        dash: "dot"
+      },
+      hoverinfo: "skip"
+    })
+
+    data.push({
+      x: [row.b, row.b],
+      y: [0, row.fb],
+      type: "scatter",
+      mode: "lines",
+      name: "Endpoint guides",
+      showlegend: false,
+      line: {
+        color: "#94a3b8",
+        width: 1.5,
+        dash: "dot"
+      },
+      hoverinfo: "skip"
+    })
+
+    data.push({
+      x: [row.m, row.m],
+      y: [0, row.fm],
+      type: "scatter",
+      mode: "lines",
+      name: "Midpoint guide",
+      showlegend: false,
+      line: {
+        color: "#dc2626",
+        width: 1.5,
+        dash: "dot"
+      },
+      hoverinfo: "skip"
+    })
+  }
+
+  const layout = {
+    title: {
+      text: "Bisection Method"
+    },
+    margin: {
+      l: 65,
+      r: 30,
+      t: 60,
+      b: 55
+    },
+    xaxis: {
+      title: "x",
+      range: [xlo, xhi],
+      zeroline: true
+    },
+    yaxis: {
+      title: "f(x)",
+      range: [ylo, yhi],
+      zeroline: true
+    },
+    shapes,
+    legend: {
+      orientation: "h",
+      y: -0.18
+    },
+    hovermode: "closest"
+  }
+
+  Plotly.newPlot(div, data, layout, {
+    responsive: true,
+    displaylogo: false
+  })
+
+  return div
+}
+```
+
+```{ojs}
+bisectionStatus = {
+  const cls =
+    bisectionResult.statusType === "good"
+      ? "ojs-status ojs-status-good"
+      : bisectionResult.statusType === "bad"
+        ? "ojs-status ojs-status-bad"
+        : "ojs-status ojs-status-warn"
+
+  return html`<div class="${cls}">
+    <strong>Status:</strong> ${bisectionResult.message}
+  </div>`
+}
+```
+
+```{ojs}
+bisectionTable = {
+  const rows = visibleRows
+
+  if (rows.length === 0) {
+    return html`<div class="ojs-status">No iterations to display yet.</div>`
+  }
+
+  return html`
+   <style>
+   /* Adds clean horizontal spacing between your table columns */
+   .ojs-table th, 
+   .ojs-table td {
+     padding: 8px 15px; 
+     text-align: left;
+   }
+   </style>
+    <div class="ojs-table-wrap">
+      <table class="ojs-table">
+        <thead>
+          <tr>
+            <th>n</th>
+            <th>${tex`a_n`}</th>
+            <th>${tex`b_n`}</th>
+            <th>${tex`m_n`}</th>
+            <th>${tex`f(a_n)`}</th>
+            <th>${tex`f(b_n)`}</th>
+            <th>${tex`f(m_n)`}</th>
+            <th>width</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(row => html`
+            <tr>
+              <td>${row.n}</td>
+              <td>${Number.isFinite(row.a) ? row.a.toPrecision(10) : "NaN"}</td>
+              <td>${Number.isFinite(row.b) ? row.b.toPrecision(10) : "NaN"}</td>
+              <td>${Number.isFinite(row.m) ? row.m.toPrecision(10) : "NaN"}</td>
+              <td>${Number.isFinite(row.fa) ? row.fa.toExponential(5) : "NaN"}</td>
+              <td>${Number.isFinite(row.fb) ? row.fb.toExponential(5) : "NaN"}</td>
+              <td>${Number.isFinite(row.fm) ? row.fm.toExponential(5) : "NaN"}</td>
+              <td>${Number.isFinite(row.width) ? row.width.toExponential(4) : "NaN"}</td>
+            </tr>
+          `)}
+        </tbody>
+      </table>
+    </div>
+  `
+}
+```
+
+</div>
+
+</div>
+
+<div class="explanation">
+
+## Explanation
+
+At each step, the bisection method computes the midpoint
+
+$$
+m=\frac{a+b}{2}.
+$$
+
+Then it keeps the half of the interval where the sign change still occurs. Repeating this process makes the interval smaller and smaller around the root.
+
+## What the picture is showing
+
+The blue curve is the graph of \(f(x)\). The black horizontal line is \(y=0\).
+
+The shaded blue region is the current interval \([a,b]\). The blue points show the endpoint values \((a,f(a))\) and \((b,f(b))\).
+
+The red point is the midpoint \((m,f(m))\). Each time you click **Next iteration**, the method halves the interval and keeps the side that still contains a sign change.
+
+If **Automatically adjust axes** is selected, the plot range updates dynamically when you change the starting interval.
+
+</div>
