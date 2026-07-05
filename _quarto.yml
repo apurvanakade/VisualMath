@@ -28,11 +28,11 @@ website:
       contents:
         - href: root-finding/index.qmd
           text: Overview
-        - href: root-finding/Bisection-Method/bisection.qmd
+        - href: root-finding/bisection-method/index.qmd
           text: Bisection Method
-        - href: root-finding/Fixed-Point/fixed-point.qmd
+        - href: root-finding/fixed-point/index.qmd
           text: Fixed Point Iteration
-        - href: root-finding/Newton/newton.qmd
+        - href: root-finding/newton/index.qmd
           text: Newton's Method
 
 format:
