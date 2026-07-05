@@ -21,7 +21,7 @@ These methods are central in computational mathematics because many problems can
 <div class="card-grid">
 
 <div class="topic-card">
-<h3><a href="Bisection-Method/bisection.qmd">Bisection Method</a></h3>
+<h3><a href="Bisection-Method/index.qmd">Bisection Method</a></h3>
 <p>
 Repeatedly halves an interval $[a,b]$ where $f(a)$ and $f(b)$ have opposite signs.
 This method is reliable and guaranteed to converge for continuous functions with a valid sign-changing interval.
@@ -29,7 +29,7 @@ This method is reliable and guaranteed to converge for continuous functions with
 </div>
 
 <div class="topic-card">
-<h3><a href="Fixed-Point/fixed-point.qmd">Fixed Point Iteration</a></h3>
+<h3><a href="Fixed-Point/index.qmd">Fixed Point Iteration</a></h3>
 <p>
 Rewrites an equation as $x=g(x)$ and generates approximations using
 $x_{n+1}=g(x_n)$.
@@ -37,7 +37,7 @@ $x_{n+1}=g(x_n)$.
 </div>
 
 <div class="topic-card">
-<h3><a href="Newton/newton.qmd">Newton's Method</a></h3>
+<h3><a href="Newton/index.qmd">Newton's Method</a></h3>
 <p>
 Uses tangent lines and derivative information to generate rapidly converging approximations to roots of $f(x)=0$.
 </p>
