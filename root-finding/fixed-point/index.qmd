@@ -1,0 +1,561 @@
+<!--
+Copyright (c) 2026 Dhruv Azad. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Dhruv Azad
+-->
+
+
+---
+title: "Fixed Point Iteration"
+page-layout: full
+---
+
+```{=html}
+<script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+```
+
+<div class="vm-hero">
+
+<h2 class="vm-hero-title">Fixed Point Iteration</h2>
+
+<p class="vm-hero-subtitle">
+Explore fixed point iteration through a cobweb diagram. Enter an iteration function
+\(g(x)\), choose an initial guess, and watch the sequence approach or move away from a fixed point.
+</p>
+
+<div class="vm-pill-row">
+  <span class="vm-pill">Iteration method</span>
+  <span class="vm-pill">Cobweb diagram</span>
+  <span class="vm-pill">Studies convergence</span>
+  <span class="vm-pill">Interactive Plotly visualization</span>
+</div>
+
+</div>
+
+<div class="ojs-app-vertical">
+
+<div class="ojs-controls-wide">
+
+### Controls
+
+<div class="ojs-control-grid">
+
+```{ojs}
+viewof gText = Inputs.text({
+  label: "Iteration function g(x)",
+  value: "cos(x)",
+  placeholder: "Example: cos(x), sqrt(x + 2), exp(-x)"
+})
+```
+
+```{ojs}
+viewof x0 = Inputs.number({
+  label: "Initial guess x₀",
+  value: 1,
+  step: 0.1
+})
+```
+
+```{ojs}
+viewof tolerance = Inputs.number({
+  label: "Tolerance",
+  value: 1e-6,
+  step: 1e-6
+})
+```
+
+```{ojs}
+viewof maxIterations = Inputs.range([1, 100], {
+  label: "Maximum iterations",
+  value: 30,
+  step: 1
+})
+```
+
+```{ojs}
+viewof autoRange = Inputs.checkbox(
+  ["Automatically adjust axes"],
+  {
+    label: "Plot range",
+    value: ["Automatically adjust axes"]
+  }
+)
+```
+
+```{ojs}
+viewof xminManual = Inputs.number({
+  label: "Manual x-min",
+  value: -2,
+  step: 0.5
+})
+```
+
+```{ojs}
+viewof xmaxManual = Inputs.number({
+  label: "Manual x-max",
+  value: 2,
+  step: 0.5
+})
+```
+
+</div>
+
+```{ojs}
+viewof stepControl = {
+  const div = html`
+    <div class="ojs-button-row">
+      <button class="ojs-next-button">Next iteration</button>
+      <button class="ojs-reset-button">Reset</button>
+      <span style="color:#475569;font-weight:600;"></span>
+    </div>
+  `
+
+  const nextButton = div.querySelector(".ojs-next-button")
+  const resetButton = div.querySelector(".ojs-reset-button")
+  const label = div.querySelector("span")
+
+  let value = 0
+  div.value = value
+  label.textContent = `Current step: ${value}`
+
+  nextButton.onclick = () => {
+    value = value + 1
+    div.value = value
+    label.textContent = `Current step: ${value}`
+    div.dispatchEvent(new CustomEvent("input"))
+  }
+
+  resetButton.onclick = () => {
+    value = 0
+    div.value = value
+    label.textContent = `Current step: ${value}`
+    div.dispatchEvent(new CustomEvent("input"))
+  }
+
+  return div
+}
+```
+
+</div>
+
+<div class="ojs-output-wide">
+
+```{ojs}
+mathjs = window.math
+```
+
+```{ojs}
+compiledG = {
+  try {
+    return mathjs.compile(String(gText).trim().replaceAll("π", "pi"))
+  } catch (err) {
+    return null
+  }
+}
+```
+
+```{ojs}
+g = x => {
+  if (!compiledG) return NaN
+  try {
+    const y = compiledG.evaluate({x})
+    return Number(y)
+  } catch (err) {
+    return NaN
+  }
+}
+```
+
+```{ojs}
+fixedPointResult = {
+  const rows = []
+  const start = Number(x0)
+  const tol = Number(tolerance)
+  const maxIter = Number(maxIterations)
+
+  if (!compiledG) {
+    return {
+      ok: false,
+      statusType: "bad",
+      message: "Could not parse g(x). Try an expression such as cos(x), exp(-x), or sqrt(x + 2).",
+      rows
+    }
+  }
+
+  if (!Number.isFinite(start)) {
+    return {
+      ok: false,
+      statusType: "bad",
+      message: "The initial guess x₀ must be a finite number.",
+      rows
+    }
+  }
+
+  let x = start
+
+  for (let i = 0; i < maxIter; i++) {
+    const gx = g(x)
+
+    if (!Number.isFinite(gx)) {
+      rows.push({
+        i,
+        x,
+        gx,
+        error: NaN
+      })
+
+      return {
+        ok: false,
+        statusType: "bad",
+        message: `Iteration stopped because g(x_${i}) is not finite.`,
+        rows
+      }
+    }
+
+    const error = Math.abs(gx - x)
+
+    rows.push({
+      i,
+      x,
+      gx,
+      error
+    })
+
+    if (error < tol) {
+      return {
+        ok: true,
+        statusType: "good",
+        message: `Converged after ${i + 1} iteration${i + 1 === 1 ? "" : "s"}. Approximate fixed point: x ≈ ${gx.toPrecision(10)}.`,
+        rows
+      }
+    }
+
+    x = gx
+  }
+
+  return {
+    ok: true,
+    statusType: "warn",
+    message: `Reached the maximum number of iterations. Last approximation: x ≈ ${x.toPrecision(10)}.`,
+    rows
+  }
+}
+```
+
+```{ojs}
+visibleRows = fixedPointResult.rows.slice(
+  0,
+  Math.min(Number(stepControl), fixedPointResult.rows.length) + 1
+)
+```
+
+```{ojs}
+fixedPointPlotRange = {
+  const useAuto = autoRange.includes("Automatically adjust axes")
+
+  if (!useAuto) {
+    let lo = Number(xminManual)
+    let hi = Number(xmaxManual)
+
+    if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo === hi) {
+      lo = Number(x0) - 2
+      hi = Number(x0) + 2
+    }
+
+    if (lo > hi) {
+      const temp = lo
+      lo = hi
+      hi = temp
+    }
+
+    return {lo, hi}
+  }
+
+  const values = []
+
+  const start = Number(x0)
+  if (Number.isFinite(start)) values.push(start)
+
+  for (const row of visibleRows) {
+    if (Number.isFinite(row.x)) values.push(row.x)
+    if (Number.isFinite(row.gx)) values.push(row.gx)
+  }
+
+  let lo
+  let hi
+
+  if (values.length === 0) {
+    lo = -2
+    hi = 2
+  } else {
+    lo = Math.min(...values)
+    hi = Math.max(...values)
+
+    if (lo === hi) {
+      lo = lo - 2
+      hi = hi + 2
+    }
+  }
+
+  const width = hi - lo
+  const pad = Math.max(0.45 * width, 1.0)
+
+  return {
+    lo: lo - pad,
+    hi: hi + pad
+  }
+}
+```
+
+```{ojs}
+fixedPointPlot = {
+  const div = html`<div class="plotly-box-large"></div>`
+
+  const lo = fixedPointPlotRange.lo
+  const hi = fixedPointPlotRange.hi
+
+  const n = 500
+  const xs = Array.from({length: n}, (_, i) => lo + (hi - lo) * i / (n - 1))
+  const ys = xs.map(x => g(x)).map(y => Number.isFinite(y) ? y : null)
+
+  const data = [
+    {
+      x: xs,
+      y: ys,
+      type: "scatter",
+      mode: "lines",
+      name: "g(x)",
+      line: {
+        color: "#2563eb",
+        width: 3
+      }
+    },
+    {
+      x: [lo, hi],
+      y: [lo, hi],
+      type: "scatter",
+      mode: "lines",
+      name: "y = x",
+      line: {
+        color: "#111827",
+        width: 2,
+        dash: "dash"
+      }
+    },
+    {
+      x: [lo, hi],
+      y: [0, 0],
+      type: "scatter",
+      mode: "lines",
+      name: "y = 0",
+      line: {
+        color: "#94a3b8",
+        width: 1
+      },
+      showlegend: false
+    }
+  ]
+
+  if (visibleRows.length > 0) {
+    const cobwebX = []
+    const cobwebY = []
+
+    const start = Number(x0)
+
+    if (Number.isFinite(start)) {
+      cobwebX.push(start)
+      cobwebY.push(start)
+    }
+
+    for (const row of visibleRows) {
+      if (!Number.isFinite(row.x) || !Number.isFinite(row.gx)) continue
+
+      // Vertical move: from y = x_i to y = g(x_i)
+      cobwebX.push(row.x)
+      cobwebY.push(row.gx)
+
+      // Horizontal move: from x_i to x_{i+1} along y = g(x_i)
+      cobwebX.push(row.gx)
+      cobwebY.push(row.gx)
+    }
+
+    data.push({
+      x: cobwebX,
+      y: cobwebY,
+      type: "scatter",
+      mode: "lines+markers",
+      name: "Cobweb path",
+      line: {
+        color: "#dc2626",
+        width: 2
+      },
+      marker: {
+        color: "#dc2626",
+        size: 7
+      }
+    })
+
+    data.push({
+      x: visibleRows.map(row => row.x).filter(Number.isFinite),
+      y: visibleRows.map(row => row.x).filter(Number.isFinite),
+      type: "scatter",
+      mode: "markers+text",
+      name: "Iterates",
+      text: visibleRows
+        .filter(row => Number.isFinite(row.x))
+        .map(row => `x_${row.i}`),
+      textposition: "top center",
+      marker: {
+        color: "#16a34a",
+        size: 9
+      }
+    })
+  }
+
+  const layout = {
+    title: {
+      text: "Fixed Point Iteration Cobweb Diagram"
+    },
+    margin: {
+      l: 60,
+      r: 30,
+      t: 60,
+      b: 55
+    },
+    xaxis: {
+      title: "x",
+      range: [lo, hi],
+      zeroline: true
+    },
+    yaxis: {
+      title: "y",
+      range: [lo, hi],
+      zeroline: true,
+      zerolinecolor: "#94a3b8",
+      gridcolor: "#e2e8f0",
+      linecolor: "#cbd5e1"
+    },
+    legend: {
+      orientation: "h",
+      y: -0.18
+    },
+    hovermode: "closest"
+  }
+
+  Plotly.newPlot(div, data, layout, {
+    responsive: true,
+    displaylogo: false
+  })
+
+  return div
+}
+```
+
+```{ojs}
+fixedPointStatus = {
+  const cls =
+    fixedPointResult.statusType === "good"
+      ? "ojs-status ojs-status-good"
+      : fixedPointResult.statusType === "bad"
+        ? "ojs-status ojs-status-bad"
+        : "ojs-status ojs-status-warn"
+
+  return html`<div class="${cls}">
+    <strong>Status:</strong> ${fixedPointResult.message}
+  </div>`
+}
+```
+
+```{ojs}
+fixedPointTable = {
+  const rows = visibleRows
+
+  if (rows.length === 0) {
+    return html`<div class="ojs-status">No iterations to display yet.</div>`
+  }
+
+  return html`
+   <style>
+   /* Adds clean horizontal spacing between your table columns */
+   .ojs-table th, 
+   .ojs-table td {
+     padding: 8px 15px; 
+     text-align: left;
+   }
+   </style>
+  <div class="ojs-table-wrap"> 
+    <table class="ojs-table"> 
+      <thead> 
+        <tr> 
+          <th>n</th> 
+          <th>x_n</th> 
+          <!-- Use the native OJS tex tag here -->
+          <th>${tex`g(x_n) = x_{n+1}`}</th> 
+          <th>${tex`|x_{n+1} - x_n|`}</th> 
+        </tr> 
+      </thead> 
+      <tbody> 
+        ${rows.map(row => html` 
+          <tr> 
+            <td>${row.i}</td> 
+            <td>${Number.isFinite(row.x) ? row.x.toPrecision(10) : "NaN"}</td> 
+            <td>${Number.isFinite(row.gx) ? row.gx.toPrecision(10) : "NaN"}</td> 
+            <td>${Number.isFinite(row.error) ? row.error.toExponential(4) : "NaN"}</td> 
+          </tr> 
+        `)} 
+      </tbody> 
+    </table> 
+  </div> 
+  `
+
+
+}
+```
+
+</div>
+
+<div class="explanation">
+
+## Explanation
+
+Fixed point iteration is a way to solve an equation after rewriting it in the form
+
+$$
+x=g(x).
+$$
+
+Starting with an initial guess $x_0$, the method repeatedly applies $g$:
+
+$$
+x_{n+1}=g(x_n).
+$$
+
+If the sequence settles down to a value $\alpha$, then that value satisfies
+
+$$
+\alpha=g(\alpha).
+$$
+
+So $\alpha$ is called a fixed point of $g$.
+
+## What the picture is showing
+
+The plot shows two curves:
+
+- the function $y=g(x)$,
+- the line $y=x$.
+
+The red path shows the iteration. From the current point, the method moves vertically to the curve $y=g(x)$, then horizontally to the line $y=x$. Repeating this creates the cobweb pattern.
+
+This visualization is useful because it shows whether the iteration appears to be moving toward a fixed point, moving away from it, or oscillating.
+
+A common condition that helps guarantee local convergence is
+
+$$
+|g'(x)|<1
+$$
+
+near the fixed point.
+
+</div>

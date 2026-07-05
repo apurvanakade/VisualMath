@@ -1,0 +1,43 @@
+project:
+  type: website
+  output-dir: docs
+
+execute:
+  echo: false
+  warning: false
+  message: false
+
+website:
+  title: "VisualMath"
+  page-navigation: true
+  bread-crumbs: true
+
+  navbar:
+    background: primary
+    search: true
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+
+  sidebar:
+    - title: "Root Finding"
+      style: "docked"
+      background: light
+      contents:
+        - href: root-finding/index.qmd
+          text: Overview
+        - href: root-finding/bisection-method/index.qmd
+          text: Bisection Method
+        - href: root-finding/fixed-point/index.qmd
+          text: Fixed Point Iteration
+        - href: root-finding/newton/index.qmd
+          text: Newton's Method
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    html-math-method: mathjax

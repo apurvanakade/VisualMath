@@ -1,0 +1,46 @@
+<!--
+Copyright (c) 2026 Dhruv Azad. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Dhruv Azad
+-->
+
+
+---
+title: "Root Finding"
+page-layout: full
+---
+
+Root finding methods are numerical techniques for solving equations of the form
+
+$$
+f(x)=0.
+$$
+
+These methods are central in computational mathematics because many problems cannot be solved exactly with algebra alone. Instead, we approximate the solution using an iterative algorithm.
+
+<div class="card-grid">
+
+<div class="topic-card">
+<h3><a href="bisection-method/index.qmd">Bisection Method</a></h3>
+<p>
+Repeatedly halves an interval $[a,b]$ where $f(a)$ and $f(b)$ have opposite signs.
+This method is reliable and guaranteed to converge for continuous functions with a valid sign-changing interval.
+</p>
+</div>
+
+<div class="topic-card">
+<h3><a href="fixed-point/index.qmd">Fixed Point Iteration</a></h3>
+<p>
+Rewrites an equation as $x=g(x)$ and generates approximations using
+$x_{n+1}=g(x_n)$.
+</p>
+</div>
+
+<div class="topic-card">
+<h3><a href="newton/index.qmd">Newton's Method</a></h3>
+<p>
+Uses tangent lines and derivative information to generate rapidly converging approximations to roots of $f(x)=0$.
+</p>
+</div>
+
+</div>
