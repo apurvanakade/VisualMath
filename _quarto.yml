@@ -9,6 +9,7 @@ execute:
 
 website:
   title: "VisualMath"
+  site-url: https://apurvanakade.github.io/VisualMath
   page-navigation: true
   bread-crumbs: true
 
