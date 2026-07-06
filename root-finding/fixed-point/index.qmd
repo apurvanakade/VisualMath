@@ -17,16 +17,11 @@ page-layout: full
 <script src="../../js/utils/plot-model.js"></script>
 <script src="../../js/utils/plotly-traces.js"></script>
 <script src="../../js/utils/render-utils.js"></script>
-<script src="../../js/utils/method-app.js"></script>
-<script src="app/compute.js"></script>
-<script src="app/plot-model.js"></script>
-<script src="app/traces.js"></script>
-<script src="app/config.js"></script>
-<script src="app.js"></script>
+<script src="method.js"></script>
 ```
 
 ```{ojs}
-fixedPointPage = window.VisualMathFixedPointApp
+fixedPointPage = window.VisualMathFixedPointMethod
 ```
 
 Explore fixed point iteration through a cobweb diagram. Enter an iteration function \(g(x)\), choose an initial guess, and watch the sequence approach or move away from a fixed point.

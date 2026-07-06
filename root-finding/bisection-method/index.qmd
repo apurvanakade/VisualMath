@@ -16,16 +16,11 @@ page-layout: full
 <script src="../../js/utils/plot-model.js"></script>
 <script src="../../js/utils/plotly-traces.js"></script>
 <script src="../../js/utils/render-utils.js"></script>
-<script src="../../js/utils/method-app.js"></script>
-<script src="app/compute.js"></script>
-<script src="app/plot-model.js"></script>
-<script src="app/traces.js"></script>
-<script src="app/config.js"></script>
-<script src="app.js"></script>
+<script src="method.js"></script>
 ```
 
 ```{ojs}
-bisectionPage = window.VisualMathBisectionApp
+bisectionPage = window.VisualMathBisectionMethod
 ```
 
 Visualize how the bisection method repeatedly halves an interval containing a sign change. Choose a function and starting bracket, then step through the narrowing intervals.
