@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2026 Apurva Nakade, Copilot. All rights reserved.
+ * Copyright (c) 2026 Apurva Nakade. All rights reserved.
  * Released under Apache 2.0 license as described in the file LICENSE.
- * Authors: Apurva Nakade, Copilot
+ * Authors: Apurva Nakade
  */
 
 /**
