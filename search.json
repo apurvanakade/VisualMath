@@ -28,88 +28,11 @@
     "text": "Minor edits: If you are fixing a bug, adjusting layout spacing, or correcting a typo in an existing file, you do not need to alter the header.\nSignificant additions: If you contribute a substantial new feature, script, or section to an existing file, please add your name to the Authors line of that file:\n\nAuthors: Apurva Nakade, [Your Name]"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "VisualMath",
-    "section": "",
-    "text": "Interactive Computational Mathematics\n\n\nVisualMath\n\n\nExplore numerical methods through fast, interactive, browser-based visualizations. VisualMath turns abstract computational mathematics algorithms into dynamic, step-by-step apps.\n\n\nStart exploring Learn more\n\n\n\n\n\n\n\n\n\n\n\\(f(x)=0\\)\n\n\n\\({x_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)}}\\)\n\n\n\\({m=\\frac{a+b}{2}}\\)\n\n\n\n\n\n\nAvailable Modules\n\n\nChoose a topic\n\n\nEach module contains interactive apps, visual explanations, and step-by-step numerical computations.\n\n\n\n\n  √\n  Root Finding\n  \n    Explore interactive methods for solving equations of the form \\(f(x)=0\\),\n    including bisection, fixed point iteration, and Newton’s method.\n  \n  \n    Bisection\n    Fixed Point\n    Newton\n  \n\n\n  ∫\n  Numerical Integration\n  \n    Coming soon: visualize how numerical rules approximate areas and definite integrals.\n  \n  \n    Coming soon\n  \n\n\n  Ax\n  Linear Algebra\n  \n    Coming soon: interactive visualizations for matrix operations, systems, and transformations.\n  \n  \n    Coming soon\n  \n\n\n\n\n\n\nWhy VisualMath?\n\n\nDesigned for exploration\n\n\n\n\n\nStep-by-step algorithms\n\n\nMove through each iteration one step at a time and see how the method changes geometrically.\n\n\n\n\nFast browser apps\n\n\nVisualMath uses Quarto, OJS, Plotly, and math.js, so apps run directly in the browser.\n\n\n\n\nVisual intuition\n\n\nPlots, tables, and explanations are combined to connect the computation with the underlying mathematics."
-  },
-  {
-    "objectID": "root-finding/fixed-point/index.html",
-    "href": "root-finding/fixed-point/index.html",
-    "title": "Fixed Point Iteration",
-    "section": "",
-    "text": "Explore fixed point iteration through a cobweb diagram. Enter an iteration function (g(x)), choose an initial guess, and watch the sequence approach or move away from a fixed point.\n\n\nIteration method Cobweb diagram Studies convergence Interactive Plotly visualization",
-    "crumbs": [
-      "Fixed Point Iteration"
-    ]
-  },
-  {
-    "objectID": "root-finding/fixed-point/index.html#explanation",
-    "href": "root-finding/fixed-point/index.html#explanation",
-    "title": "Fixed Point Iteration",
-    "section": "Explanation",
-    "text": "Explanation\nFixed point iteration is a way to solve an equation after rewriting it in the form\n\\[\nx=g(x).\n\\]\nStarting with an initial guess \\(x_0\\), the method repeatedly applies \\(g\\):\n\\[\nx_{n+1}=g(x_n).\n\\]\nIf the sequence settles down to a value \\(\\alpha\\), then that value satisfies\n\\[\n\\alpha=g(\\alpha).\n\\]\nSo \\(\\alpha\\) is called a fixed point of \\(g\\).",
-    "crumbs": [
-      "Fixed Point Iteration"
-    ]
-  },
-  {
-    "objectID": "root-finding/fixed-point/index.html#what-the-picture-is-showing",
-    "href": "root-finding/fixed-point/index.html#what-the-picture-is-showing",
-    "title": "Fixed Point Iteration",
-    "section": "What the picture is showing",
-    "text": "What the picture is showing\nThe plot shows two curves:\n\nthe function \\(y=g(x)\\),\nthe line \\(y=x\\).\n\nThe red path shows the iteration. From the current point, the method moves vertically to the curve \\(y=g(x)\\), then horizontally to the line \\(y=x\\). Repeating this creates the cobweb pattern.\nThis visualization is useful because it shows whether the iteration appears to be moving toward a fixed point, moving away from it, or oscillating.\nA common condition that helps guarantee local convergence is\n\\[\n|g'(x)|&lt;1\n\\]\nnear the fixed point.",
-    "crumbs": [
-      "Fixed Point Iteration"
-    ]
-  },
-  {
-    "objectID": "root-finding/newton/index.html",
-    "href": "root-finding/newton/index.html",
-    "title": "Newton’s Method",
-    "section": "",
-    "text": "Explore how Newton’s Method uses tangent lines to approximate roots of nonlinear equations. Change the function, choose an initial guess, and step through the iteration one tangent at a time.\n\n\nTangent-line method Uses derivative Fast local convergence Interactive Plotly visualization",
-    "crumbs": [
-      "Newton's Method"
-    ]
-  },
-  {
-    "objectID": "root-finding/newton/index.html#explanation",
-    "href": "root-finding/newton/index.html#explanation",
-    "title": "Newton’s Method",
-    "section": "Explanation",
-    "text": "Explanation\nNewton’s method is one of the most common methods for solving equations of the form\n\\[\nf(x)=0.\n\\]\nStarting from an initial guess \\(x_0\\), the method produces new approximations using\n\\[\nx_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)}.\n\\]",
-    "crumbs": [
-      "Newton's Method"
-    ]
-  },
-  {
-    "objectID": "root-finding/newton/index.html#what-the-picture-is-showing",
-    "href": "root-finding/newton/index.html#what-the-picture-is-showing",
-    "title": "Newton’s Method",
-    "section": "What the picture is showing",
-    "text": "What the picture is showing\nAt the current value \\(x_n\\), Newton’s method draws the tangent line to the graph of \\(y=f(x)\\).\nThe tangent line at \\(x_n\\) is\n\\[\ny=f(x_n)+f'(x_n)(x-x_n).\n\\]\nThe next approximation \\(x_{n+1}\\) is where this tangent line crosses the \\(x\\)-axis.\nSetting \\(y=0\\) gives\n\\[\n0=f(x_n)+f'(x_n)(x_{n+1}-x_n).\n\\]\nSolving for \\(x_{n+1}\\) gives the Newton update:\n\\[\nx_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)}.\n\\]\nNewton’s method can converge very quickly when the starting point is close to the root and the derivative at the root is not zero. But it can also fail if the derivative is too small or if the starting point is not chosen well.",
-    "crumbs": [
-      "Newton's Method"
-    ]
-  },
-  {
-    "objectID": "root-finding/index.html",
-    "href": "root-finding/index.html",
-    "title": "Root Finding",
-    "section": "",
-    "text": "Root finding methods are numerical techniques for solving equations of the form\n\\[\nf(x)=0.\n\\]\nThese methods are central in computational mathematics because many problems cannot be solved exactly with algebra alone. Instead, we approximate the solution using an iterative algorithm.\n\n\n\nBisection Method\n\n\nRepeatedly halves an interval \\([a,b]\\) where \\(f(a)\\) and \\(f(b)\\) have opposite signs. This method is reliable and guaranteed to converge for continuous functions with a valid sign-changing interval.\n\n\n\n\nFixed Point Iteration\n\n\nRewrites an equation as \\(x=g(x)\\) and generates approximations using \\(x_{n+1}=g(x_n)\\).\n\n\n\n\nNewton’s Method\n\n\nUses tangent lines and derivative information to generate rapidly converging approximations to roots of \\(f(x)=0\\).",
-    "crumbs": [
-      "Overview"
-    ]
-  },
-  {
     "objectID": "root-finding/bisection-method/index.html",
     "href": "root-finding/bisection-method/index.html",
     "title": "Bisection Method",
     "section": "",
-    "text": "Visualize how the bisection method repeatedly halves an interval containing a sign change. Choose a function and starting bracket, then step through the narrowing intervals.\n\n\nBracketing method Guaranteed for sign changes Interval halving Interactive Plotly visualization",
+    "text": "bisectionPage = window.VisualMathBisectionMethod\nVisualize how the bisection method repeatedly halves an interval containing a sign change. Choose a function and starting bracket, then step through the narrowing intervals.",
     "crumbs": [
       "Bisection Method"
     ]
@@ -135,10 +58,80 @@
     ]
   },
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "root-finding/index.html",
+    "href": "root-finding/index.html",
+    "title": "Root Finding",
     "section": "",
-    "text": "About the project\n\n\nAbout VisualMath\n\n\nVisualMath is a collection of interactive computational mathematics apps designed to help students see numerical algorithms unfold step by step.\n\n\nInstead of treating algorithms as static formulas, VisualMath turns them into dynamic visual experiences with controls, plots, iteration tables, and explanations.\n\n\n\n\nCore idea\n\n\n$\\text{formula} \\quad + \\quad \\text{visualization} \\quad + \\quad \\text{interaction}$\n\n\nChange the inputs, step through the algorithm, and connect the computation to the picture.\n\n\n\n\n\n\nPurpose\n\n\nMaking numerical methods visible\n\n\n\n\nMany algorithms in computational mathematics are iterative. They begin with an initial guess, interval, or approximation, and then improve it step by step.\nVisualMath is designed to make that process visible. Students can interact with the method, change inputs, and watch how the algorithm moves.\nFor example, instead of only seeing Newton’s update formula,\n\\[\nx_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)},\n\\]\nstudents can see the tangent line, the current point, the next approximation, and the iteration table all update together.\n\n\n\nLearning by experimenting\n\n\nThe apps are built so students can ask “what if?” questions: What happens if the starting point changes? What if the interval is bad? What if the function is flat near a root?\n\n\n\n\n\n\n\nCurrent modules\n\n\nWhat is available now?\n\n\n\n\n\n√\n\n\nRoot Finding\n\n\nThe root finding module shows numerical methods for solving equations of the form (f(x)=0). Current methods include bisection, fixed point iteration, and Newton’s method.\n\nExplore root finding\n\n\n\n↻\n\n\nInteractive Visualization\n\n\nEach app combines controls, plots, status messages, and iteration tables so students can connect the algebraic formula with the geometric picture.\n\n\n\n\n⚡\n\n\nFast Static Apps\n\n\nThe apps use browser-native interactivity instead of a Python runtime in the browser. This keeps the site fast, responsive, and easy to deploy.\n\n\n\n\n\n\n\nDesign goals\n\n\nBuilt for clarity and exploration\n\n\n\n\n01\n\nMake computational mathematics more visual and approachable.\n\n\n\n02\n\nShow algorithms step by step instead of only presenting final answers.\n\n\n\n03\n\nAllow students to experiment with different functions, intervals, and starting values.\n\n\n\n04\n\nKeep the website lightweight, fast, and easy to deploy as a static site.\n\n\n\n05\n\nProvide clear explanations below each interactive app.\n\n\n\n\n\n\n\nTechnology\n\n\nHow VisualMath is built\n\n\n\n\n\nQuarto\n\n\nProvides the website structure, pages, navigation, and publishing workflow.\n\n\n\n\nOJS\n\n\nPowers the reactive browser-side interactivity used by the apps.\n\n\n\n\nPlotly.js\n\n\nCreates responsive, interactive plots for each numerical method.\n\n\n\n\nmath.js\n\n\nParses and evaluates user-entered mathematical expressions in the browser."
+    "text": "Root finding methods are numerical techniques for solving equations of the form\n\\[\nf(x)=0.\n\\]\nThese methods are central in computational mathematics because many problems cannot be solved exactly with algebra alone. Instead, we approximate the solution using an iterative algorithm.\n\n\n\nBisection Method\n\n\nRepeatedly halves an interval \\([a,b]\\) where \\(f(a)\\) and \\(f(b)\\) have opposite signs. This method is reliable and guaranteed to converge for continuous functions with a valid sign-changing interval.\n\n\n\n\nFixed Point Iteration\n\n\nRewrites an equation as \\(x=g(x)\\) and generates approximations using \\(x_{n+1}=g(x_n)\\).\n\n\n\n\nNewton’s Method\n\n\nUses tangent lines and derivative information to generate rapidly converging approximations to roots of \\(f(x)=0\\).",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "root-finding/newton/index.html",
+    "href": "root-finding/newton/index.html",
+    "title": "Newton’s Method",
+    "section": "",
+    "text": "newtonPage = window.VisualMathNewtonMethod",
+    "crumbs": [
+      "Newton's Method"
+    ]
+  },
+  {
+    "objectID": "root-finding/newton/index.html#explanation",
+    "href": "root-finding/newton/index.html#explanation",
+    "title": "Newton’s Method",
+    "section": "Explanation",
+    "text": "Explanation\nNewton’s method is one of the most common methods for solving equations of the form\n\\[\nf(x)=0.\n\\]\nStarting from an initial guess \\(x_0\\), the method produces new approximations using\n\\[\nx_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)}.\n\\]",
+    "crumbs": [
+      "Newton's Method"
+    ]
+  },
+  {
+    "objectID": "root-finding/newton/index.html#what-the-picture-is-showing",
+    "href": "root-finding/newton/index.html#what-the-picture-is-showing",
+    "title": "Newton’s Method",
+    "section": "What the picture is showing",
+    "text": "What the picture is showing\nAt the current value \\(x_n\\), Newton’s method draws the tangent line to the graph of \\(y=f(x)\\).\nThe tangent line at \\(x_n\\) is\n\\[\ny=f(x_n)+f'(x_n)(x-x_n).\n\\]\nThe next approximation \\(x_{n+1}\\) is where this tangent line crosses the \\(x\\)-axis.\nSetting \\(y=0\\) gives\n\\[\n0=f(x_n)+f'(x_n)(x_{n+1}-x_n).\n\\]\nSolving for \\(x_{n+1}\\) gives the Newton update:\n\\[\nx_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)}.\n\\]\nNewton’s method can converge very quickly when the starting point is close to the root and the derivative at the root is not zero. But it can also fail if the derivative is too small or if the starting point is not chosen well.",
+    "crumbs": [
+      "Newton's Method"
+    ]
+  },
+  {
+    "objectID": "root-finding/fixed-point/index.html",
+    "href": "root-finding/fixed-point/index.html",
+    "title": "Fixed Point Iteration",
+    "section": "",
+    "text": "fixedPointPage = window.VisualMathFixedPointMethod\nExplore fixed point iteration through a cobweb diagram. Enter an iteration function (g(x)), choose an initial guess, and watch the sequence approach or move away from a fixed point.",
+    "crumbs": [
+      "Fixed Point Iteration"
+    ]
+  },
+  {
+    "objectID": "root-finding/fixed-point/index.html#explanation",
+    "href": "root-finding/fixed-point/index.html#explanation",
+    "title": "Fixed Point Iteration",
+    "section": "Explanation",
+    "text": "Explanation\nFixed point iteration is a way to solve an equation after rewriting it in the form\n\\[\nx=g(x).\n\\]\nStarting with an initial guess \\(x_0\\), the method repeatedly applies \\(g\\):\n\\[\nx_{n+1}=g(x_n).\n\\]\nIf the sequence settles down to a value \\(\\alpha\\), then that value satisfies\n\\[\n\\alpha=g(\\alpha).\n\\]\nSo \\(\\alpha\\) is called a fixed point of \\(g\\).",
+    "crumbs": [
+      "Fixed Point Iteration"
+    ]
+  },
+  {
+    "objectID": "root-finding/fixed-point/index.html#what-the-picture-is-showing",
+    "href": "root-finding/fixed-point/index.html#what-the-picture-is-showing",
+    "title": "Fixed Point Iteration",
+    "section": "What the picture is showing",
+    "text": "What the picture is showing\nThe plot shows two curves:\n\nthe function \\(y=g(x)\\),\nthe line \\(y=x\\).\n\nThe red path shows the iteration. From the current point, the method moves vertically to the curve \\(y=g(x)\\), then horizontally to the line \\(y=x\\). Repeating this creates the cobweb pattern.\nThis visualization is useful because it shows whether the iteration appears to be moving toward a fixed point, moving away from it, or oscillating.\nA common condition that helps guarantee local convergence is\n\\[\n|g'(x)|&lt;1\n\\]\nnear the fixed point.",
+    "crumbs": [
+      "Fixed Point Iteration"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "VisualMath",
+    "section": "",
+    "text": "Interactive Computational Mathematics\n\n\nVisualMath\n\n\nExplore numerical methods through fast, interactive, browser-based visualizations. VisualMath turns abstract computational mathematics algorithms into dynamic, step-by-step apps.\n\n\nStart exploring Learn more\n\n\n\n\n\n\n\n\n\n\n\\(f(x)=0\\)\n\n\n\\({x_{n+1}=x_n-\\frac{f(x_n)}{f'(x_n)}}\\)\n\n\n\\({m=\\frac{a+b}{2}}\\)\n\n\n\n\n\n\nAvailable Modules\n\n\nChoose a topic\n\n\nEach module contains interactive apps, visual explanations, and step-by-step numerical computations.\n\n\n\n\n  √\n  Root Finding\n  \n    Explore interactive methods for solving equations of the form \\(f(x)=0\\),\n    including bisection, fixed point iteration, and Newton’s method.\n  \n  \n    Bisection\n    Fixed Point\n    Newton\n  \n\n\n  ∫\n  Numerical Integration\n  \n    Coming soon: visualize how numerical rules approximate areas and definite integrals.\n  \n  \n    Coming soon\n  \n\n\n  Ax\n  Linear Algebra\n  \n    Coming soon: interactive visualizations for matrix operations, systems, and transformations.\n  \n  \n    Coming soon\n  \n\n\n\n\n\n\nWhy VisualMath?\n\n\nDesigned for exploration\n\n\n\n\n\nStep-by-step algorithms\n\n\nMove through each iteration one step at a time and see how the method changes geometrically.\n\n\n\n\nFast browser apps\n\n\nVisualMath uses Quarto, OJS, Plotly, and math.js, so apps run directly in the browser.\n\n\n\n\nVisual intuition\n\n\nPlots, tables, and explanations are combined to connect the computation with the underlying mathematics."
   }
 ]
