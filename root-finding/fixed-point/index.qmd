@@ -55,32 +55,6 @@ viewof maxIterations = Inputs.range([1, 100], {
 })
 ```
 
-```{ojs}
-viewof autoRange = Inputs.checkbox(
-  ["Automatically adjust axes"],
-  {
-    label: "Plot range",
-    value: ["Automatically adjust axes"]
-  }
-)
-```
-
-```{ojs}
-viewof xminManual = Inputs.number({
-  label: "Manual x-min",
-  value: -2,
-  step: 0.5
-})
-```
-
-```{ojs}
-viewof xmaxManual = Inputs.number({
-  label: "Manual x-max",
-  value: 2,
-  step: 0.5
-})
-```
-
 </div>
 
 ```{ojs}
@@ -234,25 +208,25 @@ visibleRows = fixedPointResult.rows.slice(
 
 ```{ojs}
 fixedPointPlotRange = {
-  const useAuto = autoRange.includes("Automatically adjust axes")
+  // const useAuto = autoRange.includes("Automatically adjust axes")
 
-  if (!useAuto) {
-    let lo = Number(xminManual)
-    let hi = Number(xmaxManual)
+  // if (!useAuto) {
+  //   let lo = Number(xminManual)
+  //   let hi = Number(xmaxManual)
 
-    if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo === hi) {
-      lo = Number(x0) - 2
-      hi = Number(x0) + 2
-    }
+  //   if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo === hi) {
+  //     lo = Number(x0) - 2
+  //     hi = Number(x0) + 2
+  //   }
 
-    if (lo > hi) {
-      const temp = lo
-      lo = hi
-      hi = temp
-    }
+  //   if (lo > hi) {
+  //     const temp = lo
+  //     lo = hi
+  //     hi = temp
+  //   }
 
-    return {lo, hi}
-  }
+  //   return {lo, hi}
+  // }
 
   const values = []
 
