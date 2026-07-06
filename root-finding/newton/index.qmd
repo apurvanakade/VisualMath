@@ -21,6 +21,7 @@ categories:
 <script src="../../js/utils/math-expression.js"></script>
 <script src="../../js/utils/plot-model.js"></script>
 <script src="../../js/utils/plotly-traces.js"></script>
+<script src="../../js/utils/render-utils.js"></script>
 ```
 
 <div class="ojs-controls-wide">
@@ -117,6 +118,10 @@ plotModelUtils = window.VisualMathPlotModelUtils
 
 ```{ojs}
 plotlyTraceUtils = window.VisualMathPlotlyTraceUtils
+```
+
+```{ojs}
+renderUtils = window.VisualMathRenderUtils
 ```
 
 ```{ojs}
@@ -520,16 +525,11 @@ newtonPlot = {
 
 ```{ojs}
 newtonStatus = {
-  const cls =
-    newtonResult.statusType === "good"
-      ? "ojs-status ojs-status-good"
-      : newtonResult.statusType === "bad"
-        ? "ojs-status ojs-status-bad"
-        : "ojs-status ojs-status-warn"
-
-  return html`<div class="${cls}">
-    <strong>Status:</strong> ${newtonResult.message}
-  </div>`
+  return renderUtils.renderStatusBox({
+    html,
+    statusType: newtonResult.statusType,
+    message: newtonResult.message
+  })
 }
 ```
 
@@ -538,17 +538,9 @@ newtonTable = {
   const rows = visibleRows
 
   if (rows.length === 0) {
-    return html`<div class="ojs-status">No iterations to display yet.</div>`
+    return renderUtils.renderEmptyState(html, "No iterations to display yet.")
   }
   return html`
-   <style>
-   /* Adds clean horizontal spacing between your table columns */
-   .ojs-table th, 
-   .ojs-table td {
-     padding: 8px 15px; 
-     text-align: left;
-   }
-   </style>
   <div class="ojs-table-wrap"> 
     <table class="ojs-table"> 
       <thead> 
