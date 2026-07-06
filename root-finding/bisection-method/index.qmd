@@ -291,26 +291,6 @@ currentBisectionRow = {
 
 ```{ojs}
 bisectionXRange = {
-  // const useAuto = autoRange.includes("Automatically adjust axes")
-
-  // if (!useAuto) {
-  //   let lo = Number(xminManual)
-  //   let hi = Number(xmaxManual)
-
-  //   if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo === hi) {
-  //     lo = Number(a0) - 1
-  //     hi = Number(b0) + 1
-  //   }
-
-  //   if (lo > hi) {
-  //     const temp = lo
-  //     lo = hi
-  //     hi = temp
-  //   }
-
-  //   return {lo, hi}
-  // }
-
   const values = []
 
   const aStart = Number(a0)
