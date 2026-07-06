@@ -12,6 +12,7 @@ page-layout: full
 ```{=html}
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="../../js/utils/math-expression.js"></script>
 ```
 
 Visualize how the bisection method repeatedly halves an interval containing a sign change. Choose a function and starting bracket, then step through the narrowing intervals.
@@ -109,40 +110,17 @@ mathjs = window.math
 ```
 
 ```{ojs}
-normalizeExpression = expr => String(expr).trim().replaceAll("π", "pi")
-```
-
-```{ojs}
-tryCompile = expr => {
-  try {
-    return mathjs.compile(normalizeExpression(expr))
-  } catch (err) {
-    return null
-  }
-}
-```
-
-```{ojs}
-evaluateCompiled = (compiledExpr, x) => {
-  if (!compiledExpr) return NaN
-
-  try {
-    const y = compiledExpr.evaluate({x})
-    return Number(y)
-  } catch (err) {
-    return NaN
-  }
-}
+expressionUtils = window.VisualMathExpressionUtils
 ```
 
 ```{ojs}
 compiledF = {
-  return tryCompile(fText)
+  return expressionUtils.tryCompileExpression(mathjs, fText)
 }
 ```
 
 ```{ojs}
-f = x => evaluateCompiled(compiledF, x)
+f = x => expressionUtils.evaluateCompiledExpression(compiledF, {x})
 ```
 
 ```{ojs}
