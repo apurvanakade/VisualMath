@@ -32,8 +32,10 @@ Each method page (`root-finding/<method>/index.qmd`) is a self-contained interac
 Each is an IIFE attaching one global to `window`:
 
 - `math-expression.js` → `VisualMathExpressionUtils` — compile/evaluate user expressions and derivatives via math.js.
-- `plot-model.js` → `VisualMathPlotModelUtils` — visible-row slicing, padded axis ranges, function sampling.
-- `render-table.js` → `VisualMathRenderTableUtils`, `render-status.js` → `VisualMathRenderStatusUtils`, `step-control.js` → `VisualMathStepControlUtils` — DOM rendering helpers.
+- `plot-model.js` → `VisualMathPlotModelUtils` — `pushFiniteValues` and `createPaddedRange` for computing padded axis ranges.
+- `render-table.js` → `VisualMathRenderTableUtils`, `step-control.js` → `VisualMathStepControlUtils` — DOM rendering helpers.
+
+Helpers are shared only when the logic is non-trivial and reused. Small one-liners (row slicing, the status callout div) live inline in each `method.js` rather than behind a util. Each page samples the user function once (in `buildPlotModel`) and reuses those points for both the y-range and the plotted trace.
 
 When adding or renaming a util module, keep three things consistent: the `<script src=...>` tags in every method `.qmd`, the global names each `method.js` reads at the top of its IIFE, and the files in `js/utils/`. A page loads a helper only if its `.qmd` includes the matching script tag.
 

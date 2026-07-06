@@ -14,7 +14,6 @@
   const expressionUtils = globalThis.VisualMathExpressionUtils
   const plotModelUtils = globalThis.VisualMathPlotModelUtils
   const tableUtils = globalThis.VisualMathRenderTableUtils
-  const statusUtils = globalThis.VisualMathRenderStatusUtils
   const stepControlUtils = globalThis.VisualMathStepControlUtils
 
   const compute = ({mathjs, fText, x0, tolerance, maxIterations}) => {
@@ -109,7 +108,7 @@
   }
 
   const buildPlotModel = ({result, stepControl, x0}) => {
-    const visibleRows = plotModelUtils.sliceVisibleRows(result.rows, stepControl)
+    const visibleRows = result.rows.slice(0, Math.min(Number(stepControl), result.rows.length) + 1)
     const visibleNewtonPoints = []
     const visibleNewtonIntercepts = []
 
@@ -144,13 +143,13 @@
       minPadding: 1.0
     })
 
+    // Sample f once across the visible x-range; reused for both the y-range and the plotted trace.
+    const sampleCount = 700
+    const sampleXs = Array.from({length: sampleCount}, (_, i) => xRange.lo + (xRange.hi - xRange.lo) * i / (sampleCount - 1))
+    const sampleYs = sampleXs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
+
     const yValues = [0]
-    plotModelUtils.appendSampledFunctionValues(yValues, result.f, {
-      lo: xRange.lo,
-      hi: xRange.hi,
-      count: 400,
-      maxAbs: 1e8
-    })
+    plotModelUtils.pushFiniteValues(yValues, sampleYs, {maxAbs: 1e8})
 
     for (const row of visibleRows) {
       plotModelUtils.pushFiniteValues(yValues, [row.fx], {maxAbs: 1e8})
@@ -176,14 +175,14 @@
       minPadding: 0.5
     })
 
-    return {visibleRows, visibleNewtonPoints, visibleNewtonIntercepts, xRange, yRange}
+    return {visibleRows, visibleNewtonPoints, visibleNewtonIntercepts, xRange, yRange, sampleXs, sampleYs}
   }
 
-  const buildPlotData = ({plotModel, result}) => {
+  const buildPlotData = ({plotModel}) => {
     const xlo = plotModel.xRange.lo
     const xhi = plotModel.xRange.hi
-    const xs = Array.from({length: 700}, (_, i) => xlo + (xhi - xlo) * i / 699)
-    const ys = xs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
+    const xs = plotModel.sampleXs
+    const ys = plotModel.sampleYs
 
     const data = [
       {
@@ -331,7 +330,8 @@
   const renderOutput = ({html, tex, Plotly, result, stepControl, x0}) => {
     const plotModel = buildPlotModel({result, stepControl, x0})
     const plotDiv = html`<div class="plotly-box-large"></div>`
-    const data = buildPlotData({plotModel, result})
+    const data = buildPlotData({plotModel})
+    const statusClass = `ojs-status ojs-status-${result.statusType}`
 
     Plotly.newPlot(plotDiv, data, {
       title: {text: "Newton's Method Tangent Visualization"},
@@ -348,11 +348,7 @@
     return html`
       <div>
         ${plotDiv}
-        ${statusUtils.renderStatus({
-          html,
-          statusType: result.statusType,
-          message: result.message
-        })}
+        <div class="${statusClass}"><strong>Status:</strong> ${result.message}</div>
         ${renderTable({html, tex, rows: plotModel.visibleRows})}
       </div>
     `

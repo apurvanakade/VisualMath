@@ -15,7 +15,6 @@ page-layout: full
 <script src="../../js/utils/math-expression.js"></script>
 <script src="../../js/utils/plot-model.js"></script>
 <script src="../../js/utils/step-control.js"></script>
-<script src="../../js/utils/render-status.js"></script>
 <script src="../../js/utils/render-table.js"></script>
 <script src="method.js"></script>
 ```

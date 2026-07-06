@@ -11,7 +11,6 @@
   const expressionUtils = globalThis.VisualMathExpressionUtils
   const plotModelUtils = globalThis.VisualMathPlotModelUtils
   const tableUtils = globalThis.VisualMathRenderTableUtils
-  const statusUtils = globalThis.VisualMathRenderStatusUtils
   const stepControlUtils = globalThis.VisualMathStepControlUtils
 
   const compute = ({mathjs, fText, a0, b0, tolerance, maxIterations}) => {
@@ -149,7 +148,7 @@
   }
 
   const buildPlotModel = ({result, stepControl, a0, b0}) => {
-    const visibleRows = plotModelUtils.sliceVisibleRows(result.rows, stepControl)
+    const visibleRows = result.rows.slice(0, Math.min(Number(stepControl), result.rows.length) + 1)
     const currentRow = visibleRows.length === 0 ? null : visibleRows[visibleRows.length - 1]
 
     const xValues = []
@@ -165,13 +164,13 @@
       minPadding: 0.5
     })
 
+    // Sample f once across the visible x-range; reused for both the y-range and the plotted trace.
+    const sampleCount = 700
+    const sampleXs = Array.from({length: sampleCount}, (_, i) => xRange.lo + (xRange.hi - xRange.lo) * i / (sampleCount - 1))
+    const sampleYs = sampleXs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
+
     const yValues = [0]
-    plotModelUtils.appendSampledFunctionValues(yValues, result.f, {
-      lo: xRange.lo,
-      hi: xRange.hi,
-      count: 500,
-      maxAbs: 1e8
-    })
+    plotModelUtils.pushFiniteValues(yValues, sampleYs, {maxAbs: 1e8})
     for (const row of visibleRows) {
       plotModelUtils.pushFiniteValues(yValues, [row.fa, row.fb, row.fm], {maxAbs: 1e8})
     }
@@ -183,14 +182,14 @@
       minPadding: 0.5
     })
 
-    return {visibleRows, currentRow, xRange, yRange}
+    return {visibleRows, currentRow, xRange, yRange, sampleXs, sampleYs}
   }
 
-  const buildPlotData = ({plotModel, result}) => {
+  const buildPlotData = ({plotModel}) => {
     const xlo = plotModel.xRange.lo
     const xhi = plotModel.xRange.hi
-    const xs = Array.from({length: 700}, (_, i) => xlo + (xhi - xlo) * i / 699)
-    const ys = xs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
+    const xs = plotModel.sampleXs
+    const ys = plotModel.sampleYs
 
     const data = [
       {
@@ -345,8 +344,9 @@
       fillcolor: "rgba(37, 99, 235, 0.14)",
       line: {width: 0}
     }] : []
+    const statusClass = `ojs-status ojs-status-${result.statusType}`
 
-    Plotly.newPlot(plotDiv, buildPlotData({plotModel, result}), {
+    Plotly.newPlot(plotDiv, buildPlotData({plotModel}), {
       title: {text: "Bisection Method"},
       margin: {l: 65, r: 30, t: 60, b: 55},
       xaxis: {title: "x", range: [plotModel.xRange.lo, plotModel.xRange.hi], zeroline: true},
@@ -362,11 +362,7 @@
     return html`
       <div>
         ${plotDiv}
-        ${statusUtils.renderStatus({
-          html,
-          statusType: result.statusType,
-          message: result.message
-        })}
+        <div class="${statusClass}"><strong>Status:</strong> ${result.message}</div>
         ${renderTable({html, tex, rows: plotModel.visibleRows})}
       </div>
     `

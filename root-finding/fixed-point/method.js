@@ -11,7 +11,6 @@
   const expressionUtils = globalThis.VisualMathExpressionUtils
   const plotModelUtils = globalThis.VisualMathPlotModelUtils
   const tableUtils = globalThis.VisualMathRenderTableUtils
-  const statusUtils = globalThis.VisualMathRenderStatusUtils
   const stepControlUtils = globalThis.VisualMathStepControlUtils
 
   const compute = ({mathjs, gText, x0, tolerance, maxIterations}) => {
@@ -83,7 +82,7 @@
   }
 
   const buildPlotModel = ({result, stepControl, x0}) => {
-    const visibleRows = plotModelUtils.sliceVisibleRows(result.rows, stepControl)
+    const visibleRows = result.rows.slice(0, Math.min(Number(stepControl), result.rows.length) + 1)
     const rangeValues = []
     plotModelUtils.pushFiniteValues(rangeValues, [Number(x0)])
     for (const row of visibleRows) {
@@ -229,6 +228,7 @@
   const renderOutput = ({html, tex, Plotly, result, stepControl, x0}) => {
     const plotModel = buildPlotModel({result, stepControl, x0})
     const plotDiv = html`<div class="plotly-box-large"></div>`
+    const statusClass = `ojs-status ojs-status-${result.statusType}`
 
     Plotly.newPlot(plotDiv, buildPlotData({plotModel, result, x0}), {
       title: {text: "Fixed Point Iteration Cobweb Diagram"},
@@ -252,11 +252,7 @@
     return html`
       <div>
         ${plotDiv}
-        ${statusUtils.renderStatus({
-          html,
-          statusType: result.statusType,
-          message: result.message
-        })}
+        <div class="${statusClass}"><strong>Status:</strong> ${result.message}</div>
         ${renderTable({html, tex, rows: plotModel.visibleRows})}
       </div>
     `
