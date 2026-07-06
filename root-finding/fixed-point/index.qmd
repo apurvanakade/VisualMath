@@ -1,9 +1,8 @@
 <!--
-Copyright (c) 2026 Dhruv Azad. All rights reserved.
+Copyright (c) 2026 Apurva Nakade, Dhruv Azad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Dhruv Azad
+Authors: Apurva Nakade, Dhruv Azad
 -->
-
 
 ---
 title: "Fixed Point Iteration"
@@ -14,14 +13,173 @@ page-layout: full
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/utils.js"></script>
-<script src="method.js"></script>
 ```
 
 ```{ojs}
-fixedPointPage = window.VisualMathFixedPointMethod
+//| output: false
+// VM is the shared utility library loaded from js/utils.js.
+VM = window.VM
 ```
 
-Explore fixed point iteration through a cobweb diagram. Enter an iteration function \(g(x)\), choose an initial guess, and watch the sequence approach or move away from a fixed point.
+Fixed point iteration finds a value $\alpha$ where $g(\alpha) = \alpha$ by repeatedly applying $g$: starting from a guess $x_0$, it computes $x_1 = g(x_0)$, $x_2 = g(x_1)$, and so on.
+
+```{ojs}
+//| output: false
+// precompute runs fixed-point iteration and returns all iteration data.
+//
+// Parameters:
+//   gText        — user's iteration function string, e.g. "cos(x)"
+//   x0           — initial guess
+//   tolerance    — stop when |g(x) - x| is smaller than this
+//   maxIterations — hard cap on the number of steps
+//
+// Returns: { rows, g }
+//   rows — array of { i, x, gx, error }, one entry per iteration
+//   g    — parsed function, reused for curve sampling in renderOutput
+precompute = ({gText, x0, tolerance, maxIterations}) => {
+  const math = window.math
+
+  const g        = VM.makeFunction(math, gText)
+  const fallback = x => NaN
+
+  if (!g) return {rows: [], g: fallback}
+
+  const rows  = []
+  const start = Number(x0)
+  const tol   = Number(tolerance)
+
+  if (!Number.isFinite(start)) return {rows: [], g}
+
+  let x = start
+  let i = 0
+  while (i < maxIterations) {
+    const gx = g(x)
+
+    // Stop if g(x) blows up — the iteration has diverged.
+    if (!Number.isFinite(gx)) {
+      rows.push({i, x, gx, error: NaN})
+      return {rows, g}
+    }
+
+    const error = Math.abs(gx - x)
+    rows.push({i, x, gx, error})
+
+    // Stop when x and g(x) are close enough — we've found a fixed point.
+    if (error < tol) return {rows, g}
+
+    x = gx
+    i++
+  }
+  return {rows, g}
+}
+```
+
+```{ojs}
+//| output: false
+// renderOutput builds the cobweb chart and iteration table for a given step.
+//
+// _plotDiv is kept in a closure so Plotly reuses the same DOM node across
+// reactive updates — this preserves zoom and pan when the step changes.
+renderOutput = {
+  const Plotly = window.Plotly
+  let _plotDiv = null
+
+  return ({html, tex, result, stepControl, x0}) => {
+    // Rows 0..stepControl — what's visible at the current step.
+    const visibleRows = result.rows.slice(0, Math.min(Number(stepControl), result.rows.length) + 1)
+
+    // Axis ranges from ALL rows so the axes stay fixed while stepping.
+    // The cobweb diagram uses a square plot (same range for x and y).
+    const rangeValues = [Number(x0)]
+    for (const row of result.rows) VM.pushFiniteValues(rangeValues, [row.x, row.gx])
+    const range = VM.paddedRange(rangeValues, {emptyRange: [-2, 2], singularPadding: 2, relativePadding: 0.45, minPadding: 1.0})
+
+    // Sample g across the range for the smooth curve trace.
+    const N  = 500
+    const xs = Array.from({length: N}, (_, i) => range.lo + (range.hi - range.lo) * i / (N - 1))
+    const ys = xs.map(x => result.g(x)).map(y => Number.isFinite(y) ? y : null)
+
+    // --- Plotly traces ---
+
+    const data = [
+      // The iteration function g(x)
+      {x: xs, y: ys, type: "scatter", mode: "lines", name: "g(x)", showlegend: true, line: {color: "#2563eb", width: 3}},
+      // The diagonal y = x — fixed points lie where g(x) crosses this line
+      {x: [range.lo, range.hi], y: [range.lo, range.hi], type: "scatter", mode: "lines", name: "y = x", showlegend: true, line: {color: "#111827", width: 2, dash: "dash"}},
+      // The x-axis reference
+      {x: [range.lo, range.hi], y: [0, 0], type: "scatter", mode: "lines", showlegend: false, line: {color: "#94a3b8", width: 1}}
+    ]
+
+    if (visibleRows.length > 0) {
+      // Build the cobweb staircase path.
+      // From x_i on the diagonal, go vertically to (x_i, g(x_i)) on the curve,
+      // then horizontally to (g(x_i), g(x_i)) on the diagonal.
+      const cobwebX = []
+      const cobwebY = []
+      const start   = Number(x0)
+      if (Number.isFinite(start)) { cobwebX.push(start); cobwebY.push(start) }
+      for (const row of visibleRows) {
+        if (!Number.isFinite(row.x) || !Number.isFinite(row.gx)) continue
+        cobwebX.push(row.x,  row.gx)
+        cobwebY.push(row.gx, row.gx)
+      }
+
+      data.push(
+        // The staircase path
+        {x: cobwebX, y: cobwebY, type: "scatter", mode: "lines+markers", name: "Cobweb path", showlegend: true,
+          line: {color: "#dc2626", width: 2}, marker: {color: "#dc2626", size: 7}},
+        // Green dots marking each iterate x_i on the diagonal
+        {
+          x: visibleRows.map(r => r.x).filter(Number.isFinite),
+          y: visibleRows.map(r => r.x).filter(Number.isFinite),
+          type: "scatter", mode: "markers+text", name: "Iterates", showlegend: true,
+          text: visibleRows.filter(r => Number.isFinite(r.x)).map(r => `x_${r.i}`),
+          textposition: "top center",
+          marker: {color: "#16a34a", size: 9, symbol: "circle", line: {color: "white", width: 1}}
+        }
+      )
+    }
+
+    const layout = {
+      title: {text: "Fixed Point Iteration Cobweb Diagram"},
+      margin: {l: 60, r: 30, t: 60, b: 55},
+      xaxis: {title: "x", range: [range.lo, range.hi], zeroline: true},
+      yaxis: {title: "y", range: [range.lo, range.hi], zeroline: true, zerolinecolor: "#94a3b8", gridcolor: "#e2e8f0", linecolor: "#cbd5e1"},
+      legend: {orientation: "h", y: -0.18},
+      hovermode: "closest",
+      uirevision: "static"   // keeps zoom/pan state across reactive updates
+    }
+    const config = {responsive: true, displaylogo: false}
+
+    // First render: create the div. Later renders: update in place (preserves zoom).
+    if (!_plotDiv) {
+      _plotDiv = document.createElement("div")
+      _plotDiv.className = "plotly-box-large"
+      Plotly.newPlot(_plotDiv, data, layout, config)
+    } else {
+      Plotly.react(_plotDiv, data, layout, config)
+    }
+
+    // Iteration table — shows one row per step
+    const table = visibleRows.length === 0
+      ? null
+      : VM.renderTable({
+          html,
+          headers: ["n", "x_n", tex`g(x_n) = x_{n+1}`, tex`|x_{n+1} - x_n|`],
+          rows: visibleRows.map(row => [
+            row.i,
+            Number.isFinite(row.x)     ? row.x.toPrecision(10)    : "NaN",
+            Number.isFinite(row.gx)    ? row.gx.toPrecision(10)   : "NaN",
+            Number.isFinite(row.error) ? row.error.toExponential(4) : "NaN"
+          ])
+        })
+
+    return html`<div>${_plotDiv}${table}</div>`
+  }
+}
+```
+
+## Controls and output
 
 <div class="ojs-controls-wide">
 
@@ -31,7 +189,7 @@ Explore fixed point iteration through a cobweb diagram. Enter an iteration funct
 
 ```{ojs}
 viewof gText = Inputs.text({
-  label: "Iteration function g(x)",
+  label: "Function g(x)",
   value: "cos(x)",
   placeholder: "Example: cos(x), sqrt(x + 2), exp(-x)"
 })
@@ -53,31 +211,23 @@ viewof tolerance = Inputs.number({
 })
 ```
 
+</div>
+
+<div class="ojs-step-row">
+
 ```{ojs}
-viewof maxIterations = Inputs.range([1, 100], {
-  label: "Maximum iterations",
-  value: 30,
-  step: 1
-})
+viewof stepControl = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
+```
+
+```{ojs}
+viewof maxIterations = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
 ```
 
 </div>
 
 ```{ojs}
-fixedPointResult = fixedPointPage.compute({
-  mathjs: window.math,
-  gText,
-  x0,
-  tolerance,
-  maxIterations
-})
-```
-
-```{ojs}
-viewof stepControl = Inputs.range(
-  [0, Math.max(fixedPointResult.rows.length - 1, 0)],
-  {step: 1, value: 0, label: "Step"}
-)
+//| output: false
+result = precompute({gText, x0, tolerance, maxIterations})
 ```
 
 </div>
@@ -85,14 +235,7 @@ viewof stepControl = Inputs.range(
 <div class="ojs-output-wide">
 
 ```{ojs}
-fixedPointOutput = fixedPointPage.renderOutput({
-  html,
-  tex,
-  Plotly: window.Plotly,
-  result: fixedPointResult,
-  stepControl,
-  x0
-})
+renderOutput({html, tex, result, stepControl, x0})
 ```
 
 </div>

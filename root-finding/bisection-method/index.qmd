@@ -1,7 +1,7 @@
 <!--
-Copyright (c) 2026 Dhruv Azad. All rights reserved.
+Copyright (c) 2026 Apurva Nakade, Dhruv Azad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Dhruv Azad
+Authors: Apurva Nakade, Dhruv Azad
 -->
 
 ---
@@ -13,14 +13,183 @@ page-layout: full
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/utils.js"></script>
-<script src="method.js"></script>
 ```
 
 ```{ojs}
-bisectionPage = window.VisualMathBisectionMethod
+//| output: false
+// VM is the shared utility library loaded from js/utils.js.
+VM = window.VM
 ```
 
-Visualize how the bisection method repeatedly halves an interval containing a sign change. Choose a function and starting bracket, then step through the narrowing intervals.
+The bisection method finds a root by repeatedly halving an interval $[a, b]$ where $f$ changes sign, guaranteeing that each half still contains a root.
+
+```{ojs}
+//| output: false
+// precompute runs bisection and returns all iteration data.
+//
+// Parameters:
+//   fText        — user's function string, e.g. "x^3 - x - 2"
+//   a0, b0       — initial bracket endpoints (swapped if a0 > b0)
+//   tolerance    — stop when |f(m)| or interval width is smaller than this
+//   maxIterations — hard cap on the number of steps
+//
+// Returns: { rows, f }
+//   rows — array of { n, a, b, m, fa, fb, fm, width }, one entry per iteration
+//   f    — parsed function, reused for curve sampling in renderOutput
+precompute = ({fText, a0, b0, tolerance, maxIterations}) => {
+  const math = window.math
+
+  const f        = VM.makeFunction(math, fText)
+  const fallback = x => NaN
+
+  if (!f) return {rows: [], f: fallback}
+
+  let a = Number(a0)
+  let b = Number(b0)
+  const tol = Number(tolerance)
+
+  if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return {rows: [], f}
+  if (a > b) { const tmp = a; a = b; b = tmp }   // ensure a < b
+
+  const fa = f(a)
+  const fb = f(b)
+
+  if (!Number.isFinite(fa) || !Number.isFinite(fb)) return {rows: [], f}
+
+  // Bisection requires a sign change across [a, b].
+  // If an endpoint is already a root, return it immediately.
+  if (fa === 0) return {rows: [{n: 0, a, b, m: a, fa, fb, fm: fa, width: b - a}], f}
+  if (fb === 0) return {rows: [{n: 0, a, b, m: b, fa, fb, fm: fb, width: b - a}], f}
+  if (fa * fb > 0) return {rows: [], f}   // no sign change — can't bracket a root
+
+  const rows = []
+  let curA = a, curB = b, curFa = fa, curFb = fb
+  let n = 0
+  while (n < maxIterations) {
+    const m  = 0.5 * (curA + curB)   // midpoint of the current bracket
+    const fm = f(m)
+    rows.push({n, a: curA, b: curB, m, fa: curFa, fb: curFb, fm, width: curB - curA})
+
+    if (!Number.isFinite(fm)) return {rows, f}
+    if (Math.abs(fm) < tol || Math.abs(curB - curA) < tol) return {rows, f}
+
+    // Keep the half that still contains a sign change
+    if (curFa * fm < 0) { curB = m; curFb = fm } else { curA = m; curFa = fm }
+    n++
+  }
+  return {rows, f}
+}
+```
+
+```{ojs}
+//| output: false
+// renderOutput builds the chart and table for a given step.
+//
+// _plotDiv is kept in a closure so Plotly reuses the same DOM node across
+// reactive updates — this preserves zoom and pan when the step changes.
+renderOutput = {
+  const Plotly = window.Plotly
+  let _plotDiv = null
+
+  return ({html, tex, result, stepControl, a0, b0}) => {
+    // Rows 0..stepControl — what's visible at the current step.
+    const visibleRows = result.rows.slice(0, Math.min(Number(stepControl), result.rows.length) + 1)
+    const currentRow  = visibleRows.length === 0 ? null : visibleRows[visibleRows.length - 1]
+
+    // Axis ranges from ALL rows so the axes stay fixed while stepping.
+    const xValues = [Number(a0), Number(b0)]
+    for (const row of result.rows) VM.pushFiniteValues(xValues, [row.a, row.b, row.m])
+    const xRange = VM.paddedRange(xValues, {emptyRange: [-5, 5], singularPadding: 2, relativePadding: 0.25, minPadding: 0.5})
+
+    // Sample f across the x range for the smooth curve trace.
+    const N = 700
+    const sampleXs = Array.from({length: N}, (_, i) => xRange.lo + (xRange.hi - xRange.lo) * i / (N - 1))
+    const sampleYs = sampleXs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
+
+    const yValues = [0]
+    VM.pushFiniteValues(yValues, sampleYs, {maxAbs: 1e8})
+    for (const row of result.rows) VM.pushFiniteValues(yValues, [row.fa, row.fb, row.fm], {maxAbs: 1e8})
+    const yRange = VM.paddedRange(yValues, {emptyRange: [-1, 1], singularPadding: 1, relativePadding: 0.15, minPadding: 0.5})
+
+    // --- Plotly traces ---
+
+    const data = [
+      // The function curve
+      {x: sampleXs, y: sampleYs, type: "scatter", mode: "lines", name: "f(x)", showlegend: true, line: {color: "#2563eb", width: 3}},
+      // The x-axis reference line
+      {x: [xRange.lo, xRange.hi], y: [0, 0], type: "scatter", mode: "lines", name: "y = 0", showlegend: true, line: {color: "#111827", width: 2}}
+    ]
+
+    if (currentRow) {
+      const row = currentRow
+      data.push(
+        // Endpoints a and b
+        {x: [row.a, row.b], y: [row.fa, row.fb], type: "scatter", mode: "markers+text", name: "Endpoints",
+          text: ["a", "b"], textposition: "top center", showlegend: true,
+          marker: {color: "#2563eb", size: 11, symbol: "circle", line: {color: "white", width: 1}}},
+        // Midpoint m
+        {x: [row.m], y: [row.fm], type: "scatter", mode: "markers+text", name: "Midpoint",
+          text: ["m"], textposition: "top center", showlegend: true,
+          marker: {color: "#dc2626", size: 13, symbol: "circle", line: {color: "white", width: 1}}},
+        // Dotted verticals from x-axis to each marker
+        {x: [row.a, row.a], y: [0, row.fa], type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip", line: {color: "#94a3b8", width: 1.5, dash: "dot"}},
+        {x: [row.b, row.b], y: [0, row.fb], type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip", line: {color: "#94a3b8", width: 1.5, dash: "dot"}},
+        {x: [row.m, row.m], y: [0, row.fm], type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip", line: {color: "#dc2626", width: 1.5, dash: "dot"}}
+      )
+    }
+
+    // Shaded rectangle showing the current bracket [a, b]
+    const shapes = currentRow ? [{
+      type: "rect", xref: "x", yref: "paper",
+      x0: currentRow.a, x1: currentRow.b, y0: 0, y1: 1,
+      fillcolor: "rgba(37, 99, 235, 0.14)", line: {width: 0}
+    }] : []
+
+    const layout = {
+      title: {text: "Bisection Method"},
+      margin: {l: 65, r: 30, t: 60, b: 55},
+      xaxis: {title: "x", range: [xRange.lo, xRange.hi], zeroline: true},
+      yaxis: {title: "f(x)", range: [yRange.lo, yRange.hi], zeroline: true},
+      shapes,
+      legend: {orientation: "h", y: -0.18},
+      hovermode: "closest",
+      uirevision: "static"   // keeps zoom/pan state across reactive updates
+    }
+    const config = {responsive: true, displaylogo: false}
+
+    // First render: create the div. Later renders: update in place (preserves zoom).
+    if (!_plotDiv) {
+      _plotDiv = document.createElement("div")
+      _plotDiv.className = "plotly-box-large"
+      Plotly.newPlot(_plotDiv, data, layout, config)
+    } else {
+      Plotly.react(_plotDiv, data, layout, config)
+    }
+
+    // Iteration table — shows one row per step
+    const table = visibleRows.length === 0
+      ? null
+      : VM.renderTable({
+          html,
+          headers: ["n", tex`a_n`, tex`b_n`, tex`m_n`, tex`f(a_n)`, tex`f(b_n)`, tex`f(m_n)`, "width"],
+          rows: visibleRows.map(row => [
+            row.n,
+            Number.isFinite(row.a)     ? row.a.toPrecision(10)    : "NaN",
+            Number.isFinite(row.b)     ? row.b.toPrecision(10)    : "NaN",
+            Number.isFinite(row.m)     ? row.m.toPrecision(10)    : "NaN",
+            Number.isFinite(row.fa)    ? row.fa.toExponential(5)  : "NaN",
+            Number.isFinite(row.fb)    ? row.fb.toExponential(5)  : "NaN",
+            Number.isFinite(row.fm)    ? row.fm.toExponential(5)  : "NaN",
+            Number.isFinite(row.width) ? row.width.toExponential(4) : "NaN"
+          ])
+        })
+
+    return html`<div>${_plotDiv}${table}</div>`
+  }
+}
+```
+
+## Controls and output
 
 <div class="ojs-controls-wide">
 
@@ -60,32 +229,23 @@ viewof tolerance = Inputs.number({
 })
 ```
 
+</div>
+
+<div class="ojs-step-row">
+
 ```{ojs}
-viewof maxIterations = Inputs.range([1, 100], {
-  label: "Maximum iterations",
-  value: 40,
-  step: 1
-})
+viewof stepControl = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
+```
+
+```{ojs}
+viewof maxIterations = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
 ```
 
 </div>
 
 ```{ojs}
-bisectionResult = bisectionPage.compute({
-  mathjs: window.math,
-  fText,
-  a0,
-  b0,
-  tolerance,
-  maxIterations
-})
-```
-
-```{ojs}
-viewof stepControl = Inputs.range(
-  [0, Math.max(bisectionResult.rows.length - 1, 0)],
-  {step: 1, value: 0, label: "Step"}
-)
+//| output: false
+result = precompute({fText, a0, b0, tolerance, maxIterations})
 ```
 
 </div>
@@ -93,15 +253,7 @@ viewof stepControl = Inputs.range(
 <div class="ojs-output-wide">
 
 ```{ojs}
-bisectionOutput = bisectionPage.renderOutput({
-  html,
-  tex,
-  Plotly: window.Plotly,
-  result: bisectionResult,
-  stepControl,
-  a0,
-  b0
-})
+renderOutput({html, tex, result, stepControl, a0, b0})
 ```
 
 </div>
@@ -118,9 +270,8 @@ Then it keeps the half of the interval where the sign change still occurs. Repea
 
 ## What the picture is showing
 
-The blue curve is the graph of \(f(x)\). The black horizontal line is \(y=0\).
+The blue curve is the graph of $f(x)$. The black horizontal line is $y=0$.
 
-The shaded blue region is the current interval \([a,b]\). The blue points show the endpoint values \((a,f(a))\) and \((b,f(b))\).
+The shaded blue region is the current interval $[a,b]$. The blue points show the endpoint values $(a,f(a))$ and $(b,f(b))$.
 
-The red point is the midpoint \((m,f(m))\). Each time you click **Next iteration**, the method halves the interval and keeps the side that still contains a sign change.
-
+The red point is the midpoint $(m,f(m))$. Each step halves the interval and keeps the side that still contains a sign change.

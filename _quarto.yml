@@ -17,19 +17,19 @@ website:
     background: primary
     search: true
 
-  sidebar:
-    - title: "Root Finding"
-      style: "docked"
-      background: light
-      contents:
-        - href: root-finding/index.qmd
-          text: Overview
-        - href: root-finding/bisection-method/index.qmd
-          text: Bisection Method
-        - href: root-finding/fixed-point/index.qmd
-          text: Fixed Point Iteration
-        - href: root-finding/newton/index.qmd
-          text: Newton's Method
+  # sidebar:
+  #   - title: "Root Finding"
+  #     style: "docked"
+  #     background: light
+  #     contents:
+  #       - href: root-finding/index.qmd
+  #         text: Overview
+  #       - href: root-finding/bisection-method/index.qmd
+  #         text: Bisection Method
+  #       - href: root-finding/fixed-point/index.qmd
+  #         text: Fixed Point Iteration
+  #       - href: root-finding/newton/index.qmd
+  #         text: Newton's Method
 
 format:
   html:
