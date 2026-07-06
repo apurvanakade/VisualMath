@@ -96,6 +96,8 @@ viewof stepControl = {
 }
 ```
 
+</div>
+
 <div class="ojs-output-wide">
 
 ```{ojs}
@@ -103,19 +105,42 @@ mathjs = window.math
 ```
 
 ```{ojs}
-compiledF = {
+normalizeExpression = expr => String(expr).trim().replaceAll("π", "pi")
+```
+
+```{ojs}
+tryCompile = expr => {
   try {
-    return mathjs.compile(String(fText).trim().replaceAll("π", "pi"))
+    return mathjs.compile(normalizeExpression(expr))
   } catch (err) {
     return null
   }
+}
+```
+
+```{ojs}
+evaluateCompiled = (compiledExpr, x) => {
+  if (!compiledExpr) return NaN
+
+  try {
+    const y = compiledExpr.evaluate({x})
+    return Number(y)
+  } catch (err) {
+    return NaN
+  }
+}
+```
+
+```{ojs}
+compiledF = {
+  return tryCompile(fText)
 }
 ```
 
 ```{ojs}
 compiledDF = {
   try {
-    return mathjs.derivative(String(fText).trim().replaceAll("π", "pi"), "x").compile()
+    return mathjs.derivative(normalizeExpression(fText), "x").compile()
   } catch (err) {
     return null
   }
@@ -123,35 +148,16 @@ compiledDF = {
 ```
 
 ```{ojs}
-f = x => {
-  if (!compiledF) return NaN
-  try {
-    const y = compiledF.evaluate({x})
-    return Number(y)
-  } catch (err) {
-    return NaN
-  }
-}
+f = x => evaluateCompiled(compiledF, x)
 ```
 
 ```{ojs}
-df = x => {
-  if (!compiledDF) return NaN
-  try {
-    const y = compiledDF.evaluate({x})
-    return Number(y)
-  } catch (err) {
-    return NaN
-  }
-}
+df = x => evaluateCompiled(compiledDF, x)
 ```
 
 ```{ojs}
-newtonResult = {
+computeNewtonResult = ({start, tol, maxIter}) => {
   const rows = []
-  const start = Number(x0)
-  const tol = Number(tolerance)
-  const maxIter = Number(maxIterations)
 
   if (!compiledF || !compiledDF) {
     return {
@@ -244,6 +250,14 @@ newtonResult = {
     rows
   }
 }
+```
+
+```{ojs}
+newtonResult = computeNewtonResult({
+  start: Number(x0),
+  tol: Number(tolerance),
+  maxIter: Number(maxIterations)
+})
 ```
 
 ```{ojs}
@@ -618,6 +632,8 @@ newtonTable = {
 
 }
 ```
+
+</div>
 
 ## Explanation
 

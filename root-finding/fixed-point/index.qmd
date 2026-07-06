@@ -102,9 +102,13 @@ mathjs = window.math
 ```
 
 ```{ojs}
-compiledG = {
+normalizeExpression = expr => String(expr).trim().replaceAll("π", "pi")
+```
+
+```{ojs}
+tryCompile = expr => {
   try {
-    return mathjs.compile(String(gText).trim().replaceAll("π", "pi"))
+    return mathjs.compile(normalizeExpression(expr))
   } catch (err) {
     return null
   }
@@ -112,10 +116,11 @@ compiledG = {
 ```
 
 ```{ojs}
-g = x => {
-  if (!compiledG) return NaN
+evaluateCompiled = (compiledExpr, x) => {
+  if (!compiledExpr) return NaN
+
   try {
-    const y = compiledG.evaluate({x})
+    const y = compiledExpr.evaluate({x})
     return Number(y)
   } catch (err) {
     return NaN
@@ -124,11 +129,18 @@ g = x => {
 ```
 
 ```{ojs}
-fixedPointResult = {
+compiledG = {
+  return tryCompile(gText)
+}
+```
+
+```{ojs}
+g = x => evaluateCompiled(compiledG, x)
+```
+
+```{ojs}
+computeFixedPointResult = ({start, tol, maxIter}) => {
   const rows = []
-  const start = Number(x0)
-  const tol = Number(tolerance)
-  const maxIter = Number(maxIterations)
 
   if (!compiledG) {
     return {
@@ -197,6 +209,14 @@ fixedPointResult = {
     rows
   }
 }
+```
+
+```{ojs}
+fixedPointResult = computeFixedPointResult({
+  start: Number(x0),
+  tol: Number(tolerance),
+  maxIter: Number(maxIterations)
+})
 ```
 
 ```{ojs}

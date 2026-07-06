@@ -109,17 +109,13 @@ mathjs = window.math
 ```
 
 ```{ojs}
-cleanExpression = expr => {
-  return String(expr)
-    .trim()
-    .replaceAll("π", "pi")
-}
+normalizeExpression = expr => String(expr).trim().replaceAll("π", "pi")
 ```
 
 ```{ojs}
-compiledF = {
+tryCompile = expr => {
   try {
-    return mathjs.compile(cleanExpression(fText))
+    return mathjs.compile(normalizeExpression(expr))
   } catch (err) {
     return null
   }
@@ -127,11 +123,11 @@ compiledF = {
 ```
 
 ```{ojs}
-f = x => {
-  if (!compiledF) return NaN
+evaluateCompiled = (compiledExpr, x) => {
+  if (!compiledExpr) return NaN
 
   try {
-    const y = compiledF.evaluate({x})
+    const y = compiledExpr.evaluate({x})
     return Number(y)
   } catch (err) {
     return NaN
@@ -140,11 +136,19 @@ f = x => {
 ```
 
 ```{ojs}
-bisectionResult = {
-  let a = Number(a0)
-  let b = Number(b0)
-  const tol = Number(tolerance)
-  const maxIter = Number(maxIterations)
+compiledF = {
+  return tryCompile(fText)
+}
+```
+
+```{ojs}
+f = x => evaluateCompiled(compiledF, x)
+```
+
+```{ojs}
+computeBisectionResult = ({leftEndpoint, rightEndpoint, tol, maxIter}) => {
+  let a = leftEndpoint
+  let b = rightEndpoint
 
   if (!compiledF) {
     return {
@@ -273,6 +277,15 @@ bisectionResult = {
     rows
   }
 }
+```
+
+```{ojs}
+bisectionResult = computeBisectionResult({
+  leftEndpoint: Number(a0),
+  rightEndpoint: Number(b0),
+  tol: Number(tolerance),
+  maxIter: Number(maxIterations)
+})
 ```
 
 ```{ojs}
