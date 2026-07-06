@@ -13,10 +13,7 @@ page-layout: full
 ```{=html}
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../js/utils/math-expression.js"></script>
-<script src="../../js/utils/plot-model.js"></script>
-<script src="../../js/utils/step-control.js"></script>
-<script src="../../js/utils/render-table.js"></script>
+<script src="../../js/utils.js"></script>
 <script src="method.js"></script>
 ```
 
@@ -77,10 +74,10 @@ fixedPointResult = fixedPointPage.compute({
 ```
 
 ```{ojs}
-viewof stepControl = fixedPointPage.createStepControl({
-  html,
-  maxStep: Math.max(fixedPointResult.rows.length - 1, 0)
-})
+viewof stepControl = Inputs.range(
+  [0, Math.max(fixedPointResult.rows.length - 1, 0)],
+  {step: 1, value: 0, label: "Step"}
+)
 ```
 
 </div>

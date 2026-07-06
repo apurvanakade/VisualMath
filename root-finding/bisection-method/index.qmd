@@ -12,10 +12,7 @@ page-layout: full
 ```{=html}
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../js/utils/math-expression.js"></script>
-<script src="../../js/utils/plot-model.js"></script>
-<script src="../../js/utils/step-control.js"></script>
-<script src="../../js/utils/render-table.js"></script>
+<script src="../../js/utils.js"></script>
 <script src="method.js"></script>
 ```
 
@@ -85,10 +82,10 @@ bisectionResult = bisectionPage.compute({
 ```
 
 ```{ojs}
-viewof stepControl = bisectionPage.createStepControl({
-  html,
-  maxStep: Math.max(bisectionResult.rows.length - 1, 0)
-})
+viewof stepControl = Inputs.range(
+  [0, Math.max(bisectionResult.rows.length - 1, 0)],
+  {step: 1, value: 0, label: "Step"}
+)
 ```
 
 </div>
@@ -127,4 +124,3 @@ The shaded blue region is the current interval \([a,b]\). The blue points show t
 
 The red point is the midpoint \((m,f(m))\). Each time you click **Next iteration**, the method halves the interval and keeps the side that still contains a sign change.
 
-If **Automatically adjust axes** is selected, the plot range updates dynamically when you change the starting interval.

@@ -19,27 +19,31 @@ There are no test or lint commands; there is no package manager (no `package.jso
 
 ## Architecture
 
-Each method page (`root-finding/<method>/index.qmd`) is a self-contained interactive app that follows one shared composition:
+Each method page (`root-finding/<method>/index.qmd`) is a self-contained interactive app:
 
-1. A raw-HTML block loads CDN scripts (math.js, Plotly), the shared `js/utils/*` helpers, and the page's own `method.js`.
-2. `method.js` is an IIFE that attaches a single global, e.g. `window.VisualMathNewtonMethod`, exposing `compute`, `createStepControl`, and `renderOutput`.
-3. OJS cells wire Quarto `Inputs.*` controls → `page.compute({...})` → `page.createStepControl({...})` → `page.renderOutput({...})`. OJS reactivity re-runs everything downstream when an input or the step control changes.
+1. A raw-HTML block loads CDN scripts (math.js, Plotly), `js/utils.js`, and the page's own `method.js`.
+2. `method.js` is an IIFE that attaches one global, e.g. `window.VisualMathNewtonMethod`, exposing two functions: `compute` and `renderOutput`.
+3. OJS cells wire Quarto `Inputs.*` controls → `page.compute({...})` → an `Inputs.range` step slider → `page.renderOutput({...})`. OJS reactivity re-runs everything downstream when any input changes.
 
-`compute()` returns a plain result object: `{ ok, statusType, message, rows, f, df, ... }`. `rows` is the full iteration history; `statusType` is the enum `"good" | "warn" | "bad"` mapping to shared CSS status classes. `renderOutput()` slices the currently visible rows from the step control, builds the Plotly model/data, and returns a DOM node containing plot + status box + iteration table.
+`compute()` returns `{ ok, statusType, message, rows, f, ... }`. `rows` is the full iteration history; `statusType` is `"good" | "warn" | "bad"` mapping to shared CSS status classes. `renderOutput()` receives the result and the current step slider value, slices the visible rows, builds the Plotly chart and iteration table inline, and returns a DOM node.
 
-### Shared JS utilities (`js/utils/`)
+### Shared utility (`js/utils.js`)
 
-Each is an IIFE attaching one global to `window`:
+A single IIFE attaching `window.VM`:
 
-- `math-expression.js` → `VisualMathExpressionUtils` — compile/evaluate user expressions and derivatives via math.js.
-- `plot-model.js` → `VisualMathPlotModelUtils` — `pushFiniteValues` and `createPaddedRange` for computing padded axis ranges.
-- `render-table.js` → `VisualMathRenderTableUtils`, `step-control.js` → `VisualMathStepControlUtils` — DOM rendering helpers.
+- `VM.makeFunction(mathjs, expr)` — returns `(x) => number`, or `null` if the expression can't be parsed. Normalizes input (trim, replace `π` → `pi`), compiles via math.js, evaluates safely.
+- `VM.makeDerivative(mathjs, expr)` — like `makeFunction` but returns the symbolic derivative.
+- `VM.pushFiniteValues(arr, values, opts)` — appends finite values to an array; optional `maxAbs` cap.
+- `VM.paddedRange(values, opts)` — returns `{lo, hi}` with configurable padding for axis ranges.
+- `VM.renderTable({html, headers, rows})` — returns a DOM table node styled with `ojs-table` classes.
 
-Helpers are shared only when the logic is non-trivial and reused. Small one-liners (row slicing, the status callout div) live inline in each `method.js` rather than behind a util. Each page samples the user function once (in `buildPlotModel`) and reuses those points for both the y-range and the plotted trace.
+### Adding a new method page
 
-When adding or renaming a util module, keep three things consistent: the `<script src=...>` tags in every method `.qmd`, the global names each `method.js` reads at the top of its IIFE, and the files in `js/utils/`. A page loads a helper only if its `.qmd` includes the matching script tag.
+1. Create `root-finding/<method>/method.js` — copy an existing one and change `compute()` and `renderOutput()`. The IIFE should attach `window.VisualMath<MethodName> = {compute, renderOutput}`.
+2. Create `root-finding/<method>/index.qmd` — copy an existing one, update the input labels and the page global name. The script block needs only mathjs, Plotly, `../../js/utils.js`, and `method.js`.
+3. Add the page to `root-finding/index.qmd` and `_quarto.yml` navigation.
 
-User-entered expressions are evaluated in-browser. Normalize input before compiling (trim, replace `π` → `pi`) and surface invalid input through the status object/message rather than throwing.
+User-entered expressions are evaluated in-browser. Use `VM.makeFunction` (it handles normalization and error catching). Surface invalid input through the result's `message` field rather than throwing.
 
 ## Conventions
 
