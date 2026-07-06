@@ -10,7 +10,6 @@
 (function attachBisectionMethod(globalThis) {
   const expressionUtils = globalThis.VisualMathExpressionUtils
   const plotModelUtils = globalThis.VisualMathPlotModelUtils
-  const plotlyTraceUtils = globalThis.VisualMathPlotlyTraceUtils
   const renderUtils = globalThis.VisualMathRenderUtils
 
   const compute = ({mathjs, fText, a0, b0, tolerance, maxIterations}) => {
@@ -192,20 +191,30 @@
     const ys = xs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
 
     const data = [
-      plotlyTraceUtils.createLineTrace({
+      {
         x: xs,
         y: ys,
+        type: "scatter",
+        mode: "lines",
         name: "f(x)",
-        color: "#2563eb",
-        width: 3
-      }),
-      plotlyTraceUtils.createLineTrace({
+        showlegend: true,
+        line: {
+          color: "#2563eb",
+          width: 3
+        }
+      },
+      {
         x: [xlo, xhi],
         y: [0, 0],
+        type: "scatter",
+        mode: "lines",
         name: "y = 0",
-        color: "#111827",
-        width: 2
-      })
+        showlegend: true,
+        line: {
+          color: "#111827",
+          width: 2
+        }
+      }
     ]
 
     if (!plotModel.currentRow) {
@@ -214,54 +223,86 @@
 
     const row = plotModel.currentRow
     data.push(
-      plotlyTraceUtils.createMarkerTrace({
+      {
         x: [row.a, row.b],
         y: [row.fa, row.fb],
+        type: "scatter",
+        mode: "markers+text",
         name: "Endpoints",
         text: ["a", "b"],
         textposition: "top center",
-        color: "#2563eb",
-        size: 11
-      }),
-      plotlyTraceUtils.createMarkerTrace({
+        showlegend: true,
+        marker: {
+          color: "#2563eb",
+          size: 11,
+          symbol: "circle",
+          line: {
+            color: "white",
+            width: 1
+          }
+        }
+      },
+      {
         x: [row.m],
         y: [row.fm],
+        type: "scatter",
+        mode: "markers+text",
         name: "Midpoint",
         text: ["m"],
         textposition: "top center",
-        color: "#dc2626",
-        size: 13
-      }),
-      plotlyTraceUtils.createLineTrace({
+        showlegend: true,
+        marker: {
+          color: "#dc2626",
+          size: 13,
+          symbol: "circle",
+          line: {
+            color: "white",
+            width: 1
+          }
+        }
+      },
+      {
         x: [row.a, row.a],
         y: [0, row.fa],
+        type: "scatter",
+        mode: "lines",
         name: "Endpoint guides",
-        color: "#94a3b8",
-        width: 1.5,
-        dash: "dot",
         showlegend: false,
-        hoverinfo: "skip"
-      }),
-      plotlyTraceUtils.createLineTrace({
+        hoverinfo: "skip",
+        line: {
+          color: "#94a3b8",
+          width: 1.5,
+          dash: "dot"
+        }
+      },
+      {
         x: [row.b, row.b],
         y: [0, row.fb],
+        type: "scatter",
+        mode: "lines",
         name: "Endpoint guides",
-        color: "#94a3b8",
-        width: 1.5,
-        dash: "dot",
         showlegend: false,
-        hoverinfo: "skip"
-      }),
-      plotlyTraceUtils.createLineTrace({
+        hoverinfo: "skip",
+        line: {
+          color: "#94a3b8",
+          width: 1.5,
+          dash: "dot"
+        }
+      },
+      {
         x: [row.m, row.m],
         y: [0, row.fm],
+        type: "scatter",
+        mode: "lines",
         name: "Midpoint guide",
-        color: "#dc2626",
-        width: 1.5,
-        dash: "dot",
         showlegend: false,
-        hoverinfo: "skip"
-      })
+        hoverinfo: "skip",
+        line: {
+          color: "#dc2626",
+          width: 1.5,
+          dash: "dot"
+        }
+      }
     )
 
     return data

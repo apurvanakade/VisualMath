@@ -15,7 +15,6 @@ page-layout: full
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/utils/math-expression.js"></script>
 <script src="../../js/utils/plot-model.js"></script>
-<script src="../../js/utils/plotly-traces.js"></script>
 <script src="../../js/utils/render-utils.js"></script>
 <script src="method.js"></script>
 ```

@@ -13,7 +13,6 @@
 (function attachNewtonMethod(globalThis) {
   const expressionUtils = globalThis.VisualMathExpressionUtils
   const plotModelUtils = globalThis.VisualMathPlotModelUtils
-  const plotlyTraceUtils = globalThis.VisualMathPlotlyTraceUtils
   const renderUtils = globalThis.VisualMathRenderUtils
 
   const compute = ({mathjs, fText, x0, tolerance, maxIterations}) => {
@@ -185,35 +184,47 @@
     const ys = xs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
 
     const data = [
-      plotlyTraceUtils.createLineTrace({
+      {
         x: xs,
         y: ys,
+        type: "scatter",
+        mode: "lines",
         name: "f(x)",
-        color: "#2563eb",
-        width: 3
-      }),
-      plotlyTraceUtils.createLineTrace({
+        showlegend: true,
+        line: {
+          color: "#2563eb",
+          width: 3
+        }
+      },
+      {
         x: [xlo, xhi],
         y: [0, 0],
+        type: "scatter",
+        mode: "lines",
         name: "y = 0",
-        color: "#111827",
-        width: 2
-      })
+        showlegend: true,
+        line: {
+          color: "#111827",
+          width: 2
+        }
+      }
     ]
 
     for (const point of plotModel.visibleNewtonPoints) {
-      data.push(
-        plotlyTraceUtils.createLineTrace({
-          x: [point.x, point.x],
-          y: [0, point.fx],
-          name: "Vertical guides",
+      data.push({
+        x: [point.x, point.x],
+        y: [0, point.fx],
+        type: "scatter",
+        mode: "lines",
+        name: "Vertical guides",
+        showlegend: false,
+        hoverinfo: "skip",
+        line: {
           color: "#94a3b8",
           width: 1.5,
-          dash: "dot",
-          showlegend: false,
-          hoverinfo: "skip"
-        })
-      )
+          dash: "dot"
+        }
+      })
     }
 
     let tangentLegendShown = false
@@ -232,47 +243,65 @@
       const tangentXs = [tlo, thi]
       const tangentYs = tangentXs.map(x => row.fx + row.dfx * (x - row.x))
 
-      data.push(
-        plotlyTraceUtils.createLineTrace({
-          x: tangentXs,
-          y: tangentYs,
-          name: "Tangent lines",
+      data.push({
+        x: tangentXs,
+        y: tangentYs,
+        type: "scatter",
+        mode: "lines",
+        name: "Tangent lines",
+        showlegend: !tangentLegendShown,
+        line: {
           color: "#dc2626",
           width: 2.5,
-          dash: "dash",
-          showlegend: !tangentLegendShown
-        })
-      )
+          dash: "dash"
+        }
+      })
 
       tangentLegendShown = true
     }
 
     if (plotModel.visibleNewtonPoints.length > 0) {
-      data.push(
-        plotlyTraceUtils.createMarkerTrace({
-          x: plotModel.visibleNewtonPoints.map(point => point.x),
-          y: plotModel.visibleNewtonPoints.map(point => point.fx),
-          name: "Newton points",
-          text: plotModel.visibleNewtonPoints.map(point => `x_${point.i}`),
-          textposition: "top center",
-          color: "#dc2626",
-          size: 10
-        })
-      )
+      data.push({
+        x: plotModel.visibleNewtonPoints.map(point => point.x),
+        y: plotModel.visibleNewtonPoints.map(point => point.fx),
+        type: "scatter",
+        mode: "markers+text",
+        name: "Newton points",
+        text: plotModel.visibleNewtonPoints.map(point => `x_${point.i}`),
+        textposition: "top center",
+        showlegend: true,
+        marker: {
+        color: "#dc2626",
+        size: 10,
+        symbol: "circle",
+        line: {
+          color: "white",
+          width: 1
+        }
+        }
+      })
     }
 
     if (plotModel.visibleNewtonIntercepts.length > 0) {
-      data.push(
-        plotlyTraceUtils.createMarkerTrace({
-          x: plotModel.visibleNewtonIntercepts.map(point => point.x),
-          y: plotModel.visibleNewtonIntercepts.map(point => point.y),
-          name: "Tangent x-intercepts",
-          text: plotModel.visibleNewtonIntercepts.map(point => `x_${point.i}`),
-          textposition: "bottom center",
-          color: "#16a34a",
-          size: 10
-        })
-      )
+      data.push({
+        x: plotModel.visibleNewtonIntercepts.map(point => point.x),
+        y: plotModel.visibleNewtonIntercepts.map(point => point.y),
+        type: "scatter",
+        mode: "markers+text",
+        name: "Tangent x-intercepts",
+        text: plotModel.visibleNewtonIntercepts.map(point => `x_${point.i}`),
+        textposition: "bottom center",
+        showlegend: true,
+        marker: {
+        color: "#16a34a",
+        size: 10,
+        symbol: "circle",
+        line: {
+          color: "white",
+          width: 1
+        }
+        }
+      })
     }
 
     return data

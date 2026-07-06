@@ -10,7 +10,6 @@
 (function attachFixedPointMethod(globalThis) {
   const expressionUtils = globalThis.VisualMathExpressionUtils
   const plotModelUtils = globalThis.VisualMathPlotModelUtils
-  const plotlyTraceUtils = globalThis.VisualMathPlotlyTraceUtils
   const renderUtils = globalThis.VisualMathRenderUtils
 
   const compute = ({mathjs, gText, x0, tolerance, maxIterations}) => {
@@ -106,29 +105,43 @@
     const ys = xs.map(x => result.g(x)).map(y => Number.isFinite(y) ? y : null)
 
     const data = [
-      plotlyTraceUtils.createLineTrace({
+      {
         x: xs,
         y: ys,
+        type: "scatter",
+        mode: "lines",
         name: "g(x)",
-        color: "#2563eb",
-        width: 3
-      }),
-      plotlyTraceUtils.createLineTrace({
+        showlegend: true,
+        line: {
+          color: "#2563eb",
+          width: 3
+        }
+      },
+      {
         x: [lo, hi],
         y: [lo, hi],
+        type: "scatter",
+        mode: "lines",
         name: "y = x",
-        color: "#111827",
-        width: 2,
-        dash: "dash"
-      }),
-      plotlyTraceUtils.createLineTrace({
+        showlegend: true,
+        line: {
+          color: "#111827",
+          width: 2,
+          dash: "dash"
+        }
+      },
+      {
         x: [lo, hi],
         y: [0, 0],
+        type: "scatter",
+        mode: "lines",
         name: "y = 0",
-        color: "#94a3b8",
-        width: 1,
-        showlegend: false
-      })
+        showlegend: false,
+        line: {
+          color: "#94a3b8",
+          width: 1
+        }
+      }
     ]
 
     if (plotModel.visibleRows.length === 0) {
@@ -152,29 +165,43 @@
     }
 
     data.push(
-      plotlyTraceUtils.createLineTrace({
+      {
         x: cobwebX,
         y: cobwebY,
-        name: "Cobweb path",
-        color: "#dc2626",
-        width: 2,
+        type: "scatter",
         mode: "lines+markers",
+        name: "Cobweb path",
+        showlegend: true,
+        line: {
+          color: "#dc2626",
+          width: 2
+        },
         marker: {
           color: "#dc2626",
           size: 7
         }
-      }),
-      plotlyTraceUtils.createMarkerTrace({
+      },
+      {
         x: plotModel.visibleRows.map(row => row.x).filter(Number.isFinite),
         y: plotModel.visibleRows.map(row => row.x).filter(Number.isFinite),
+        type: "scatter",
+        mode: "markers+text",
         name: "Iterates",
         text: plotModel.visibleRows
           .filter(row => Number.isFinite(row.x))
           .map(row => `x_${row.i}`),
         textposition: "top center",
-        color: "#16a34a",
-        size: 9
-      })
+        showlegend: true,
+        marker: {
+          color: "#16a34a",
+          size: 9,
+          symbol: "circle",
+          line: {
+            color: "white",
+            width: 1
+          }
+        }
+      }
     )
 
     return data
