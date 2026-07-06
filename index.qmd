@@ -1,12 +1,12 @@
 ---
 title: "VisualMath"
-subtitle: "Explore numerical methods through fast, interactive, browser-based visualizations."
-page-layout: full
+subtitle: "Interactive, browser-based visualizations of numerical methods."
+listing:
+  contents:
+    - root-finding/bisection-method/index.qmd
+    - root-finding/fixed-point/index.qmd
+    - root-finding/newton/index.qmd
+  type: grid
+  sort: false
+  fields: [title, description, categories]
 ---
-
-[Fixed Point Method](/root-finding/fixed-point/index.qmd)
-
-[Bisection Method](/root-finding/bisection-method/index.qmd)
-
-[Newton's Method](/root-finding/newton/index.qmd)
-

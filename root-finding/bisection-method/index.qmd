@@ -1,19 +1,15 @@
+---
+title: "Bisection Method"
+description: "Finds a root by repeatedly halving an interval where f changes sign. Reliable and guaranteed to converge."
+page-layout: full
+---
+
 <!--
 Copyright (c) 2026 Apurva Nakade, Dhruv Azad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade, Dhruv Azad
 -->
 
----
-title: "Bisection Method"
-page-layout: full
----
-
-```{=html}
-<script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../js/utils.js"></script>
-```
 
 ```{ojs}
 //| output: false
@@ -30,13 +26,12 @@ The bisection method finds a root by repeatedly halving an interval $[a, b]$ whe
 // Parameters:
 //   fText        — user's function string, e.g. "x^3 - x - 2"
 //   a0, b0       — initial bracket endpoints (swapped if a0 > b0)
-//   tolerance    — stop when |f(m)| or interval width is smaller than this
-//   maxIterations — hard cap on the number of steps
+//   maxIterations — number of steps to run
 //
 // Returns: { rows, f }
 //   rows — array of { n, a, b, m, fa, fb, fm, width }, one entry per iteration
 //   f    — parsed function, reused for curve sampling in renderOutput
-precompute = ({fText, a0, b0, tolerance, maxIterations}) => {
+precompute = ({fText, a0, b0, maxIterations}) => {
   const math = window.math
 
   const f        = VM.makeFunction(math, fText)
@@ -46,7 +41,6 @@ precompute = ({fText, a0, b0, tolerance, maxIterations}) => {
 
   let a = Number(a0)
   let b = Number(b0)
-  const tol = Number(tolerance)
 
   if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return {rows: [], f}
   if (a > b) { const tmp = a; a = b; b = tmp }   // ensure a < b
@@ -71,7 +65,6 @@ precompute = ({fText, a0, b0, tolerance, maxIterations}) => {
     rows.push({n, a: curA, b: curB, m, fa: curFa, fb: curFb, fm, width: curB - curA})
 
     if (!Number.isFinite(fm)) return {rows, f}
-    if (Math.abs(fm) < tol || Math.abs(curB - curA) < tol) return {rows, f}
 
     // Keep the half that still contains a sign change
     if (curFa * fm < 0) { curB = m; curFb = fm } else { curA = m; curFa = fm }
@@ -146,14 +139,15 @@ renderOutput = {
     }] : []
 
     const layout = {
-      title: {text: "Bisection Method"},
-      margin: {l: 65, r: 30, t: 60, b: 55},
+      // title: {text: "Bisection Method"},
+      margin: {l: 0, r: 0, t: 0, b: 0},
       xaxis: {title: "x", range: [xRange.lo, xRange.hi], zeroline: true},
       yaxis: {title: "f(x)", range: [yRange.lo, yRange.hi], zeroline: true},
       shapes,
       legend: {orientation: "h", y: -0.18},
       hovermode: "closest",
-      uirevision: "static"   // keeps zoom/pan state across reactive updates
+      uirevision: "static",  // keeps zoom/pan state across reactive updates
+      autosize: true
     }
     const config = {responsive: true, displaylogo: false}
 
@@ -162,6 +156,7 @@ renderOutput = {
       _plotDiv = document.createElement("div")
       _plotDiv.className = "plotly-box-large"
       Plotly.newPlot(_plotDiv, data, layout, config)
+      setTimeout(() => Plotly.Plots.resize(_plotDiv), 0)
     } else {
       Plotly.react(_plotDiv, data, layout, config)
     }
@@ -189,12 +184,7 @@ renderOutput = {
 }
 ```
 
-## Controls and output
-
 <div class="ojs-controls-wide">
-
-### Controls
-
 <div class="ojs-control-grid">
 
 ```{ojs}
@@ -221,14 +211,7 @@ viewof b0 = Inputs.number({
 })
 ```
 
-```{ojs}
-viewof tolerance = Inputs.number({
-  label: "Tolerance",
-  value: 1e-8,
-  step: 1e-8
-})
-```
-
+</div>
 </div>
 
 <div class="ojs-step-row">
@@ -245,10 +228,8 @@ viewof maxIterations = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
 
 ```{ojs}
 //| output: false
-result = precompute({fText, a0, b0, tolerance, maxIterations})
+result = precompute({fText, a0, b0, maxIterations})
 ```
-
-</div>
 
 <div class="ojs-output-wide">
 

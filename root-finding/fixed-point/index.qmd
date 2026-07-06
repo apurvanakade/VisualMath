@@ -1,19 +1,15 @@
+---
+title: "Fixed Point Iteration"
+description: "Rewrites an equation as x = g(x) and iterates x_{n+1} = g(x_n), visualized as a cobweb diagram."
+page-layout: full
+---
+
 <!--
 Copyright (c) 2026 Apurva Nakade, Dhruv Azad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade, Dhruv Azad
 -->
 
----
-title: "Fixed Point Iteration"
-page-layout: full
----
-
-```{=html}
-<script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../js/utils.js"></script>
-```
 
 ```{ojs}
 //| output: false
@@ -30,13 +26,12 @@ Fixed point iteration finds a value $\alpha$ where $g(\alpha) = \alpha$ by repea
 // Parameters:
 //   gText        — user's iteration function string, e.g. "cos(x)"
 //   x0           — initial guess
-//   tolerance    — stop when |g(x) - x| is smaller than this
-//   maxIterations — hard cap on the number of steps
+//   maxIterations — number of steps to run
 //
 // Returns: { rows, g }
 //   rows — array of { i, x, gx, error }, one entry per iteration
 //   g    — parsed function, reused for curve sampling in renderOutput
-precompute = ({gText, x0, tolerance, maxIterations}) => {
+precompute = ({gText, x0, maxIterations}) => {
   const math = window.math
 
   const g        = VM.makeFunction(math, gText)
@@ -46,7 +41,6 @@ precompute = ({gText, x0, tolerance, maxIterations}) => {
 
   const rows  = []
   const start = Number(x0)
-  const tol   = Number(tolerance)
 
   if (!Number.isFinite(start)) return {rows: [], g}
 
@@ -63,9 +57,6 @@ precompute = ({gText, x0, tolerance, maxIterations}) => {
 
     const error = Math.abs(gx - x)
     rows.push({i, x, gx, error})
-
-    // Stop when x and g(x) are close enough — we've found a fixed point.
-    if (error < tol) return {rows, g}
 
     x = gx
     i++
@@ -141,13 +132,14 @@ renderOutput = {
     }
 
     const layout = {
-      title: {text: "Fixed Point Iteration Cobweb Diagram"},
-      margin: {l: 60, r: 30, t: 60, b: 55},
+      // title: {text: "Fixed Point Iteration Cobweb Diagram"},
+      margin: {l: 0, r: 0, t: 0, b: 0},
       xaxis: {title: "x", range: [range.lo, range.hi], zeroline: true},
       yaxis: {title: "y", range: [range.lo, range.hi], zeroline: true, zerolinecolor: "#94a3b8", gridcolor: "#e2e8f0", linecolor: "#cbd5e1"},
       legend: {orientation: "h", y: -0.18},
       hovermode: "closest",
-      uirevision: "static"   // keeps zoom/pan state across reactive updates
+      uirevision: "static",  // keeps zoom/pan state across reactive updates
+      autosize: true
     }
     const config = {responsive: true, displaylogo: false}
 
@@ -156,6 +148,7 @@ renderOutput = {
       _plotDiv = document.createElement("div")
       _plotDiv.className = "plotly-box-large"
       Plotly.newPlot(_plotDiv, data, layout, config)
+      setTimeout(() => Plotly.Plots.resize(_plotDiv), 0)
     } else {
       Plotly.react(_plotDiv, data, layout, config)
     }
@@ -179,12 +172,7 @@ renderOutput = {
 }
 ```
 
-## Controls and output
-
 <div class="ojs-controls-wide">
-
-### Controls
-
 <div class="ojs-control-grid">
 
 ```{ojs}
@@ -203,14 +191,7 @@ viewof x0 = Inputs.number({
 })
 ```
 
-```{ojs}
-viewof tolerance = Inputs.number({
-  label: "Tolerance",
-  value: 1e-6,
-  step: 1e-6
-})
-```
-
+</div>
 </div>
 
 <div class="ojs-step-row">
@@ -227,10 +208,8 @@ viewof maxIterations = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
 
 ```{ojs}
 //| output: false
-result = precompute({gText, x0, tolerance, maxIterations})
+result = precompute({gText, x0, maxIterations})
 ```
-
-</div>
 
 <div class="ojs-output-wide">
 

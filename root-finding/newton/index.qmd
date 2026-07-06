@@ -1,24 +1,19 @@
+---
+title: "Newton's Method"
+description: "Uses tangent lines and derivative information to find roots of f(x)=0 with fast convergence."
+page-layout: full
+categories:
+  - Tangent-line method
+  - Derivatives
+  - Fast convergence
+---
+
 <!--
 Copyright (c) 2026 Apurva Nakade, Dhruv Azad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade, Dhruv Azad
 -->
 
----
-title: "Newton's Method"
-page-layout: full
-categories:
-  - Plotly
-  - Tangent-line method
-  - Derivatives
-  - Fast convergence
----
-
-```{=html}
-<script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../js/utils.js"></script>
-```
 
 ```{ojs}
 //| output: false
@@ -36,13 +31,12 @@ Newton's method finds roots of $f(x) = 0$ by repeatedly linearizing the function
 // Parameters:
 //   fText        — user's function string, e.g. "x^3 - x - 2"
 //   x0           — initial guess
-//   tolerance    — stop when |f(x)| or step size is smaller than this
-//   maxIterations — hard cap on the number of steps
+//   maxIterations — number of steps to run
 //
 // Returns: { rows, f, df }
 //   rows — array of { i, x, fx, dfx, xNext, error }, one entry per iteration
 //   f, df — parsed functions, reused for curve sampling in renderOutput
-precompute = ({fText, x0, tolerance, maxIterations}) => {
+precompute = ({fText, x0, maxIterations}) => {
   const math = window.math
 
   // Parse f(x) and its symbolic derivative from the user's string.
@@ -55,7 +49,6 @@ precompute = ({fText, x0, tolerance, maxIterations}) => {
 
   const rows  = []
   const start = Number(x0)
-  const tol   = Number(tolerance)
 
   if (!Number.isFinite(start)) return {rows: [], f, df}
 
@@ -80,8 +73,6 @@ precompute = ({fText, x0, tolerance, maxIterations}) => {
     const xNext = x - fx / dfx        // Newton update: x-intercept of the tangent
     const error = Math.abs(xNext - x)
     rows.push({i, x, fx, dfx, xNext, error})
-
-    if (Math.abs(fx) < tol || error < tol) return {rows, f, df}
 
     x = xNext
     i++
@@ -179,13 +170,14 @@ renderOutput = {
     }
 
     const layout = {
-      title: {text: "Newton's Method Tangent Visualization"},
-      margin: {l: 65, r: 30, t: 60, b: 55},
+      // title: {text: "Newton's Method Tangent Visualization"},
+      margin: {l: 0, r: 0, t: 0, b: 0},
       xaxis: {title: "x", range: [xRange.lo, xRange.hi], zeroline: true},
       yaxis: {title: "f(x)", range: [yRange.lo, yRange.hi], zeroline: true},
       legend: {orientation: "h", y: -0.18},
       hovermode: "closest",
-      uirevision: "static"   // keeps zoom/pan state across reactive updates
+      uirevision: "static",  // keeps zoom/pan state across reactive updates
+      autosize: true
     }
     const config = {responsive: true, displaylogo: false}
 
@@ -194,6 +186,9 @@ renderOutput = {
       _plotDiv = document.createElement("div")
       _plotDiv.className = "plotly-box-large"
       Plotly.newPlot(_plotDiv, data, layout, config)
+      // newPlot fires before the div is in the DOM, so Plotly measures 0 width.
+      // Resize on the next tick, after OJS inserts the div into the page.
+      setTimeout(() => Plotly.Plots.resize(_plotDiv), 0)
     } else {
       Plotly.react(_plotDiv, data, layout, config)
     }
@@ -219,18 +214,13 @@ renderOutput = {
 }
 ```
 
-## Controls and output
-
 <div class="ojs-controls-wide">
-
-### Controls
-
 <div class="ojs-control-grid">
 
 ```{ojs}
 viewof fText = Inputs.text({
   label: "Function f(x)",
-  value: "x^3 - x - 2",
+  value: "x^2",
   placeholder: "Example: x^3 - x - 2, cos(x) - x"
 })
 ```
@@ -243,14 +233,7 @@ viewof x0 = Inputs.number({
 })
 ```
 
-```{ojs}
-viewof tolerance = Inputs.number({
-  label: "Tolerance",
-  value: 1e-8,
-  step: 1e-8
-})
-```
-
+</div>
 </div>
 
 <div class="ojs-step-row">
@@ -267,10 +250,8 @@ viewof maxIterations = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
 
 ```{ojs}
 //| output: false
-result = precompute({fText, x0, tolerance, maxIterations})
+result = precompute({fText, x0, maxIterations})
 ```
-
-</div>
 
 <div class="ojs-output-wide">
 
