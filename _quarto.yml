@@ -14,26 +14,45 @@ website:
   bread-crumbs: true
 
   navbar:
-    background: primary
+    background: light
     search: true
+    left:
+      - text: "Root Finding"
+        menu:
+          - text: "Overview"
+            href: root-finding/index.qmd
+          - text: "---"
+          - text: "Bisection Method"
+            href: root-finding/bisection-method/index.qmd
+          - text: "Fixed Point Iteration"
+            href: root-finding/fixed-point/index.qmd
+          - text: "Newton's Method"
+            href: root-finding/newton/index.qmd
 
-  sidebar:
-    - title: "Root Finding"
-      style: "docked"
-      background: light
-      contents:
-        - href: root-finding/index.qmd
-          text: Overview
-        - href: root-finding/bisection-method/index.qmd
-          text: Bisection Method
-        - href: root-finding/fixed-point/index.qmd
-          text: Fixed Point Iteration
-        - href: root-finding/newton/index.qmd
-          text: Newton's Method
+  # sidebar:
+  #   - title: "Root Finding"
+  #     style: "docked"
+  #     background: light
+  #     contents:
+  #       - href: root-finding/index.qmd
+  #         text: Overview
+  #       - href: root-finding/bisection-method/index.qmd
+  #         text: Bisection Method
+  #       - href: root-finding/fixed-point/index.qmd
+  #         text: Fixed Point Iteration
+  #       - href: root-finding/newton/index.qmd
+  #         text: Newton's Method
 
 format:
   html:
-    theme: cosmo
+    theme:
+      light: cosmo
+      dark: cyborg
     css: styles.css
-    toc: true
+    toc: false
     html-math-method: mathjax
+    include-in-header:
+      - text: |
+          <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
+          <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+          <script src="../../js/utils.js"></script>
