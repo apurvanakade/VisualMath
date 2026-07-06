@@ -113,6 +113,17 @@ renderOutput = {
       {x: [xRange.lo, xRange.hi], y: [0, 0], type: "scatter", mode: "lines", name: "y = 0", showlegend: true, line: {color: "#111827", width: 2}}
     ]
 
+    // Previous midpoints — all steps before the current one
+    const prevRows = visibleRows.slice(0, -1).filter(r => Number.isFinite(r.m) && Number.isFinite(r.fm))
+    if (prevRows.length > 0) {
+      data.push({
+        x: prevRows.map(r => r.m), y: prevRows.map(r => r.fm),
+        type: "scatter", mode: "markers+text", name: "Previous midpoints", showlegend: true,
+        text: prevRows.map(r => `m${r.n}`), textposition: "top center",
+        marker: {color: "#f97316", size: 8, symbol: "circle", line: {color: "white", width: 1}}
+      })
+    }
+
     if (currentRow) {
       const row = currentRow
       data.push(
@@ -120,9 +131,9 @@ renderOutput = {
         {x: [row.a, row.b], y: [row.fa, row.fb], type: "scatter", mode: "markers+text", name: "Endpoints",
           text: ["a", "b"], textposition: "top center", showlegend: true,
           marker: {color: "#2563eb", size: 11, symbol: "circle", line: {color: "white", width: 1}}},
-        // Midpoint m
+        // Current midpoint m
         {x: [row.m], y: [row.fm], type: "scatter", mode: "markers+text", name: "Midpoint",
-          text: ["m"], textposition: "top center", showlegend: true,
+          text: [`m${row.n}`], textposition: "top center", showlegend: true,
           marker: {color: "#dc2626", size: 13, symbol: "circle", line: {color: "white", width: 1}}},
         // Dotted verticals from x-axis to each marker
         {x: [row.a, row.a], y: [0, row.fa], type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip", line: {color: "#94a3b8", width: 1.5, dash: "dot"}},
