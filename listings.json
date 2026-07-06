@@ -1,0 +1,18 @@
+[
+  {
+    "listing": "/index.html",
+    "items": [
+      "/root-finding/bisection-method/index.html",
+      "/root-finding/fixed-point/index.html",
+      "/root-finding/newton/index.html"
+    ]
+  },
+  {
+    "listing": "/root-finding/index.html",
+    "items": [
+      "/root-finding/bisection-method/index.html",
+      "/root-finding/fixed-point/index.html",
+      "/root-finding/newton/index.html"
+    ]
+  }
+]
