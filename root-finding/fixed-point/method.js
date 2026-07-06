@@ -10,7 +10,9 @@
 (function attachFixedPointMethod(globalThis) {
   const expressionUtils = globalThis.VisualMathExpressionUtils
   const plotModelUtils = globalThis.VisualMathPlotModelUtils
-  const renderUtils = globalThis.VisualMathRenderUtils
+  const tableUtils = globalThis.VisualMathRenderTableUtils
+  const statusUtils = globalThis.VisualMathRenderStatusUtils
+  const stepControlUtils = globalThis.VisualMathStepControlUtils
 
   const compute = ({mathjs, gText, x0, tolerance, maxIterations}) => {
     const compiledG = expressionUtils.tryCompileExpression(mathjs, gText)
@@ -209,10 +211,10 @@
 
   const renderTable = ({html, tex, rows}) => {
     if (rows.length === 0) {
-      return renderUtils.renderEmptyState(html, "No iterations to display yet.")
+      return html`<div class="ojs-status">No iterations to display yet.</div>`
     }
 
-    return renderUtils.renderDataTable({
+    return tableUtils.renderTable({
       html,
       headers: ["n", "x_n", tex`g(x_n) = x_{n+1}`, tex`|x_{n+1} - x_n|`],
       rows: rows.map(row => [
@@ -250,7 +252,7 @@
     return html`
       <div>
         ${plotDiv}
-        ${renderUtils.renderStatusBox({
+        ${statusUtils.renderStatus({
           html,
           statusType: result.statusType,
           message: result.message
@@ -262,7 +264,7 @@
 
   globalThis.VisualMathFixedPointMethod = {
     compute,
-    createStepControl: options => renderUtils.createStepControl(options),
+    createStepControl: options => stepControlUtils.createStepControl(options),
     renderOutput
   }
 })(window)

@@ -10,7 +10,9 @@
 (function attachBisectionMethod(globalThis) {
   const expressionUtils = globalThis.VisualMathExpressionUtils
   const plotModelUtils = globalThis.VisualMathPlotModelUtils
-  const renderUtils = globalThis.VisualMathRenderUtils
+  const tableUtils = globalThis.VisualMathRenderTableUtils
+  const statusUtils = globalThis.VisualMathRenderStatusUtils
+  const stepControlUtils = globalThis.VisualMathStepControlUtils
 
   const compute = ({mathjs, fText, a0, b0, tolerance, maxIterations}) => {
     const compiledF = expressionUtils.tryCompileExpression(mathjs, fText)
@@ -310,10 +312,10 @@
 
   const renderTable = ({html, tex, rows}) => {
     if (rows.length === 0) {
-      return renderUtils.renderEmptyState(html, "No iterations to display yet.")
+      return html`<div class="ojs-status">No iterations to display yet.</div>`
     }
 
-    return renderUtils.renderDataTable({
+    return tableUtils.renderTable({
       html,
       headers: ["n", tex`a_n`, tex`b_n`, tex`m_n`, tex`f(a_n)`, tex`f(b_n)`, tex`f(m_n)`, "width"],
       rows: rows.map(row => [
@@ -360,7 +362,7 @@
     return html`
       <div>
         ${plotDiv}
-        ${renderUtils.renderStatusBox({
+        ${statusUtils.renderStatus({
           html,
           statusType: result.statusType,
           message: result.message
@@ -372,7 +374,7 @@
 
   globalThis.VisualMathBisectionMethod = {
     compute,
-    createStepControl: options => renderUtils.createStepControl(options),
+    createStepControl: options => stepControlUtils.createStepControl(options),
     renderOutput
   }
 })(window)
