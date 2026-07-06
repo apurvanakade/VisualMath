@@ -14,6 +14,7 @@ page-layout: full
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/utils/math-expression.js"></script>
+<script src="../../js/utils/plot-model.js"></script>
 ```
 
 Explore fixed point iteration through a cobweb diagram. Enter an iteration function \(g(x)\), choose an initial guess, and watch the sequence approach or move away from a fixed point.
@@ -104,6 +105,10 @@ mathjs = window.math
 
 ```{ojs}
 expressionUtils = window.VisualMathExpressionUtils
+```
+
+```{ojs}
+plotModelUtils = window.VisualMathPlotModelUtils
 ```
 
 ```{ojs}
@@ -198,48 +203,35 @@ fixedPointResult = computeFixedPointResult({
 ```
 
 ```{ojs}
-visibleRows = fixedPointResult.rows.slice(
-  0,
-  Math.min(Number(stepControl), fixedPointResult.rows.length) + 1
-)
+fixedPointPlotModel = {
+  const visibleRows = plotModelUtils.sliceVisibleRows(fixedPointResult.rows, stepControl)
+  const rangeValues = []
+  plotModelUtils.pushFiniteValues(rangeValues, [Number(x0)])
+
+  for (const row of visibleRows) {
+    plotModelUtils.pushFiniteValues(rangeValues, [row.x, row.gx])
+  }
+
+  const range = plotModelUtils.createPaddedRange(rangeValues, {
+    emptyRange: [-2, 2],
+    singularPadding: 2,
+    relativePadding: 0.45,
+    minPadding: 1.0
+  })
+
+  return {
+    visibleRows,
+    range
+  }
+}
 ```
 
 ```{ojs}
-fixedPointPlotRange = {
-  const values = []
+visibleRows = fixedPointPlotModel.visibleRows
+```
 
-  const start = Number(x0)
-  if (Number.isFinite(start)) values.push(start)
-
-  for (const row of visibleRows) {
-    if (Number.isFinite(row.x)) values.push(row.x)
-    if (Number.isFinite(row.gx)) values.push(row.gx)
-  }
-
-  let lo
-  let hi
-
-  if (values.length === 0) {
-    lo = -2
-    hi = 2
-  } else {
-    lo = Math.min(...values)
-    hi = Math.max(...values)
-
-    if (lo === hi) {
-      lo = lo - 2
-      hi = hi + 2
-    }
-  }
-
-  const width = hi - lo
-  const pad = Math.max(0.45 * width, 1.0)
-
-  return {
-    lo: lo - pad,
-    hi: hi + pad
-  }
-}
+```{ojs}
+fixedPointPlotRange = fixedPointPlotModel.range
 ```
 
 ```{ojs}

@@ -13,6 +13,7 @@ page-layout: full
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/utils/math-expression.js"></script>
+<script src="../../js/utils/plot-model.js"></script>
 ```
 
 Visualize how the bisection method repeatedly halves an interval containing a sign change. Choose a function and starting bracket, then step through the narrowing intervals.
@@ -111,6 +112,10 @@ mathjs = window.math
 
 ```{ojs}
 expressionUtils = window.VisualMathExpressionUtils
+```
+
+```{ojs}
+plotModelUtils = window.VisualMathPlotModelUtils
 ```
 
 ```{ojs}
@@ -267,100 +272,66 @@ bisectionResult = computeBisectionResult({
 ```
 
 ```{ojs}
-visibleRows = bisectionResult.rows.slice(
-  0,
-  Math.min(Number(stepControl), bisectionResult.rows.length - 1) + 1
-)
-```
+bisectionPlotModel = {
+  const visibleRows = plotModelUtils.sliceVisibleRows(bisectionResult.rows, stepControl)
+  const currentBisectionRow = visibleRows.length === 0 ? null : visibleRows[visibleRows.length - 1]
 
-```{ojs}
-currentBisectionRow = {
-  if (visibleRows.length === 0) return null
-  return visibleRows[visibleRows.length - 1]
-}
-```
-
-```{ojs}
-bisectionXRange = {
-  const values = []
-
-  const aStart = Number(a0)
-  const bStart = Number(b0)
-
-  if (Number.isFinite(aStart)) values.push(aStart)
-  if (Number.isFinite(bStart)) values.push(bStart)
+  const xValues = []
+  plotModelUtils.pushFiniteValues(xValues, [Number(a0), Number(b0)])
 
   for (const row of visibleRows) {
-    if (Number.isFinite(row.a)) values.push(row.a)
-    if (Number.isFinite(row.b)) values.push(row.b)
-    if (Number.isFinite(row.m)) values.push(row.m)
+    plotModelUtils.pushFiniteValues(xValues, [row.a, row.b, row.m])
   }
 
-  let lo
-  let hi
+  const xRange = plotModelUtils.createPaddedRange(xValues, {
+    emptyRange: [-5, 5],
+    singularPadding: 2,
+    relativePadding: 0.25,
+    minPadding: 0.5
+  })
 
-  if (values.length === 0) {
-    lo = -5
-    hi = 5
-  } else {
-    lo = Math.min(...values)
-    hi = Math.max(...values)
+  const yValues = [0]
+  plotModelUtils.appendSampledFunctionValues(yValues, f, {
+    lo: xRange.lo,
+    hi: xRange.hi,
+    count: 500,
+    maxAbs: 1e8
+  })
 
-    if (lo === hi) {
-      lo = lo - 2
-      hi = hi + 2
-    }
+  for (const row of visibleRows) {
+    plotModelUtils.pushFiniteValues(yValues, [row.fa, row.fb, row.fm], {maxAbs: 1e8})
   }
 
-  const width = hi - lo
-  const pad = Math.max(0.25 * width, 0.5)
+  const yRange = plotModelUtils.createPaddedRange(yValues, {
+    emptyRange: [-1, 1],
+    singularPadding: 1,
+    relativePadding: 0.15,
+    minPadding: 0.5
+  })
 
   return {
-    lo: lo - pad,
-    hi: hi + pad
+    visibleRows,
+    currentBisectionRow,
+    xRange,
+    yRange
   }
 }
 ```
 
 ```{ojs}
-bisectionYRange = {
-  const lo = bisectionXRange.lo
-  const hi = bisectionXRange.hi
-  const values = [0]
+visibleRows = bisectionPlotModel.visibleRows
+```
 
-  const n = 500
+```{ojs}
+currentBisectionRow = bisectionPlotModel.currentBisectionRow
+```
 
-  for (let i = 0; i < n; i++) {
-    const x = lo + (hi - lo) * i / (n - 1)
-    const y = f(x)
+```{ojs}
+bisectionXRange = bisectionPlotModel.xRange
+```
 
-    if (Number.isFinite(y) && Math.abs(y) < 1e8) {
-      values.push(y)
-    }
-  }
-
-  for (const row of visibleRows) {
-    if (Number.isFinite(row.fa) && Math.abs(row.fa) < 1e8) values.push(row.fa)
-    if (Number.isFinite(row.fb) && Math.abs(row.fb) < 1e8) values.push(row.fb)
-    if (Number.isFinite(row.fm) && Math.abs(row.fm) < 1e8) values.push(row.fm)
-  }
-
-  let ymin = Math.min(...values)
-  let ymax = Math.max(...values)
-
-  if (ymin === ymax) {
-    ymin = ymin - 1
-    ymax = ymax + 1
-  }
-
-  const height = ymax - ymin
-  const pad = Math.max(0.15 * height, 0.5)
-
-  return {
-    lo: ymin - pad,
-    hi: ymax + pad
-  }
-}
+```{ojs}
+bisectionYRange = bisectionPlotModel.yRange
 ```
 
 ```{ojs}

@@ -19,6 +19,7 @@ categories:
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/utils/math-expression.js"></script>
+<script src="../../js/utils/plot-model.js"></script>
 ```
 
 <div class="ojs-controls-wide">
@@ -107,6 +108,10 @@ mathjs = window.math
 
 ```{ojs}
 expressionUtils = window.VisualMathExpressionUtils
+```
+
+```{ojs}
+plotModelUtils = window.VisualMathPlotModelUtils
 ```
 
 ```{ojs}
@@ -235,19 +240,14 @@ newtonResult = computeNewtonResult({
 ```
 
 ```{ojs}
-visibleRows = newtonResult.rows.slice(
-  0,
-  Math.min(Number(stepControl), newtonResult.rows.length) + 1
-)
-```
-
-```{ojs}
-visibleNewtonPoints = {
-  const pts = []
+newtonPlotModel = {
+  const visibleRows = plotModelUtils.sliceVisibleRows(newtonResult.rows, stepControl)
+  const visibleNewtonPoints = []
+  const visibleNewtonIntercepts = []
 
   for (const row of visibleRows) {
     if (Number.isFinite(row.x) && Number.isFinite(row.fx)) {
-      pts.push({
+      visibleNewtonPoints.push({
         i: row.i,
         x: row.x,
         fx: row.fx,
@@ -255,19 +255,9 @@ visibleNewtonPoints = {
         xNext: row.xNext
       })
     }
-  }
 
-  return pts
-}
-```
-
-```{ojs}
-visibleNewtonIntercepts = {
-  const pts = []
-
-  for (const row of visibleRows) {
     if (Number.isFinite(row.xNext)) {
-      pts.push({
+      visibleNewtonIntercepts.push({
         i: row.i + 1,
         x: row.xNext,
         y: 0
@@ -275,69 +265,30 @@ visibleNewtonIntercepts = {
     }
   }
 
-  return pts
-}
-```
-
-```{ojs}
-newtonXRange = {
-  const values = []
-
-  const start = Number(x0)
-  if (Number.isFinite(start)) values.push(start)
+  const xValues = []
+  plotModelUtils.pushFiniteValues(xValues, [Number(x0)])
 
   for (const row of visibleRows) {
-    if (Number.isFinite(row.x)) values.push(row.x)
-    if (Number.isFinite(row.xNext)) values.push(row.xNext)
+    plotModelUtils.pushFiniteValues(xValues, [row.x, row.xNext])
   }
 
-  let lo
-  let hi
+  const xRange = plotModelUtils.createPaddedRange(xValues, {
+    emptyRange: [-3, 3],
+    singularPadding: 3,
+    relativePadding: 0.45,
+    minPadding: 1.0
+  })
 
-  if (values.length === 0) {
-    lo = -3
-    hi = 3
-  } else {
-    lo = Math.min(...values)
-    hi = Math.max(...values)
-
-    if (lo === hi) {
-      lo = lo - 3
-      hi = hi + 3
-    }
-  }
-
-  const width = hi - lo
-  const pad = Math.max(0.45 * width, 1.0)
-
-  return {
-    lo: lo - pad,
-    hi: hi + pad
-  }
-}
-```
-
-```{ojs}
-newtonYRange = {
-  const lo = newtonXRange.lo
-  const hi = newtonXRange.hi
-
-  const values = [0]
-
-  const n = 400
-  for (let i = 0; i < n; i++) {
-    const x = lo + (hi - lo) * i / (n - 1)
-    const y = f(x)
-
-    if (Number.isFinite(y) && Math.abs(y) < 1e8) {
-      values.push(y)
-    }
-  }
+  const yValues = [0]
+  plotModelUtils.appendSampledFunctionValues(yValues, f, {
+    lo: xRange.lo,
+    hi: xRange.hi,
+    count: 400,
+    maxAbs: 1e8
+  })
 
   for (const row of visibleRows) {
-    if (Number.isFinite(row.fx) && Math.abs(row.fx) < 1e8) {
-      values.push(row.fx)
-    }
+    plotModelUtils.pushFiniteValues(yValues, [row.fx], {maxAbs: 1e8})
 
     if (
       Number.isFinite(row.x) &&
@@ -345,33 +296,51 @@ newtonYRange = {
       Number.isFinite(row.dfx) &&
       Number.isFinite(row.xNext)
     ) {
-      const tlo = Math.max(lo, Math.min(row.x, row.xNext) - 0.75)
-      const thi = Math.min(hi, Math.max(row.x, row.xNext) + 0.75)
+      const tlo = Math.max(xRange.lo, Math.min(row.x, row.xNext) - 0.75)
+      const thi = Math.min(xRange.hi, Math.max(row.x, row.xNext) + 0.75)
 
       const y1 = row.fx + row.dfx * (tlo - row.x)
       const y2 = row.fx + row.dfx * (thi - row.x)
 
-      if (Number.isFinite(y1) && Math.abs(y1) < 1e8) values.push(y1)
-      if (Number.isFinite(y2) && Math.abs(y2) < 1e8) values.push(y2)
+      plotModelUtils.pushFiniteValues(yValues, [y1, y2], {maxAbs: 1e8})
     }
   }
 
-  let ymin = Math.min(...values)
-  let ymax = Math.max(...values)
-
-  if (ymin === ymax) {
-    ymin = ymin - 1
-    ymax = ymax + 1
-  }
-
-  const height = ymax - ymin
-  const pad = Math.max(0.15 * height, 0.5)
+  const yRange = plotModelUtils.createPaddedRange(yValues, {
+    emptyRange: [-1, 1],
+    singularPadding: 1,
+    relativePadding: 0.15,
+    minPadding: 0.5
+  })
 
   return {
-    lo: ymin - pad,
-    hi: ymax + pad
+    visibleRows,
+    visibleNewtonPoints,
+    visibleNewtonIntercepts,
+    xRange,
+    yRange
   }
 }
+```
+
+```{ojs}
+visibleRows = newtonPlotModel.visibleRows
+```
+
+```{ojs}
+visibleNewtonPoints = newtonPlotModel.visibleNewtonPoints
+```
+
+```{ojs}
+visibleNewtonIntercepts = newtonPlotModel.visibleNewtonIntercepts
+```
+
+```{ojs}
+newtonXRange = newtonPlotModel.xRange
+```
+
+```{ojs}
+newtonYRange = newtonPlotModel.yRange
 ```
 
 ```{ojs}
