@@ -14,6 +14,7 @@ page-layout: full
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/utils/math-expression.js"></script>
 <script src="../../js/utils/plot-model.js"></script>
+<script src="../../js/utils/plotly-traces.js"></script>
 ```
 
 Visualize how the bisection method repeatedly halves an interval containing a sign change. Choose a function and starting bracket, then step through the narrowing intervals.
@@ -116,6 +117,10 @@ expressionUtils = window.VisualMathExpressionUtils
 
 ```{ojs}
 plotModelUtils = window.VisualMathPlotModelUtils
+```
+
+```{ojs}
+plotlyTraceUtils = window.VisualMathPlotlyTraceUtils
 ```
 
 ```{ojs}
@@ -335,6 +340,122 @@ bisectionYRange = bisectionPlotModel.yRange
 ```
 
 ```{ojs}
+bisectionBaseTraces = {
+  const xlo = bisectionXRange.lo
+  const xhi = bisectionXRange.hi
+  const n = 700
+  const xs = Array.from({length: n}, (_, i) => xlo + (xhi - xlo) * i / (n - 1))
+  const ys = xs.map(x => f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
+
+  return [
+    plotlyTraceUtils.createLineTrace({
+      x: xs,
+      y: ys,
+      name: "f(x)",
+      color: "#2563eb",
+      width: 3
+    }),
+    plotlyTraceUtils.createLineTrace({
+      x: [xlo, xhi],
+      y: [0, 0],
+      name: "y = 0",
+      color: "#111827",
+      width: 2
+    })
+  ]
+}
+```
+
+```{ojs}
+bisectionShapeOverlays = {
+  if (!currentBisectionRow) return []
+
+  const row = currentBisectionRow
+  return [{
+    type: "rect",
+    xref: "x",
+    yref: "paper",
+    x0: row.a,
+    x1: row.b,
+    y0: 0,
+    y1: 1,
+    fillcolor: "rgba(37, 99, 235, 0.14)",
+    line: {
+      width: 0
+    }
+  }]
+}
+```
+
+```{ojs}
+bisectionPointTraces = {
+  if (!currentBisectionRow) return []
+
+  const row = currentBisectionRow
+  return [
+    plotlyTraceUtils.createMarkerTrace({
+      x: [row.a, row.b],
+      y: [row.fa, row.fb],
+      name: "Endpoints",
+      text: ["a", "b"],
+      textposition: "top center",
+      color: "#2563eb",
+      size: 11
+    }),
+    plotlyTraceUtils.createMarkerTrace({
+      x: [row.m],
+      y: [row.fm],
+      name: "Midpoint",
+      text: ["m"],
+      textposition: "top center",
+      color: "#dc2626",
+      size: 13
+    })
+  ]
+}
+```
+
+```{ojs}
+bisectionGuideTraces = {
+  if (!currentBisectionRow) return []
+
+  const row = currentBisectionRow
+  return [
+    plotlyTraceUtils.createLineTrace({
+      x: [row.a, row.a],
+      y: [0, row.fa],
+      name: "Endpoint guides",
+      color: "#94a3b8",
+      width: 1.5,
+      dash: "dot",
+      showlegend: false,
+      hoverinfo: "skip"
+    }),
+    plotlyTraceUtils.createLineTrace({
+      x: [row.b, row.b],
+      y: [0, row.fb],
+      name: "Endpoint guides",
+      color: "#94a3b8",
+      width: 1.5,
+      dash: "dot",
+      showlegend: false,
+      hoverinfo: "skip"
+    }),
+    plotlyTraceUtils.createLineTrace({
+      x: [row.m, row.m],
+      y: [0, row.fm],
+      name: "Midpoint guide",
+      color: "#dc2626",
+      width: 1.5,
+      dash: "dot",
+      showlegend: false,
+      hoverinfo: "skip"
+    })
+  ]
+}
+```
+
+```{ojs}
 bisectionPlot = {
   const div = html`<div class="plotly-box-large"></div>`
 
@@ -342,136 +463,12 @@ bisectionPlot = {
   const xhi = bisectionXRange.hi
   const ylo = bisectionYRange.lo
   const yhi = bisectionYRange.hi
-
-  const n = 700
-  const xs = Array.from({length: n}, (_, i) => xlo + (xhi - xlo) * i / (n - 1))
-  const ys = xs.map(x => f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
-
   const data = [
-    {
-      x: xs,
-      y: ys,
-      type: "scatter",
-      mode: "lines",
-      name: "f(x)",
-      line: {
-        color: "#2563eb",
-        width: 3
-      }
-    },
-    {
-      x: [xlo, xhi],
-      y: [0, 0],
-      type: "scatter",
-      mode: "lines",
-      name: "y = 0",
-      line: {
-        color: "#111827",
-        width: 2
-      }
-    }
+    ...bisectionBaseTraces,
+    ...bisectionPointTraces,
+    ...bisectionGuideTraces
   ]
-
-  const shapes = []
-
-  if (currentBisectionRow) {
-    const row = currentBisectionRow
-
-    shapes.push({
-      type: "rect",
-      xref: "x",
-      yref: "paper",
-      x0: row.a,
-      x1: row.b,
-      y0: 0,
-      y1: 1,
-      fillcolor: "rgba(37, 99, 235, 0.14)",
-      line: {
-        width: 0
-      }
-    })
-
-    data.push({
-      x: [row.a, row.b],
-      y: [row.fa, row.fb],
-      type: "scatter",
-      mode: "markers+text",
-      name: "Endpoints",
-      text: ["a", "b"],
-      textposition: "top center",
-      marker: {
-        color: "#2563eb",
-        size: 11,
-        line: {
-          color: "white",
-          width: 1
-        }
-      }
-    })
-
-    data.push({
-      x: [row.m],
-      y: [row.fm],
-      type: "scatter",
-      mode: "markers+text",
-      name: "Midpoint",
-      text: ["m"],
-      textposition: "top center",
-      marker: {
-        color: "#dc2626",
-        size: 13,
-        line: {
-          color: "white",
-          width: 1
-        }
-      }
-    })
-
-    data.push({
-      x: [row.a, row.a],
-      y: [0, row.fa],
-      type: "scatter",
-      mode: "lines",
-      name: "Endpoint guides",
-      showlegend: false,
-      line: {
-        color: "#94a3b8",
-        width: 1.5,
-        dash: "dot"
-      },
-      hoverinfo: "skip"
-    })
-
-    data.push({
-      x: [row.b, row.b],
-      y: [0, row.fb],
-      type: "scatter",
-      mode: "lines",
-      name: "Endpoint guides",
-      showlegend: false,
-      line: {
-        color: "#94a3b8",
-        width: 1.5,
-        dash: "dot"
-      },
-      hoverinfo: "skip"
-    })
-
-    data.push({
-      x: [row.m, row.m],
-      y: [0, row.fm],
-      type: "scatter",
-      mode: "lines",
-      name: "Midpoint guide",
-      showlegend: false,
-      line: {
-        color: "#dc2626",
-        width: 1.5,
-        dash: "dot"
-      },
-      hoverinfo: "skip"
-    })
-  }
+  const shapes = bisectionShapeOverlays
 
   const layout = {
     title: {

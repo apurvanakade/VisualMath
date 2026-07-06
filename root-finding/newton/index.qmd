@@ -20,6 +20,7 @@ categories:
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/utils/math-expression.js"></script>
 <script src="../../js/utils/plot-model.js"></script>
+<script src="../../js/utils/plotly-traces.js"></script>
 ```
 
 <div class="ojs-controls-wide">
@@ -112,6 +113,10 @@ expressionUtils = window.VisualMathExpressionUtils
 
 ```{ojs}
 plotModelUtils = window.VisualMathPlotModelUtils
+```
+
+```{ojs}
+plotlyTraceUtils = window.VisualMathPlotlyTraceUtils
 ```
 
 ```{ojs}
@@ -344,62 +349,50 @@ newtonYRange = newtonPlotModel.yRange
 ```
 
 ```{ojs}
-newtonPlot = {
-  const div = html`<div class="plotly-box-large"></div>`
-
+newtonBaseTraces = {
   const xlo = newtonXRange.lo
   const xhi = newtonXRange.hi
-  const ylo = newtonYRange.lo
-  const yhi = newtonYRange.hi
-
   const n = 700
   const xs = Array.from({length: n}, (_, i) => xlo + (xhi - xlo) * i / (n - 1))
   const ys = xs.map(x => f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
 
-  const data = [
-    {
+  return [
+    plotlyTraceUtils.createLineTrace({
       x: xs,
       y: ys,
-      type: "scatter",
-      mode: "lines",
       name: "f(x)",
-      line: {
-        color: "#2563eb",
-        width: 3
-      }
-    },
-    {
+      color: "#2563eb",
+      width: 3
+    }),
+    plotlyTraceUtils.createLineTrace({
       x: [xlo, xhi],
       y: [0, 0],
-      type: "scatter",
-      mode: "lines",
       name: "y = 0",
-      line: {
-        color: "#111827",
-        width: 2
-      }
-    }
-  ]
-
-  // Gray dotted vertical segments from (x_i, 0) to (x_i, f(x_i)).
-  for (const pt of visibleNewtonPoints) {
-    data.push({
-      x: [pt.x, pt.x],
-      y: [0, pt.fx],
-      type: "scatter",
-      mode: "lines",
-      name: "Vertical guides",
-      showlegend: false,
-      line: {
-        color: "#94a3b8",
-        width: 1.5,
-        dash: "dot"
-      },
-      hoverinfo: "skip"
+      color: "#111827",
+      width: 2
     })
-  }
+  ]
+}
+```
 
-  // Red dashed tangent lines for every completed Newton point.
+```{ojs}
+newtonGuideTraces = visibleNewtonPoints.map(pt =>
+  plotlyTraceUtils.createLineTrace({
+    x: [pt.x, pt.x],
+    y: [0, pt.fx],
+    name: "Vertical guides",
+    color: "#94a3b8",
+    width: 1.5,
+    dash: "dot",
+    showlegend: false,
+    hoverinfo: "skip"
+  })
+)
+```
+
+```{ojs}
+newtonTangentTraces = {
+  const traces = []
   let tangentLegendShown = false
 
   for (const row of visibleRows) {
@@ -412,71 +405,82 @@ newtonPlot = {
       continue
     }
 
+    const xlo = newtonXRange.lo
+    const xhi = newtonXRange.hi
     const tlo = Math.max(xlo, Math.min(row.x, row.xNext) - 0.75)
     const thi = Math.min(xhi, Math.max(row.x, row.xNext) + 0.75)
-
     const tangentXs = [tlo, thi]
     const tangentYs = tangentXs.map(x => row.fx + row.dfx * (x - row.x))
 
-    data.push({
-      x: tangentXs,
-      y: tangentYs,
-      type: "scatter",
-      mode: "lines",
-      name: tangentLegendShown ? "Tangent lines" : "Tangent lines",
-      showlegend: !tangentLegendShown,
-      line: {
+    traces.push(
+      plotlyTraceUtils.createLineTrace({
+        x: tangentXs,
+        y: tangentYs,
+        name: "Tangent lines",
         color: "#dc2626",
         width: 2.5,
-        dash: "dash"
-      }
-    })
+        dash: "dash",
+        showlegend: !tangentLegendShown
+      })
+    )
 
     tangentLegendShown = true
   }
 
-  // Red Newton points: (x_i, f(x_i)).
+  return traces
+}
+```
+
+```{ojs}
+newtonPointTraces = {
+  const traces = []
+
   if (visibleNewtonPoints.length > 0) {
-    data.push({
-      x: visibleNewtonPoints.map(pt => pt.x),
-      y: visibleNewtonPoints.map(pt => pt.fx),
-      type: "scatter",
-      mode: "markers+text",
-      name: "Newton points",
-      text: visibleNewtonPoints.map(pt => `x_${pt.i}`),
-      textposition: "top center",
-      marker: {
+    traces.push(
+      plotlyTraceUtils.createMarkerTrace({
+        x: visibleNewtonPoints.map(pt => pt.x),
+        y: visibleNewtonPoints.map(pt => pt.fx),
+        name: "Newton points",
+        text: visibleNewtonPoints.map(pt => `x_${pt.i}`),
+        textposition: "top center",
         color: "#dc2626",
-        size: 10,
-        line: {
-          color: "white",
-          width: 1
-        }
-      }
-    })
+        size: 10
+      })
+    )
   }
 
-  // Green tangent x-intercepts: (x_{i+1}, 0).
   if (visibleNewtonIntercepts.length > 0) {
-    data.push({
-      x: visibleNewtonIntercepts.map(pt => pt.x),
-      y: visibleNewtonIntercepts.map(pt => pt.y),
-      type: "scatter",
-      mode: "markers+text",
-      name: "Tangent x-intercepts",
-      text: visibleNewtonIntercepts.map(pt => `x_${pt.i}`),
-      textposition: "bottom center",
-      marker: {
+    traces.push(
+      plotlyTraceUtils.createMarkerTrace({
+        x: visibleNewtonIntercepts.map(pt => pt.x),
+        y: visibleNewtonIntercepts.map(pt => pt.y),
+        name: "Tangent x-intercepts",
+        text: visibleNewtonIntercepts.map(pt => `x_${pt.i}`),
+        textposition: "bottom center",
         color: "#16a34a",
-        size: 10,
-        symbol: "circle",
-        line: {
-          color: "white",
-          width: 1
-        }
-      }
-    })
+        size: 10
+      })
+    )
   }
+
+  return traces
+}
+```
+
+```{ojs}
+newtonPlot = {
+  const div = html`<div class="plotly-box-large"></div>`
+
+  const xlo = newtonXRange.lo
+  const xhi = newtonXRange.hi
+  const ylo = newtonYRange.lo
+  const yhi = newtonYRange.hi
+  const data = [
+    ...newtonBaseTraces,
+    ...newtonGuideTraces,
+    ...newtonTangentTraces,
+    ...newtonPointTraces
+  ]
 
   const layout = {
     title: {
