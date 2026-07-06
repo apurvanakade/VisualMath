@@ -16,6 +16,16 @@ page-layout: full
 <script src="../../js/utils/plot-model.js"></script>
 <script src="../../js/utils/plotly-traces.js"></script>
 <script src="../../js/utils/render-utils.js"></script>
+<script src="../../js/utils/method-app.js"></script>
+<script src="app/compute.js"></script>
+<script src="app/plot-model.js"></script>
+<script src="app/traces.js"></script>
+<script src="app/config.js"></script>
+<script src="app.js"></script>
+```
+
+```{ojs}
+bisectionPage = window.VisualMathBisectionApp
 ```
 
 Visualize how the bisection method repeatedly halves an interval containing a sign change. Choose a function and starting bracket, then step through the narrowing intervals.
@@ -69,39 +79,21 @@ viewof maxIterations = Inputs.range([1, 100], {
 </div>
 
 ```{ojs}
-viewof stepControl = {
-  const div = html`
-    <div class="ojs-button-row">
-      <button class="ojs-next-button">Next iteration</button>
-      <button class="ojs-reset-button">Reset</button>
-      <span style="color:#475569;font-weight:600;"></span>
-    </div>
-  `
+bisectionResult = bisectionPage.compute({
+  mathjs: window.math,
+  fText,
+  a0,
+  b0,
+  tolerance,
+  maxIterations
+})
+```
 
-  const nextButton = div.querySelector(".ojs-next-button")
-  const resetButton = div.querySelector(".ojs-reset-button")
-  const label = div.querySelector("span")
-
-  let value = 0
-  div.value = value
-  label.textContent = `Current step: ${value}`
-
-  nextButton.onclick = () => {
-    value = Math.min(value + 1, Number(maxIterations))
-    div.value = value
-    label.textContent = `Current step: ${value}`
-    div.dispatchEvent(new CustomEvent("input"))
-  }
-
-  resetButton.onclick = () => {
-    value = 0
-    div.value = value
-    label.textContent = `Current step: ${value}`
-    div.dispatchEvent(new CustomEvent("input"))
-  }
-
-  return div
-}
+```{ojs}
+viewof stepControl = bisectionPage.createStepControl({
+  html,
+  maxStep: Math.max(bisectionResult.rows.length - 1, 0)
+})
 ```
 
 </div>
@@ -109,460 +101,15 @@ viewof stepControl = {
 <div class="ojs-output-wide">
 
 ```{ojs}
-mathjs = window.math
-```
-
-```{ojs}
-expressionUtils = window.VisualMathExpressionUtils
-```
-
-```{ojs}
-plotModelUtils = window.VisualMathPlotModelUtils
-```
-
-```{ojs}
-plotlyTraceUtils = window.VisualMathPlotlyTraceUtils
-```
-
-```{ojs}
-renderUtils = window.VisualMathRenderUtils
-```
-
-```{ojs}
-compiledF = {
-  return expressionUtils.tryCompileExpression(mathjs, fText)
-}
-```
-
-```{ojs}
-f = x => expressionUtils.evaluateCompiledExpression(compiledF, {x})
-```
-
-```{ojs}
-computeBisectionResult = ({leftEndpoint, rightEndpoint, tol, maxIter}) => {
-  let a = leftEndpoint
-  let b = rightEndpoint
-
-  if (!compiledF) {
-    return {
-      valid: false,
-      statusType: "bad",
-      message: "Could not parse the function. Try x^3 - x - 2, cos(x) - x, or exp(-x) - x.",
-      rows: []
-    }
-  }
-
-  if (!Number.isFinite(a) || !Number.isFinite(b)) {
-    return {
-      valid: false,
-      statusType: "bad",
-      message: "The endpoints must be finite numbers.",
-      rows: []
-    }
-  }
-
-  if (a === b) {
-    return {
-      valid: false,
-      statusType: "bad",
-      message: "The endpoints a and b must be different.",
-      rows: []
-    }
-  }
-
-  if (a > b) {
-    const temp = a
-    a = b
-    b = temp
-  }
-
-  let fa = f(a)
-  let fb = f(b)
-
-  if (!Number.isFinite(fa) || !Number.isFinite(fb)) {
-    return {
-      valid: false,
-      statusType: "bad",
-      message: "Could not evaluate f(a) or f(b). Check the function and interval.",
-      rows: []
-    }
-  }
-
-  if (fa === 0) {
-    return {
-      valid: true,
-      statusType: "good",
-      message: `The left endpoint a = ${a} is already a root.`,
-      rows: [{n: 0, a, b, m: a, fa, fb, fm: fa, width: b - a}]
-    }
-  }
-
-  if (fb === 0) {
-    return {
-      valid: true,
-      statusType: "good",
-      message: `The right endpoint b = ${b} is already a root.`,
-      rows: [{n: 0, a, b, m: b, fa, fb, fm: fb, width: b - a}]
-    }
-  }
-
-  if (fa * fb > 0) {
-    return {
-      valid: false,
-      statusType: "bad",
-      message: `Bisection requires f(a) and f(b) to have opposite signs. Here f(a) = ${fa.toPrecision(6)} and f(b) = ${fb.toPrecision(6)}.`,
-      rows: []
-    }
-  }
-
-  const rows = []
-
-  for (let n = 0; n <= maxIter; n++) {
-    const m = 0.5 * (a + b)
-    const fm = f(m)
-
-    rows.push({
-      n,
-      a,
-      b,
-      m,
-      fa,
-      fb,
-      fm,
-      width: b - a
-    })
-
-    if (!Number.isFinite(fm)) {
-      return {
-        valid: false,
-        statusType: "bad",
-        message: `Stopped because f(m) is not finite at step ${n}.`,
-        rows
-      }
-    }
-
-    if (Math.abs(fm) < tol || Math.abs(b - a) < tol) {
-      const last = rows[rows.length - 1]
-
-      return {
-        valid: true,
-        statusType: "good",
-        message: `Converged after ${n + 1} iteration${n + 1 === 1 ? "" : "s"}. Approximate root: m ≈ ${last.m.toPrecision(10)}.`,
-        rows
-      }
-    }
-
-    if (fa * fm < 0) {
-      b = m
-      fb = fm
-    } else {
-      a = m
-      fa = fm
-    }
-  }
-
-  const last = rows[rows.length - 1]
-
-  return {
-    valid: true,
-    statusType: "warn",
-    message: `Reached the maximum number of iterations. Last midpoint: m ≈ ${last.m.toPrecision(10)}, interval width = ${last.width.toExponential(3)}.`,
-    rows
-  }
-}
-```
-
-```{ojs}
-bisectionResult = computeBisectionResult({
-  leftEndpoint: Number(a0),
-  rightEndpoint: Number(b0),
-  tol: Number(tolerance),
-  maxIter: Number(maxIterations)
+bisectionOutput = bisectionPage.renderOutput({
+  html,
+  tex,
+  Plotly: window.Plotly,
+  result: bisectionResult,
+  stepControl,
+  a0,
+  b0
 })
-```
-
-```{ojs}
-bisectionPlotModel = {
-  const visibleRows = plotModelUtils.sliceVisibleRows(bisectionResult.rows, stepControl)
-  const currentBisectionRow = visibleRows.length === 0 ? null : visibleRows[visibleRows.length - 1]
-
-  const xValues = []
-  plotModelUtils.pushFiniteValues(xValues, [Number(a0), Number(b0)])
-
-  for (const row of visibleRows) {
-    plotModelUtils.pushFiniteValues(xValues, [row.a, row.b, row.m])
-  }
-
-  const xRange = plotModelUtils.createPaddedRange(xValues, {
-    emptyRange: [-5, 5],
-    singularPadding: 2,
-    relativePadding: 0.25,
-    minPadding: 0.5
-  })
-
-  const yValues = [0]
-  plotModelUtils.appendSampledFunctionValues(yValues, f, {
-    lo: xRange.lo,
-    hi: xRange.hi,
-    count: 500,
-    maxAbs: 1e8
-  })
-
-  for (const row of visibleRows) {
-    plotModelUtils.pushFiniteValues(yValues, [row.fa, row.fb, row.fm], {maxAbs: 1e8})
-  }
-
-  const yRange = plotModelUtils.createPaddedRange(yValues, {
-    emptyRange: [-1, 1],
-    singularPadding: 1,
-    relativePadding: 0.15,
-    minPadding: 0.5
-  })
-
-  return {
-    visibleRows,
-    currentBisectionRow,
-    xRange,
-    yRange
-  }
-}
-```
-
-```{ojs}
-visibleRows = bisectionPlotModel.visibleRows
-```
-
-```{ojs}
-currentBisectionRow = bisectionPlotModel.currentBisectionRow
-```
-
-```{ojs}
-bisectionXRange = bisectionPlotModel.xRange
-```
-
-```{ojs}
-bisectionYRange = bisectionPlotModel.yRange
-```
-
-```{ojs}
-bisectionBaseTraces = {
-  const xlo = bisectionXRange.lo
-  const xhi = bisectionXRange.hi
-  const n = 700
-  const xs = Array.from({length: n}, (_, i) => xlo + (xhi - xlo) * i / (n - 1))
-  const ys = xs.map(x => f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
-
-  return [
-    plotlyTraceUtils.createLineTrace({
-      x: xs,
-      y: ys,
-      name: "f(x)",
-      color: "#2563eb",
-      width: 3
-    }),
-    plotlyTraceUtils.createLineTrace({
-      x: [xlo, xhi],
-      y: [0, 0],
-      name: "y = 0",
-      color: "#111827",
-      width: 2
-    })
-  ]
-}
-```
-
-```{ojs}
-bisectionShapeOverlays = {
-  if (!currentBisectionRow) return []
-
-  const row = currentBisectionRow
-  return [{
-    type: "rect",
-    xref: "x",
-    yref: "paper",
-    x0: row.a,
-    x1: row.b,
-    y0: 0,
-    y1: 1,
-    fillcolor: "rgba(37, 99, 235, 0.14)",
-    line: {
-      width: 0
-    }
-  }]
-}
-```
-
-```{ojs}
-bisectionPointTraces = {
-  if (!currentBisectionRow) return []
-
-  const row = currentBisectionRow
-  return [
-    plotlyTraceUtils.createMarkerTrace({
-      x: [row.a, row.b],
-      y: [row.fa, row.fb],
-      name: "Endpoints",
-      text: ["a", "b"],
-      textposition: "top center",
-      color: "#2563eb",
-      size: 11
-    }),
-    plotlyTraceUtils.createMarkerTrace({
-      x: [row.m],
-      y: [row.fm],
-      name: "Midpoint",
-      text: ["m"],
-      textposition: "top center",
-      color: "#dc2626",
-      size: 13
-    })
-  ]
-}
-```
-
-```{ojs}
-bisectionGuideTraces = {
-  if (!currentBisectionRow) return []
-
-  const row = currentBisectionRow
-  return [
-    plotlyTraceUtils.createLineTrace({
-      x: [row.a, row.a],
-      y: [0, row.fa],
-      name: "Endpoint guides",
-      color: "#94a3b8",
-      width: 1.5,
-      dash: "dot",
-      showlegend: false,
-      hoverinfo: "skip"
-    }),
-    plotlyTraceUtils.createLineTrace({
-      x: [row.b, row.b],
-      y: [0, row.fb],
-      name: "Endpoint guides",
-      color: "#94a3b8",
-      width: 1.5,
-      dash: "dot",
-      showlegend: false,
-      hoverinfo: "skip"
-    }),
-    plotlyTraceUtils.createLineTrace({
-      x: [row.m, row.m],
-      y: [0, row.fm],
-      name: "Midpoint guide",
-      color: "#dc2626",
-      width: 1.5,
-      dash: "dot",
-      showlegend: false,
-      hoverinfo: "skip"
-    })
-  ]
-}
-```
-
-```{ojs}
-bisectionPlot = {
-  const div = html`<div class="plotly-box-large"></div>`
-
-  const xlo = bisectionXRange.lo
-  const xhi = bisectionXRange.hi
-  const ylo = bisectionYRange.lo
-  const yhi = bisectionYRange.hi
-  const data = [
-    ...bisectionBaseTraces,
-    ...bisectionPointTraces,
-    ...bisectionGuideTraces
-  ]
-  const shapes = bisectionShapeOverlays
-
-  const layout = {
-    title: {
-      text: "Bisection Method"
-    },
-    margin: {
-      l: 65,
-      r: 30,
-      t: 60,
-      b: 55
-    },
-    xaxis: {
-      title: "x",
-      range: [xlo, xhi],
-      zeroline: true
-    },
-    yaxis: {
-      title: "f(x)",
-      range: [ylo, yhi],
-      zeroline: true
-    },
-    shapes,
-    legend: {
-      orientation: "h",
-      y: -0.18
-    },
-    hovermode: "closest"
-  }
-
-  Plotly.newPlot(div, data, layout, {
-    responsive: true,
-    displaylogo: false
-  })
-
-  return div
-}
-```
-
-```{ojs}
-bisectionStatus = {
-  return renderUtils.renderStatusBox({
-    html,
-    statusType: bisectionResult.statusType,
-    message: bisectionResult.message
-  })
-}
-```
-
-```{ojs}
-bisectionTable = {
-  const rows = visibleRows
-
-  if (rows.length === 0) {
-    return renderUtils.renderEmptyState(html, "No iterations to display yet.")
-  }
-
-  return html`
-    <div class="ojs-table-wrap">
-      <table class="ojs-table">
-        <thead>
-          <tr>
-            <th>n</th>
-            <th>${tex`a_n`}</th>
-            <th>${tex`b_n`}</th>
-            <th>${tex`m_n`}</th>
-            <th>${tex`f(a_n)`}</th>
-            <th>${tex`f(b_n)`}</th>
-            <th>${tex`f(m_n)`}</th>
-            <th>width</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(row => html`
-            <tr>
-              <td>${row.n}</td>
-              <td>${Number.isFinite(row.a) ? row.a.toPrecision(10) : "NaN"}</td>
-              <td>${Number.isFinite(row.b) ? row.b.toPrecision(10) : "NaN"}</td>
-              <td>${Number.isFinite(row.m) ? row.m.toPrecision(10) : "NaN"}</td>
-              <td>${Number.isFinite(row.fa) ? row.fa.toExponential(5) : "NaN"}</td>
-              <td>${Number.isFinite(row.fb) ? row.fb.toExponential(5) : "NaN"}</td>
-              <td>${Number.isFinite(row.fm) ? row.fm.toExponential(5) : "NaN"}</td>
-              <td>${Number.isFinite(row.width) ? row.width.toExponential(4) : "NaN"}</td>
-            </tr>
-          `)}
-        </tbody>
-      </table>
-    </div>
-  `
-}
 ```
 
 </div>

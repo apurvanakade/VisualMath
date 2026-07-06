@@ -17,6 +17,16 @@ page-layout: full
 <script src="../../js/utils/plot-model.js"></script>
 <script src="../../js/utils/plotly-traces.js"></script>
 <script src="../../js/utils/render-utils.js"></script>
+<script src="../../js/utils/method-app.js"></script>
+<script src="app/compute.js"></script>
+<script src="app/plot-model.js"></script>
+<script src="app/traces.js"></script>
+<script src="app/config.js"></script>
+<script src="app.js"></script>
+```
+
+```{ojs}
+fixedPointPage = window.VisualMathFixedPointApp
 ```
 
 Explore fixed point iteration through a cobweb diagram. Enter an iteration function \(g(x)\), choose an initial guess, and watch the sequence approach or move away from a fixed point.
@@ -62,39 +72,20 @@ viewof maxIterations = Inputs.range([1, 100], {
 </div>
 
 ```{ojs}
-viewof stepControl = {
-  const div = html`
-    <div class="ojs-button-row">
-      <button class="ojs-next-button">Next iteration</button>
-      <button class="ojs-reset-button">Reset</button>
-      <span style="color:#475569;font-weight:600;"></span>
-    </div>
-  `
+fixedPointResult = fixedPointPage.compute({
+  mathjs: window.math,
+  gText,
+  x0,
+  tolerance,
+  maxIterations
+})
+```
 
-  const nextButton = div.querySelector(".ojs-next-button")
-  const resetButton = div.querySelector(".ojs-reset-button")
-  const label = div.querySelector("span")
-
-  let value = 0
-  div.value = value
-  label.textContent = `Current step: ${value}`
-
-  nextButton.onclick = () => {
-    value = value + 1
-    div.value = value
-    label.textContent = `Current step: ${value}`
-    div.dispatchEvent(new CustomEvent("input"))
-  }
-
-  resetButton.onclick = () => {
-    value = 0
-    div.value = value
-    label.textContent = `Current step: ${value}`
-    div.dispatchEvent(new CustomEvent("input"))
-  }
-
-  return div
-}
+```{ojs}
+viewof stepControl = fixedPointPage.createStepControl({
+  html,
+  maxStep: Math.max(fixedPointResult.rows.length - 1, 0)
+})
 ```
 
 </div>
@@ -102,340 +93,14 @@ viewof stepControl = {
 <div class="ojs-output-wide">
 
 ```{ojs}
-mathjs = window.math
-```
-
-```{ojs}
-expressionUtils = window.VisualMathExpressionUtils
-```
-
-```{ojs}
-plotModelUtils = window.VisualMathPlotModelUtils
-```
-
-```{ojs}
-plotlyTraceUtils = window.VisualMathPlotlyTraceUtils
-```
-
-```{ojs}
-renderUtils = window.VisualMathRenderUtils
-```
-
-```{ojs}
-compiledG = {
-  return expressionUtils.tryCompileExpression(mathjs, gText)
-}
-```
-
-```{ojs}
-g = x => expressionUtils.evaluateCompiledExpression(compiledG, {x})
-```
-
-```{ojs}
-computeFixedPointResult = ({start, tol, maxIter}) => {
-  const rows = []
-
-  if (!compiledG) {
-    return {
-      ok: false,
-      statusType: "bad",
-      message: "Could not parse g(x). Try an expression such as cos(x), exp(-x), or sqrt(x + 2).",
-      rows
-    }
-  }
-
-  if (!Number.isFinite(start)) {
-    return {
-      ok: false,
-      statusType: "bad",
-      message: "The initial guess x₀ must be a finite number.",
-      rows
-    }
-  }
-
-  let x = start
-
-  for (let i = 0; i < maxIter; i++) {
-    const gx = g(x)
-
-    if (!Number.isFinite(gx)) {
-      rows.push({
-        i,
-        x,
-        gx,
-        error: NaN
-      })
-
-      return {
-        ok: false,
-        statusType: "bad",
-        message: `Iteration stopped because g(x_${i}) is not finite.`,
-        rows
-      }
-    }
-
-    const error = Math.abs(gx - x)
-
-    rows.push({
-      i,
-      x,
-      gx,
-      error
-    })
-
-    if (error < tol) {
-      return {
-        ok: true,
-        statusType: "good",
-        message: `Converged after ${i + 1} iteration${i + 1 === 1 ? "" : "s"}. Approximate fixed point: x ≈ ${gx.toPrecision(10)}.`,
-        rows
-      }
-    }
-
-    x = gx
-  }
-
-  return {
-    ok: true,
-    statusType: "warn",
-    message: `Reached the maximum number of iterations. Last approximation: x ≈ ${x.toPrecision(10)}.`,
-    rows
-  }
-}
-```
-
-```{ojs}
-fixedPointResult = computeFixedPointResult({
-  start: Number(x0),
-  tol: Number(tolerance),
-  maxIter: Number(maxIterations)
+fixedPointOutput = fixedPointPage.renderOutput({
+  html,
+  tex,
+  Plotly: window.Plotly,
+  result: fixedPointResult,
+  stepControl,
+  x0
 })
-```
-
-```{ojs}
-fixedPointPlotModel = {
-  const visibleRows = plotModelUtils.sliceVisibleRows(fixedPointResult.rows, stepControl)
-  const rangeValues = []
-  plotModelUtils.pushFiniteValues(rangeValues, [Number(x0)])
-
-  for (const row of visibleRows) {
-    plotModelUtils.pushFiniteValues(rangeValues, [row.x, row.gx])
-  }
-
-  const range = plotModelUtils.createPaddedRange(rangeValues, {
-    emptyRange: [-2, 2],
-    singularPadding: 2,
-    relativePadding: 0.45,
-    minPadding: 1.0
-  })
-
-  return {
-    visibleRows,
-    range
-  }
-}
-```
-
-```{ojs}
-visibleRows = fixedPointPlotModel.visibleRows
-```
-
-```{ojs}
-fixedPointPlotRange = fixedPointPlotModel.range
-```
-
-```{ojs}
-fixedPointBaseTraces = {
-  const lo = fixedPointPlotRange.lo
-  const hi = fixedPointPlotRange.hi
-  const n = 500
-  const xs = Array.from({length: n}, (_, i) => lo + (hi - lo) * i / (n - 1))
-  const ys = xs.map(x => g(x)).map(y => Number.isFinite(y) ? y : null)
-
-  return [
-    plotlyTraceUtils.createLineTrace({
-      x: xs,
-      y: ys,
-      name: "g(x)",
-      color: "#2563eb",
-      width: 3
-    }),
-    plotlyTraceUtils.createLineTrace({
-      x: [lo, hi],
-      y: [lo, hi],
-      name: "y = x",
-      color: "#111827",
-      width: 2,
-      dash: "dash"
-    }),
-    plotlyTraceUtils.createLineTrace({
-      x: [lo, hi],
-      y: [0, 0],
-      name: "y = 0",
-      color: "#94a3b8",
-      width: 1,
-      showlegend: false
-    })
-  ]
-}
-```
-
-```{ojs}
-fixedPointCobwebTraces = {
-  if (visibleRows.length === 0) return []
-
-  const cobwebX = []
-  const cobwebY = []
-  const start = Number(x0)
-
-  if (Number.isFinite(start)) {
-    cobwebX.push(start)
-    cobwebY.push(start)
-  }
-
-  for (const row of visibleRows) {
-    if (!Number.isFinite(row.x) || !Number.isFinite(row.gx)) continue
-
-    cobwebX.push(row.x)
-    cobwebY.push(row.gx)
-    cobwebX.push(row.gx)
-    cobwebY.push(row.gx)
-  }
-
-  return [
-    plotlyTraceUtils.createLineTrace({
-      x: cobwebX,
-      y: cobwebY,
-      name: "Cobweb path",
-      color: "#dc2626",
-      width: 2,
-      mode: "lines+markers",
-      marker: {
-        color: "#dc2626",
-        size: 7
-      }
-    })
-  ]
-}
-```
-
-```{ojs}
-fixedPointIterateTraces = {
-  if (visibleRows.length === 0) return []
-
-  return [
-    plotlyTraceUtils.createMarkerTrace({
-      x: visibleRows.map(row => row.x).filter(Number.isFinite),
-      y: visibleRows.map(row => row.x).filter(Number.isFinite),
-      name: "Iterates",
-      text: visibleRows
-        .filter(row => Number.isFinite(row.x))
-        .map(row => `x_${row.i}`),
-      textposition: "top center",
-      color: "#16a34a",
-      size: 9
-    })
-  ]
-}
-```
-
-```{ojs}
-fixedPointPlot = {
-  const div = html`<div class="plotly-box-large"></div>`
-
-  const lo = fixedPointPlotRange.lo
-  const hi = fixedPointPlotRange.hi
-  const data = [
-    ...fixedPointBaseTraces,
-    ...fixedPointCobwebTraces,
-    ...fixedPointIterateTraces
-  ]
-
-  const layout = {
-    title: {
-      text: "Fixed Point Iteration Cobweb Diagram"
-    },
-    margin: {
-      l: 60,
-      r: 30,
-      t: 60,
-      b: 55
-    },
-    xaxis: {
-      title: "x",
-      range: [lo, hi],
-      zeroline: true
-    },
-    yaxis: {
-      title: "y",
-      range: [lo, hi],
-      zeroline: true,
-      zerolinecolor: "#94a3b8",
-      gridcolor: "#e2e8f0",
-      linecolor: "#cbd5e1"
-    },
-    legend: {
-      orientation: "h",
-      y: -0.18
-    },
-    hovermode: "closest"
-  }
-
-  Plotly.newPlot(div, data, layout, {
-    responsive: true,
-    displaylogo: false
-  })
-
-  return div
-}
-```
-
-```{ojs}
-fixedPointStatus = {
-  return renderUtils.renderStatusBox({
-    html,
-    statusType: fixedPointResult.statusType,
-    message: fixedPointResult.message
-  })
-}
-```
-
-```{ojs}
-fixedPointTable = {
-  const rows = visibleRows
-
-  if (rows.length === 0) {
-    return renderUtils.renderEmptyState(html, "No iterations to display yet.")
-  }
-
-  return html`
-  <div class="ojs-table-wrap"> 
-    <table class="ojs-table"> 
-      <thead> 
-        <tr> 
-          <th>n</th> 
-          <th>x_n</th> 
-          <!-- Use the native OJS tex tag here -->
-          <th>${tex`g(x_n) = x_{n+1}`}</th> 
-          <th>${tex`|x_{n+1} - x_n|`}</th> 
-        </tr> 
-      </thead> 
-      <tbody> 
-        ${rows.map(row => html` 
-          <tr> 
-            <td>${row.i}</td> 
-            <td>${Number.isFinite(row.x) ? row.x.toPrecision(10) : "NaN"}</td> 
-            <td>${Number.isFinite(row.gx) ? row.gx.toPrecision(10) : "NaN"}</td> 
-            <td>${Number.isFinite(row.error) ? row.error.toExponential(4) : "NaN"}</td> 
-          </tr> 
-        `)} 
-      </tbody> 
-    </table> 
-  </div> 
-  `
-
-
-}
 ```
 
 </div>
