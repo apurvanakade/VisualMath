@@ -8,32 +8,17 @@ Authors: Dhruv Azad
 ---
 title: "Newton's Method"
 page-layout: full
+categories: 
+  - Plotly
+  - Tangent-line method
+  - Derivatives
+  - Fast convergence
 ---
 
 ```{=html}
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 ```
-
-<div class="vm-hero">
-
-<h2 class="vm-hero-title">Newton's Method</h2>
-
-<p class="vm-hero-subtitle">
-Explore how Newton's Method uses tangent lines to approximate roots of nonlinear equations.
-Change the function, choose an initial guess, and step through the iteration one tangent at a time.
-</p>
-
-<div class="vm-pill-row">
-  <span class="vm-pill">Tangent-line method</span>
-  <span class="vm-pill">Uses derivative</span>
-  <span class="vm-pill">Fast local convergence</span>
-  <span class="vm-pill">Interactive Plotly visualization</span>
-</div>
-
-</div>
-
-<div class="ojs-app-vertical">
 
 <div class="ojs-controls-wide">
 
@@ -136,8 +121,6 @@ viewof stepControl = {
   return div
 }
 ```
-
-</div>
 
 <div class="ojs-output-wide">
 
@@ -681,9 +664,6 @@ newtonTable = {
 
 }
 ```
-</div>
-
-<div class="explanation">
 
 ## Explanation
 
@@ -724,5 +704,3 @@ x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}.
 $$
 
 Newton's method can converge very quickly when the starting point is close to the root and the derivative at the root is not zero. But it can also fail if the derivative is too small or if the starting point is not chosen well.
-
-</div>

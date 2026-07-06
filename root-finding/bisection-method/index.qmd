@@ -14,25 +14,7 @@ page-layout: full
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 ```
 
-<div class="vm-hero">
-
-<h2 class="vm-hero-title">Bisection Method</h2>
-
-<p class="vm-hero-subtitle">
-Visualize how the bisection method repeatedly halves an interval containing a sign change.
-Choose a function and starting bracket, then step through the narrowing intervals.
-</p>
-
-<div class="vm-pill-row">
-  <span class="vm-pill">Bracketing method</span>
-  <span class="vm-pill">Guaranteed for sign changes</span>
-  <span class="vm-pill">Interval halving</span>
-  <span class="vm-pill">Interactive Plotly visualization</span>
-</div>
-
-</div>
-
-<div class="ojs-app-vertical">
+Visualize how the bisection method repeatedly halves an interval containing a sign change. Choose a function and starting bracket, then step through the narrowing intervals.
 
 <div class="ojs-controls-wide">
 
@@ -680,10 +662,6 @@ bisectionTable = {
 
 </div>
 
-</div>
-
-<div class="explanation">
-
 ## Explanation
 
 At each step, the bisection method computes the midpoint
@@ -703,5 +681,3 @@ The shaded blue region is the current interval \([a,b]\). The blue points show t
 The red point is the midpoint \((m,f(m))\). Each time you click **Next iteration**, the method halves the interval and keeps the side that still contains a sign change.
 
 If **Automatically adjust axes** is selected, the plot range updates dynamically when you change the starting interval.
-
-</div>

@@ -15,25 +15,7 @@ page-layout: full
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 ```
 
-<div class="vm-hero">
-
-<h2 class="vm-hero-title">Fixed Point Iteration</h2>
-
-<p class="vm-hero-subtitle">
-Explore fixed point iteration through a cobweb diagram. Enter an iteration function
-\(g(x)\), choose an initial guess, and watch the sequence approach or move away from a fixed point.
-</p>
-
-<div class="vm-pill-row">
-  <span class="vm-pill">Iteration method</span>
-  <span class="vm-pill">Cobweb diagram</span>
-  <span class="vm-pill">Studies convergence</span>
-  <span class="vm-pill">Interactive Plotly visualization</span>
-</div>
-
-</div>
-
-<div class="ojs-app-vertical">
+Explore fixed point iteration through a cobweb diagram. Enter an iteration function \(g(x)\), choose an initial guess, and watch the sequence approach or move away from a fixed point.
 
 <div class="ojs-controls-wide">
 
@@ -515,8 +497,6 @@ fixedPointTable = {
 
 </div>
 
-<div class="explanation">
-
 ## Explanation
 
 Fixed point iteration is a way to solve an equation after rewriting it in the form
@@ -557,5 +537,3 @@ $$
 $$
 
 near the fixed point.
-
-</div>
