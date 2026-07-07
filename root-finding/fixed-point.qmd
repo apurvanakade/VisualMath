@@ -4,8 +4,9 @@ description: "Rewrites an equation as x = g(x) and iterates x_{n+1} = g(x_n), vi
 page-layout: full
 categories:
   - No derivatives
-  - Cobweb diagram
   - Fixed points
+  - Linear convergence
+  - Slow convergence
 ---
 
 <!--
