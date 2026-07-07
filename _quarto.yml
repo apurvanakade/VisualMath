@@ -16,32 +16,32 @@ website:
   navbar:
     background: light
     search: true
-    left:
-      - text: "Root Finding"
-        menu:
-          - text: "Overview"
-            href: root-finding/index.qmd
-          - text: "---"
-          - text: "Bisection Method"
-            href: root-finding/bisection-method/index.qmd
-          - text: "Fixed Point Iteration"
-            href: root-finding/fixed-point/index.qmd
-          - text: "Newton's Method"
-            href: root-finding/newton/index.qmd
+    # left:
+    #   - text: "Root Finding"
+    #     menu:
+    #       - text: "Overview"
+    #         href: root-finding/index.qmd
+    #       - text: "---"
+    #       - text: "Bisection Method"
+    #         href: root-finding/bisection-method.qmd
+    #       - text: "Fixed Point Iteration"
+    #         href: root-finding/fixed-point.qmd
+    #       - text: "Newton's Method"
+    #         href: root-finding/newton.qmd
 
-  # sidebar:
-  #   - title: "Root Finding"
-  #     style: "docked"
-  #     background: light
-  #     contents:
-  #       - href: root-finding/index.qmd
-  #         text: Overview
-  #       - href: root-finding/bisection-method/index.qmd
-  #         text: Bisection Method
-  #       - href: root-finding/fixed-point/index.qmd
-  #         text: Fixed Point Iteration
-  #       - href: root-finding/newton/index.qmd
-  #         text: Newton's Method
+  sidebar:
+    - style: docked
+      # background: light
+      contents:
+        - section: "Root Finding"
+          href: root-finding/index.qmd
+          contents:
+            - href: root-finding/bisection-method.qmd
+              text: Bisection Method
+            - href: root-finding/fixed-point.qmd
+              text: Fixed Point Iteration
+            - href: root-finding/newton.qmd
+              text: Newton's Method
 
 format:
   html:
@@ -55,4 +55,4 @@ format:
       - text: |
           <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
           <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-          <script src="../../js/utils.js"></script>
+          <script src="../js/utils.js"></script>

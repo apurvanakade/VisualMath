@@ -2,6 +2,11 @@
 title: "Bisection Method"
 description: "Finds a root by repeatedly halving an interval where f changes sign. Reliable and guaranteed to converge."
 page-layout: full
+categories:
+  - Bracketing
+  - No derivatives
+  - Guaranteed convergence
+  - Root finding
 ---
 
 <!--
