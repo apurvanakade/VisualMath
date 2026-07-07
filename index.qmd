@@ -3,9 +3,9 @@ title: "VisualMath"
 subtitle: "Interactive, browser-based visualizations of numerical methods."
 listing:
   contents:
-    - root-finding/bisection-method.qmd
-    - root-finding/fixed-point.qmd
-    - root-finding/newton.qmd
+    - root-finding/bisection-method/index.qmd
+    - root-finding/fixed-point/index.qmd
+    - root-finding/newton/index.qmd
   type: grid
   sort: false
   fields: [title, description, categories]

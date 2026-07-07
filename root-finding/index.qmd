@@ -2,9 +2,9 @@
 title: "Root Finding"
 listing:
   contents:
-    - bisection-method.qmd
-    - fixed-point.qmd
-    - newton.qmd
+    - bisection-method/index.qmd
+    - fixed-point/index.qmd
+    - newton/index.qmd
   type: grid
   sort: false
   fields: [title, description, categories]
