@@ -31,9 +31,6 @@
   align-items: end;
 }
 
-/* Observable renders inputs as <label> elements; zero out their default margin. */
-.ojs-control-grid label { margin: 0; }
-
 /* ── Step row (slider + max input, separate from param panel) ────── */
 
 .ojs-step-row {

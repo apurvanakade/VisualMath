@@ -306,15 +306,16 @@ renderOutput = {
 ```
 
 <div class="ojs-controls-wide">
-<div class="ojs-control-grid">
 
 ```{ojs}
-viewof fText = Inputs.text({
-  label: "Function f(x)",
-  value: "x^2",
-  placeholder: "Example: x^3 - x - 2, cos(x) - x"
-})
+viewof fText = {
+  const el = Inputs.text({label: "Function f(x)", value: "x^2", placeholder: "Example: x^3 - x - 2, cos(x) - x"})
+  el.style.width = "100%"
+  return el
+}
 ```
+
+<div class="ojs-control-grid">
 
 ```{ojs}
 viewof x0 = Inputs.number({
@@ -330,7 +331,11 @@ viewof x0 = Inputs.number({
 <div class="ojs-step-row">
 
 ```{ojs}
-viewof stepControl = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
+viewof stepControl = {
+  const el = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
+  el.style.width = "100%"
+  return el
+}
 ```
 
 ```{ojs}
