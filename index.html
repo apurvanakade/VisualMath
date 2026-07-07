@@ -46,9 +46,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-26d9cc88ab9604001aabd73cb1ea1d8f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-1cac052cedcf2979d227980a6e05382f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-26d9cc88ab9604001aabd73cb1ea1d8f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-4119aa620025ef9d957be1e132e87508.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-bbc0e64cdbd5216eb9c6eb51b37e2c33.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-4119aa620025ef9d957be1e132e87508.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
     const options = {
       valueNames: ['listing-title','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-title","listing-author","listing-image","listing-description"],
+      searchColumns: ["listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -107,7 +107,7 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../js/utils.js"></script>
+<script src="../js/utils.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -142,7 +142,7 @@ window.Quarto = {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -315,49 +315,65 @@ window.Quarto = {
     <span class="navbar-title">VisualMath</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-root-finding" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Root Finding</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-root-finding">    
-        <li>
-    <a class="dropdown-item" href="./root-finding/index.html">
- <span class="dropdown-text">Overview</span></a>
-  </li>  
-        <li><hr class="dropdown-divider"></li>
-        <li>
-    <a class="dropdown-item" href="./root-finding/bisection-method/index.html">
- <span class="dropdown-text">Bisection Method</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./root-finding/fixed-point/index.html">
- <span class="dropdown-text">Fixed Point Iteration</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./root-finding/newton/index.html">
- <span class="dropdown-text">Newton’s Method</span></a>
-  </li>  
-    </ul>
-  </li>
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
+        <div class="quarto-navbar-tools tools-end">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
+          <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">VisualMath</li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./root-finding/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Root Finding</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./root-finding/bisection-method.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bisection Method</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./root-finding/fixed-point.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fixed Point Iteration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./root-finding/newton.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Newton’s Method</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(3)</span></div><div class="category" data-category="QnJhY2tldGluZw==">Bracketing <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGVyaXZhdGl2ZXM=">Derivatives <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RmFzdCUyMGNvbnZlcmdlbmNl">Fast convergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Rml4ZWQlMjBwb2ludHM=">Fixed points <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R3VhcmFudGVlZCUyMGNvbnZlcmdlbmNl">Guaranteed convergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TGluZWFyJTIwY29udmVyZ2VuY2U=">Linear convergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Tm8lMjBkZXJpdmF0aXZlcw==">No derivatives <span class="quarto-category-count">(2)</span></div><div class="category" data-category="UXVhZHJhdGljJTIwY29udmVyZ2VuY2U=">Quadratic convergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Um9vdCUyMGZpbmRpbmc=">Root finding <span class="quarto-category-count">(2)</span></div><div class="category" data-category="U2xvdyUyMGNvbnZlcmdlbmNl">Slow convergence <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -388,34 +404,56 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-listing-file-modified-sort="1783369027734" data-listing-reading-time-sort="10" data-listing-word-count-sort="1902">
-<a href="./root-finding/bisection-method/index.html" class="quarto-grid-link">
+<div class="g-col-1" data-index="0" data-categories="QnJhY2tldGluZyUyQ05vJTIwZGVyaXZhdGl2ZXMlMkNHdWFyYW50ZWVkJTIwY29udmVyZ2VuY2UlMkNSb290JTIwZmluZGluZw==" data-listing-file-modified-sort="1783427355004" data-listing-reading-time-sort="13" data-listing-word-count-sort="2599">
+<a href="./root-finding/bisection-method.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Bisection Method
 </h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('QnJhY2tldGluZw=='); return false;">Bracketing</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Tm8lMjBkZXJpdmF0aXZlcw=='); return false;">No derivatives</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('R3VhcmFudGVlZCUyMGNvbnZlcmdlbmNl'); return false;">Guaranteed convergence</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Um9vdCUyMGZpbmRpbmc='); return false;">Root finding</div>
+
+</div>
 <div class="card-text listing-description delink">
 <p>Finds a root by repeatedly halving an interval where f changes sign. Reliable and guaranteed to converge.</p>
 </div>
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="1" data-listing-file-modified-sort="1783369027734" data-listing-reading-time-sort="8" data-listing-word-count-sort="1540">
-<a href="./root-finding/fixed-point/index.html" class="quarto-grid-link">
+<div class="g-col-1" data-index="1" data-categories="Tm8lMjBkZXJpdmF0aXZlcyUyQ0ZpeGVkJTIwcG9pbnRzJTJDTGluZWFyJTIwY29udmVyZ2VuY2UlMkNTbG93JTIwY29udmVyZ2VuY2U=" data-listing-file-modified-sort="1783427355004" data-listing-reading-time-sort="12" data-listing-word-count-sort="2242">
+<a href="./root-finding/fixed-point.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Fixed Point Iteration
 </h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('Tm8lMjBkZXJpdmF0aXZlcw=='); return false;">No derivatives</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Rml4ZWQlMjBwb2ludHM='); return false;">Fixed points</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TGluZWFyJTIwY29udmVyZ2VuY2U='); return false;">Linear convergence</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2xvdyUyMGNvbnZlcmdlbmNl'); return false;">Slow convergence</div>
+
+</div>
 <div class="card-text listing-description delink">
 <p>Rewrites an equation as x = g(x) and iterates x_{n+1} = g(x_n), visualized as a cobweb diagram.</p>
 </div>
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="VGFuZ2VudC1saW5lJTIwbWV0aG9kJTJDRGVyaXZhdGl2ZXMlMkNGYXN0JTIwY29udmVyZ2VuY2U=" data-listing-file-modified-sort="1783369027735" data-listing-reading-time-sort="10" data-listing-word-count-sort="1931">
-<a href="./root-finding/newton/index.html" class="quarto-grid-link">
+<div class="g-col-1" data-index="2" data-categories="RGVyaXZhdGl2ZXMlMkNGYXN0JTIwY29udmVyZ2VuY2UlMkNRdWFkcmF0aWMlMjBjb252ZXJnZW5jZSUyQ1Jvb3QlMjBmaW5kaW5n" data-listing-file-modified-sort="1783427355005" data-listing-reading-time-sort="14" data-listing-word-count-sort="2761">
+<a href="./root-finding/newton.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
@@ -423,11 +461,13 @@ Newton’s Method
 </h5>
 <div class="listing-categories">
 
-<div class="listing-category" onclick="window.quartoListingCategory('VGFuZ2VudC1saW5lJTIwbWV0aG9k'); return false;">Tangent-line method</div>
-
 <div class="listing-category" onclick="window.quartoListingCategory('RGVyaXZhdGl2ZXM='); return false;">Derivatives</div>
 
 <div class="listing-category" onclick="window.quartoListingCategory('RmFzdCUyMGNvbnZlcmdlbmNl'); return false;">Fast convergence</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UXVhZHJhdGljJTIwY29udmVyZ2VuY2U='); return false;">Quadratic convergence</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Um9vdCUyMGZpbmRpbmc='); return false;">Root finding</div>
 
 </div>
 <div class="card-text listing-description delink">
