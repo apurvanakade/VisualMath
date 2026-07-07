@@ -185,14 +185,14 @@ renderOutput = {
       Plotly.react(_plotDiv2, xnData, xnLayout, config)
     }
 
-    // --- Sub-chart 2: log₁₀|x_{n+1} - x_n| vs n with linear regression ---
+    // --- Sub-chart 2: log₁₀|x_n - g(x_n)| vs log₁₀(n) with linear regression ---
     const logRows = visibleRows.filter(r => r.i > 0 && Number.isFinite(r.error) && r.error > 0)
     const logNs   = logRows.map(r => Math.log10(r.i))
     const logYs   = logRows.map(r => Math.log10(r.error))
 
     const logData = [{
       x: logNs, y: logYs,
-      type: "scatter", mode: "markers", name: "log₁₀|xₙ₊₁ − xₙ|",
+      type: "scatter", mode: "markers", name: "log₁₀|xₙ − g(xₙ)|",
       marker: {color: "#dc2626", size: 7}
     }]
 
@@ -219,7 +219,7 @@ renderOutput = {
     const logLayout = {
       margin: {l: 60, r: 10, t: 30, b: 55},
       xaxis: {title: "log₁₀(n)"},
-      yaxis: {title: "log₁₀|xₙ₊₁ − xₙ|"},
+      yaxis: {title: "log₁₀|xₙ − g(xₙ)|"},
       title: {text: "Convergence rate", font: {size: 13}},
       legend: {orientation: "h", y: -0.35},
       uirevision: "convergence",
