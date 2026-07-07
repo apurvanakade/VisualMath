@@ -89,7 +89,9 @@ precompute = ({fText, x0, maxIterations}) => {
 // reactive updates — this preserves zoom and pan when the step changes.
 renderOutput = {
   const Plotly = window.Plotly
-  let _plotDiv = null
+  let _plotDiv  = null
+  let _plotDiv2 = null
+  let _plotDiv3 = null
 
   return ({html, tex, result, stepControl, x0}) => {
     // Rows 0..stepControl — what's visible at the current step.
@@ -134,18 +136,31 @@ renderOutput = {
       data.push({x: [r.x, r.x], y: [0, r.fx], type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip", line: {color: "#94a3b8", width: 1.5, dash: "dot"}})
     }
 
-    // Tangent lines at each visible iterate
-    let tangentLegendShown = false
-    for (const row of visibleRows) {
-      if (!Number.isFinite(row.x) || !Number.isFinite(row.fx) || !Number.isFinite(row.dfx) || !Number.isFinite(row.xNext)) continue
+    // Tangent lines: previous ones faded, current one solid
+    const validTangentRows = visibleRows.filter(r =>
+      Number.isFinite(r.x) && Number.isFinite(r.fx) && Number.isFinite(r.dfx) && Number.isFinite(r.xNext)
+    )
+    const prevTangents    = validTangentRows.slice(0, -1)
+    const currentTangent  = validTangentRows.length > 0 ? validTangentRows[validTangentRows.length - 1] : null
+
+    for (const row of prevTangents) {
       const tlo = Math.max(xRange.lo, Math.min(row.x, row.xNext) - 0.75)
       const thi = Math.min(xRange.hi, Math.max(row.x, row.xNext) + 0.75)
       data.push({
         x: [tlo, thi], y: [row.fx + row.dfx * (tlo - row.x), row.fx + row.dfx * (thi - row.x)],
-        type: "scatter", mode: "lines", name: "Tangent lines", showlegend: !tangentLegendShown,
-        line: {color: "#dc2626", width: 2.5, dash: "dash"}
+        type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip",
+        line: {color: "rgba(220, 38, 38, 0.18)", width: 1.5}
       })
-      tangentLegendShown = true
+    }
+    if (currentTangent) {
+      const row = currentTangent
+      const tlo = Math.max(xRange.lo, Math.min(row.x, row.xNext) - 0.75)
+      const thi = Math.min(xRange.hi, Math.max(row.x, row.xNext) + 0.75)
+      data.push({
+        x: [tlo, thi], y: [row.fx + row.dfx * (tlo - row.x), row.fx + row.dfx * (thi - row.x)],
+        type: "scatter", mode: "lines", name: "Tangent line", showlegend: true,
+        line: {color: "#dc2626", width: 2.5}
+      })
     }
 
     // Red markers at each (x_i, f(x_i)) Newton point
@@ -193,6 +208,81 @@ renderOutput = {
       Plotly.react(_plotDiv, data, layout, config)
     }
 
+    // --- Sub-chart 1: x_n vs n ---
+    const xnData = [{
+      x: visibleRows.map(r => r.i),
+      y: visibleRows.map(r => Number.isFinite(r.x) ? r.x : null),
+      type: "scatter", mode: "markers+lines", name: "xₙ",
+      line: {color: "#2563eb"}, marker: {color: "#2563eb", size: 7}
+    }]
+    const xnLayout = {
+      margin: {l: 55, r: 10, t: 30, b: 40},
+      xaxis: {title: "n", dtick: 1},
+      yaxis: {title: "xₙ"},
+      title: {text: "Iterates xₙ", font: {size: 13}},
+      uirevision: "iterates",
+      autosize: true
+    }
+
+    if (!_plotDiv2) {
+      _plotDiv2 = document.createElement("div")
+      _plotDiv2.className = "plotly-box-small"
+      Plotly.newPlot(_plotDiv2, xnData, xnLayout, config)
+      setTimeout(() => Plotly.Plots.resize(_plotDiv2), 0)
+    } else {
+      Plotly.react(_plotDiv2, xnData, xnLayout, config)
+    }
+
+    // --- Sub-chart 2: log₁₀|f(x_n)| vs n with linear regression ---
+    const logRows = visibleRows.filter(r => r.i > 0 && Number.isFinite(r.fx) && r.fx !== 0)
+    const logNs   = logRows.map(r => Math.log10(r.i))
+    const logYs   = logRows.map(r => Math.log10(Math.abs(r.fx)))
+
+    const logData = [{
+      x: logNs, y: logYs,
+      type: "scatter", mode: "markers", name: "log₁₀|f(xₙ)|",
+      marker: {color: "#dc2626", size: 7}
+    }]
+
+    if (logNs.length >= 2) {
+      const m   = logNs.length
+      const sx  = logNs.reduce((a, b) => a + b, 0)
+      const sy  = logYs.reduce((a, b) => a + b, 0)
+      const sxy = logNs.reduce((s, x, i) => s + x * logYs[i], 0)
+      const sxx = logNs.reduce((s, x) => s + x * x, 0)
+      const denom = m * sxx - sx * sx
+      if (denom !== 0) {
+        const slope     = (m * sxy - sx * sy) / denom
+        const intercept = (sy - slope * sx) / m
+        const xlo = logNs[0], xhi = logNs[m - 1]
+        logData.push({
+          x: [xlo, xhi], y: [slope * xlo + intercept, slope * xhi + intercept],
+          type: "scatter", mode: "lines",
+          name: `slope ≈ ${slope.toFixed(2)}`,
+          line: {color: "#9333ea", width: 2, dash: "dash"}
+        })
+      }
+    }
+
+    const logLayout = {
+      margin: {l: 60, r: 10, t: 30, b: 55},
+      xaxis: {title: "log₁₀(n)"},
+      yaxis: {title: "log₁₀|f(xₙ)|"},
+      title: {text: "Convergence rate", font: {size: 13}},
+      legend: {orientation: "h", y: -0.35},
+      uirevision: "convergence",
+      autosize: true
+    }
+
+    if (!_plotDiv3) {
+      _plotDiv3 = document.createElement("div")
+      _plotDiv3.className = "plotly-box-small"
+      Plotly.newPlot(_plotDiv3, logData, logLayout, config)
+      setTimeout(() => Plotly.Plots.resize(_plotDiv3), 0)
+    } else {
+      Plotly.react(_plotDiv3, logData, logLayout, config)
+    }
+
     // Iteration table — shows one row per step
     const table = visibleRows.length === 0
       ? null
@@ -209,7 +299,7 @@ renderOutput = {
           ])
         })
 
-    return html`<div>${_plotDiv}${table}</div>`
+    return html`<div>${_plotDiv}<div class="vm-subcharts-row">${_plotDiv2}${_plotDiv3}</div>${table}</div>`
   }
 }
 ```
