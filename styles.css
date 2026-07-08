@@ -8,32 +8,95 @@
 
 .ojs-controls-wide {
   padding: 0.5rem 0.75rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
   border: 1px solid var(--bs-border-color, #dee2e6);
   border-radius: var(--bs-border-radius, 0.375rem);
   background: var(--bs-light, #f8f9fa);
 }
 
+/* Observable Inputs' label column defaults to 120px and can't be reset from
+   an ancestor — it sets --label-width directly on each <form>, and a value
+   set on the element itself always wins over one inherited from a parent.
+   So each grid track needs to be wide enough for that 120px label plus our
+   fixed-width number input (below), or the overflow spills into the next
+   track and gets painted over. auto-fit (not auto-fill) also matters here:
+   auto-fill keeps generating extra empty tracks as the viewport widens,
+   which pins real tracks near the minmax floor instead of letting them
+   grow — auto-fit collapses the empty ones so real tracks get the space. */
 .ojs-control-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 0.25rem 0.5rem;
   align-items: end;
 }
 
-/* ── Step row (slider + max input, separate from param panel) ────── */
-
-.ojs-step-row {
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-end;
-  padding: 0.25rem 0;
-  margin-bottom: 0.25rem;
+/* Observable Inputs only styles its <form> layout, not the native <input>
+   chrome — skin text/number/range controls to match the panel instead of
+   falling back to raw browser borders. */
+.ojs-controls-wide input,
+.ojs-step-row input {
+  border: 1px solid var(--bs-border-color, #ced4da);
+  border-radius: var(--bs-border-radius-sm, 0.25rem);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.9rem;
+  background: white;
 }
 
-/* Quarto wraps each OJS cell in a div; let the slider cell grow, max cell shrink. */
+/* Two standard control widths — compact for numbers, wide for math
+   expressions — instead of each input inheriting whatever width its grid
+   or flex container happens to give it. !important is needed because
+   Observable Inputs sets its own flex-shrink (1.5 on the number spinner
+   that's paired with a range slider) via a stylesheet it injects after
+   ours, which otherwise wins ties in specificity through cascade order. */
+.ojs-controls-wide input[type="number"],
+.ojs-step-row input[type="number"] {
+  width: 5.5em;
+  flex: none !important;
+}
+
+.ojs-controls-wide input[type="text"] {
+  width: 28em;
+  max-width: 100%;
+  flex: none !important;
+}
+
+.ojs-controls-wide input:focus,
+.ojs-step-row input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 0.15rem rgba(37, 99, 235, 0.2);
+}
+
+.ojs-controls-wide input[type="range"],
+.ojs-step-row input[type="range"] {
+  border: none;
+  padding: 0;
+  background: none;
+  accent-color: #2563eb;
+  width: 100%;
+}
+
+/* ── Step row (slider + max input, styled to match the panel above) ─ */
+.ojs-step-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: flex-end;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: var(--bs-border-radius, 0.375rem);
+  background: var(--bs-light, #f8f9fa);
+}
+
+/* Quarto wraps each OJS cell in a div. The slider grows to fill the row;
+   Observable's fixed 120px label makes each control's true minimum width
+   bigger than it looks, so instead of forcing a shrink (which just clips
+   or hides content) the max input wraps onto its own line when the row
+   doesn't have room for both. */
 .ojs-step-row > div { margin: 0; }
-.ojs-step-row > div:first-child { flex: 1; }
+.ojs-step-row > div:first-child { flex: 1 1 200px; }
+.ojs-step-row > div:last-child { flex: 0 0 auto; }
 
 /* ── Output area ─────────────────────────────────────────────────── */
 

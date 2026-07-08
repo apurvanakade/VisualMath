@@ -1,6 +1,7 @@
 ---
 title: "Newton's Method"
 description: "Uses tangent lines and derivative information to find roots of f(x)=0 with fast convergence."
+image: newton.png
 categories:
   - Derivatives
   - Fast convergence
