@@ -33,7 +33,6 @@ A single IIFE attaching `window.VM`:
 
 - `VM.makeFunction(mathjs, expr)` — returns `(x) => number`, or `null` if the expression can't be parsed. Normalizes input (trim, replace `π` → `pi`), compiles via math.js, evaluates safely.
 - `VM.makeDerivative(mathjs, expr)` — like `makeFunction` but returns the symbolic derivative.
-- `VM.pushFiniteValues(arr, values, opts)` — appends finite values to an array; optional `maxAbs` cap.
 - `VM.paddedRange(values, opts)` — returns `{lo, hi}` with configurable padding for axis ranges.
 - `VM.renderTable({html, headers, rows})` — returns a DOM table node styled with `ojs-table` classes.
 

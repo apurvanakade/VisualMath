@@ -25,79 +25,39 @@ Fixed point iteration finds a value $\alpha$ where $g(\alpha) = \alpha$ by repea
 
 ```{ojs}
 //| output: false
-// precompute runs fixed-point iteration and returns all iteration data.
-//
-// Parameters:
-//   gText        — user's iteration function string, e.g. "cos(x)"
-//   x0           — initial guess
-//   maxIterations — number of steps to run
-//
-// Returns: { rows, g }
-//   rows — array of { i, x, gx, error }, one entry per iteration
-//   g    — parsed function, reused for curve sampling in renderOutput
-precompute = ({gText, x0, maxIterations}) => {
-  const math = window.math
+// setup computes the data shared by all three plots below: which rows are
+// visible at the current step, the axis range for the cobweb diagram
+// (square, since it plots y = x), and the sampled curve for g(x).
+setup = {
+  const visibleRows = result.rows.slice(0, Math.min(Number(stepControl), result.rows.length) + 1)
 
-  const g        = VM.makeFunction(math, gText)
-  const fallback = x => NaN
+  // Axis ranges from ALL rows so the axes stay fixed while stepping.
+  // The cobweb diagram uses a square plot (same range for x and y).
+  const rangeValues = [Number(x0)]
+  for (const row of result.rows) rangeValues.push(row.x, row.gx)
+  const range = VM.paddedRange(rangeValues, {emptyRange: [-2, 2], singularPadding: 2, relativePadding: 0.45, minPadding: 1.0})
 
-  if (!g) return {rows: [], g: fallback}
+  // Sample g across the range for the smooth curve trace.
+  const N  = 500
+  const xs = Array.from({length: N}, (_, i) => range.lo + (range.hi - range.lo) * i / (N - 1))
+  const ys = xs.map(x => result.g(x)).map(y => Number.isFinite(y) ? y : null)
 
-  const rows  = []
-  const start = Number(x0)
-
-  if (!Number.isFinite(start)) return {rows: [], g}
-
-  let x = start
-  let i = 0
-  while (i < maxIterations) {
-    const gx = g(x)
-
-    // Stop if g(x) blows up — the iteration has diverged.
-    if (!Number.isFinite(gx)) {
-      rows.push({i, x, gx, error: NaN})
-      return {rows, g}
-    }
-
-    const error = Math.abs(gx - x)
-    rows.push({i, x, gx, error})
-
-    x = gx
-    i++
-  }
-  return {rows, g}
+  return {visibleRows, range, xs, ys, x0: Number(x0)}
 }
 ```
 
 ```{ojs}
 //| output: false
-// renderOutput builds the cobweb chart and iteration table for a given step.
+// mainPlot draws the cobweb diagram: g(x), the diagonal y = x, and the
+// staircase path of iterates.
 //
 // _plotDiv is kept in a closure so Plotly reuses the same DOM node across
 // reactive updates — this preserves zoom and pan when the step changes.
-renderOutput = {
+mainPlot = {
   const Plotly = window.Plotly
-  let _plotDiv  = null
-  let _plotDiv2 = null
-  let _plotDiv3 = null
+  let _plotDiv = null
 
-  return ({html, tex, result, stepControl, x0}) => {
-    // Rows 0..stepControl — what's visible at the current step.
-    const visibleRows = result.rows.slice(0, Math.min(Number(stepControl), result.rows.length) + 1)
-
-    // Axis ranges from ALL rows so the axes stay fixed while stepping.
-    // The cobweb diagram uses a square plot (same range for x and y).
-    const rangeValues = [Number(x0)]
-    for (const row of result.rows) VM.pushFiniteValues(rangeValues, [row.x, row.gx])
-    const range = VM.paddedRange(rangeValues, {emptyRange: [-2, 2], singularPadding: 2, relativePadding: 0.45, minPadding: 1.0})
-
-    // Sample g across the range for the smooth curve trace.
-    const N  = 500
-    const xs = Array.from({length: N}, (_, i) => range.lo + (range.hi - range.lo) * i / (N - 1))
-    const ys = xs.map(x => result.g(x)).map(y => Number.isFinite(y) ? y : null)
-
-    // --- Plotly traces ---
-
+  return ({visibleRows, range, xs, ys, x0}) => {
     const data = [
       // The iteration function g(x)
       {x: xs, y: ys, type: "scatter", mode: "lines", name: "g(x)", showlegend: true, line: {color: "#2563eb", width: 3}},
@@ -113,8 +73,7 @@ renderOutput = {
       // then horizontally to (g(x_i), g(x_i)) on the diagonal.
       const cobwebX = []
       const cobwebY = []
-      const start   = Number(x0)
-      if (Number.isFinite(start)) { cobwebX.push(start); cobwebY.push(start) }
+      if (Number.isFinite(x0)) { cobwebX.push(x0); cobwebY.push(x0) }
       for (const row of visibleRows) {
         if (!Number.isFinite(row.x) || !Number.isFinite(row.gx)) continue
         cobwebX.push(row.x,  row.gx)
@@ -138,7 +97,6 @@ renderOutput = {
     }
 
     const layout = {
-      // title: {text: "Fixed Point Iteration Cobweb Diagram"},
       margin: {l: 0, r: 0, t: 0, b: 0},
       xaxis: {title: "x", range: [range.lo, range.hi], zeroline: true},
       yaxis: {title: "y", range: [range.lo, range.hi], zeroline: true, zerolinecolor: "#94a3b8", gridcolor: "#e2e8f0", linecolor: "#cbd5e1"},
@@ -154,101 +112,11 @@ renderOutput = {
       _plotDiv = document.createElement("div")
       _plotDiv.className = "plotly-box-large"
       Plotly.newPlot(_plotDiv, data, layout, config)
-      setTimeout(() => Plotly.Plots.resize(_plotDiv), 0)
+      new ResizeObserver(() => Plotly.Plots.resize(_plotDiv)).observe(_plotDiv)
     } else {
       Plotly.react(_plotDiv, data, layout, config)
     }
-
-    // --- Sub-chart 1: x_n vs n ---
-    const xnData = [{
-      x: visibleRows.map(r => r.i),
-      y: visibleRows.map(r => Number.isFinite(r.x) ? r.x : null),
-      type: "scatter", mode: "markers+lines", name: "xₙ",
-      line: {color: "#2563eb"}, marker: {color: "#2563eb", size: 7}
-    }]
-    const xnLayout = {
-      margin: {l: 55, r: 10, t: 30, b: 40},
-      xaxis: {title: "n", dtick: 1},
-      yaxis: {title: "xₙ"},
-      title: {text: "Iterates xₙ", font: {size: 13}},
-      uirevision: "iterates",
-      autosize: true
-    }
-
-    if (!_plotDiv2) {
-      _plotDiv2 = document.createElement("div")
-      _plotDiv2.className = "plotly-box-small"
-      Plotly.newPlot(_plotDiv2, xnData, xnLayout, config)
-      setTimeout(() => Plotly.Plots.resize(_plotDiv2), 0)
-    } else {
-      Plotly.react(_plotDiv2, xnData, xnLayout, config)
-    }
-
-    // --- Sub-chart 2: log₁₀|x_n - g(x_n)| vs log₁₀(n) with linear regression ---
-    const logRows = visibleRows.filter(r => r.i > 0 && Number.isFinite(r.error) && r.error > 0)
-    const logNs   = logRows.map(r => Math.log10(r.i))
-    const logYs   = logRows.map(r => Math.log10(r.error))
-
-    const logData = [{
-      x: logNs, y: logYs,
-      type: "scatter", mode: "markers", name: "log₁₀|xₙ − g(xₙ)|",
-      marker: {color: "#dc2626", size: 7}
-    }]
-
-    if (logNs.length >= 2) {
-      const m   = logNs.length
-      const sx  = logNs.reduce((a, b) => a + b, 0)
-      const sy  = logYs.reduce((a, b) => a + b, 0)
-      const sxy = logNs.reduce((s, x, i) => s + x * logYs[i], 0)
-      const sxx = logNs.reduce((s, x) => s + x * x, 0)
-      const denom = m * sxx - sx * sx
-      if (denom !== 0) {
-        const slope     = (m * sxy - sx * sy) / denom
-        const intercept = (sy - slope * sx) / m
-        const xlo = logNs[0], xhi = logNs[m - 1]
-        logData.push({
-          x: [xlo, xhi], y: [slope * xlo + intercept, slope * xhi + intercept],
-          type: "scatter", mode: "lines",
-          name: `slope ≈ ${slope.toFixed(2)}`,
-          line: {color: "#9333ea", width: 2, dash: "dash"}
-        })
-      }
-    }
-
-    const logLayout = {
-      margin: {l: 60, r: 10, t: 30, b: 55},
-      xaxis: {title: "log₁₀(n)"},
-      yaxis: {title: "log₁₀|xₙ − g(xₙ)|"},
-      title: {text: "Convergence rate", font: {size: 13}},
-      legend: {orientation: "h", y: -0.35},
-      uirevision: "convergence",
-      autosize: true
-    }
-
-    if (!_plotDiv3) {
-      _plotDiv3 = document.createElement("div")
-      _plotDiv3.className = "plotly-box-small"
-      Plotly.newPlot(_plotDiv3, logData, logLayout, config)
-      setTimeout(() => Plotly.Plots.resize(_plotDiv3), 0)
-    } else {
-      Plotly.react(_plotDiv3, logData, logLayout, config)
-    }
-
-    // Iteration table — shows one row per step
-    const table = visibleRows.length === 0
-      ? null
-      : VM.renderTable({
-          html,
-          headers: ["n", "x_n", tex`g(x_n) = x_{n+1}`, tex`|x_{n+1} - x_n|`],
-          rows: visibleRows.map(row => [
-            row.i,
-            Number.isFinite(row.x)     ? row.x.toPrecision(10)    : "NaN",
-            Number.isFinite(row.gx)    ? row.gx.toPrecision(10)   : "NaN",
-            Number.isFinite(row.error) ? row.error.toExponential(4) : "NaN"
-          ])
-        })
-
-    return html`<div>${_plotDiv}<div class="vm-subcharts-row">${_plotDiv2}${_plotDiv3}</div>${table}</div>`
+    return _plotDiv
   }
 }
 ```
@@ -294,14 +162,167 @@ viewof maxIterations = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
 
 ```{ojs}
 //| output: false
-result = precompute({gText, x0, maxIterations})
+// result: runs fixed-point iteration with the current inputs.
+//   rows — array of { i, x, gx, error }, one entry per iteration
+//   g    — parsed function, reused for curve sampling in renderOutput
+result = {
+  const math = window.math
+
+  const g        = VM.makeFunction(math, gText)
+  const fallback = x => NaN
+
+  if (!g) return {rows: [], g: fallback}
+
+  const rows  = []
+  const start = Number(x0)
+
+  if (!Number.isFinite(start)) return {rows: [], g}
+
+  let x = start
+  let i = 0
+  while (i < maxIterations) {
+    const gx = g(x)
+
+    // Stop if g(x) blows up — the iteration has diverged.
+    if (!Number.isFinite(gx)) {
+      rows.push({i, x, gx, error: NaN})
+      return {rows, g}
+    }
+
+    const error = Math.abs(gx - x)
+    rows.push({i, x, gx, error})
+
+    x = gx
+    i++
+  }
+  return {rows, g}
+}
 ```
 
 <div class="ojs-output-wide">
 
 ```{ojs}
-renderOutput({html, tex, result, stepControl, x0})
+mainPlot(setup)
 ```
+
+:::: {.callout-note collapse="false" title="Convergence plots"}
+
+::: {layout-ncol=2}
+
+```{ojs}
+// iteratesPlot draws xₙ vs n for the entire run — it doesn't depend on the
+// current step, so it's just plotted once per run.
+iteratesPlot = {
+  const Plotly = window.Plotly
+  const rows = result.rows
+
+  const xnData = [{
+    x: rows.map(r => r.i),
+    y: rows.map(r => Number.isFinite(r.x) ? r.x : null),
+    type: "scatter", mode: "markers+lines", name: "xₙ",
+    line: {color: "#2563eb"}, marker: {color: "#2563eb", size: 7}
+  }]
+  const xnLayout = {
+    margin: {l: 35, r: 10, t: 30, b: 40},
+    xaxis: {title: "n", dtick: 1},
+    yaxis: {},
+    title: {text: "Iterates xₙ", font: {size: 13}},
+    autosize: true
+  }
+  const config = {responsive: true, displaylogo: false}
+
+  const plotDiv = document.createElement("div")
+  plotDiv.className = "plotly-box-small"
+  Plotly.newPlot(plotDiv, xnData, xnLayout, config)
+  const observer = new ResizeObserver(() => Plotly.Plots.resize(plotDiv))
+  observer.observe(plotDiv)
+  invalidation.then(() => observer.disconnect())
+  return plotDiv
+}
+```
+
+```{ojs}
+// convergencePlot draws log₁₀|xₙ − g(xₙ)| vs log₁₀(n) with a linear
+// regression line, for the entire run — it doesn't depend on the current
+// step, so it's just plotted once per run.
+convergencePlot = {
+  const Plotly = window.Plotly
+  const rows = result.rows
+
+  const logRows = rows.filter(r => r.i > 0 && Number.isFinite(r.error) && r.error > 0)
+  const logNs   = logRows.map(r => Math.log10(r.i))
+  const logYs   = logRows.map(r => Math.log10(r.error))
+
+  const logData = [{
+    x: logNs, y: logYs,
+    type: "scatter", mode: "markers", name: "log₁₀|xₙ − g(xₙ)|",
+    marker: {color: "#dc2626", size: 7}
+  }]
+
+  if (logNs.length >= 2) {
+    const m   = logNs.length
+    const sx  = logNs.reduce((a, b) => a + b, 0)
+    const sy  = logYs.reduce((a, b) => a + b, 0)
+    const sxy = logNs.reduce((s, x, i) => s + x * logYs[i], 0)
+    const sxx = logNs.reduce((s, x) => s + x * x, 0)
+    const denom = m * sxx - sx * sx
+    if (denom !== 0) {
+      const slope     = (m * sxy - sx * sy) / denom
+      const intercept = (sy - slope * sx) / m
+      const xlo = logNs[0], xhi = logNs[m - 1]
+      logData.push({
+        x: [xlo, xhi], y: [slope * xlo + intercept, slope * xhi + intercept],
+        type: "scatter", mode: "lines",
+        name: `slope ≈ ${slope.toFixed(2)}`,
+        line: {color: "#9333ea", width: 2, dash: "dash"}
+      })
+    }
+  }
+
+  const logLayout = {
+    margin: {l: 40, r: 10, t: 30, b: 55},
+    xaxis: {title: "log₁₀(n)"},
+    yaxis: {},
+    title: {text: "Convergence rate", font: {size: 13}},
+    legend: {orientation: "h", y: -0.35},
+    autosize: true
+  }
+  const config = {responsive: true, displaylogo: false}
+
+  const plotDiv = document.createElement("div")
+  plotDiv.className = "plotly-box-small"
+  Plotly.newPlot(plotDiv, logData, logLayout, config)
+  const observer = new ResizeObserver(() => Plotly.Plots.resize(plotDiv))
+  observer.observe(plotDiv)
+  invalidation.then(() => observer.disconnect())
+  return plotDiv
+}
+```
+
+:::
+
+::::
+
+:::: {.callout-note collapse="false" title="Iteration table"}
+
+```{ojs}
+// Iteration table — shows the entire run, not just the current step.
+iterationTable = result.rows.length === 0
+  ? document.createElement("div")  // always return a Node so Quarto's OJS runtime
+                                     // never latches this declaration cell as hidden
+  : VM.renderTable({
+      html,
+      headers: ["n", "x_n", tex`g(x_n) = x_{n+1}`, tex`|x_{n+1} - x_n|`],
+      rows: result.rows.map(row => [
+        row.i,
+        Number.isFinite(row.x)     ? row.x.toPrecision(10)    : "NaN",
+        Number.isFinite(row.gx)    ? row.gx.toPrecision(10)   : "NaN",
+        Number.isFinite(row.error) ? row.error.toExponential(4) : "NaN"
+      ])
+    })
+```
+
+::::
 
 </div>
 
