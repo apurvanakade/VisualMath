@@ -37,20 +37,21 @@
 
 /* ── Output area ─────────────────────────────────────────────────── */
 
+/* Quarto's layout-ncol panel cells default to min-width: auto (the flexbox
+   default), which stops them shrinking below the Plotly chart's intrinsic
+   content width. Allow them to shrink to their flex-basis share instead. */
+.quarto-layout-cell {
+  min-width: 0;
+}
+
 .plotly-box-large {
   width: 100%;
   height: 78vh;
   min-height: 500px;
 }
 
-.vm-subcharts-row {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
 .plotly-box-small {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   height: 40vh;
   min-height: 280px;
@@ -76,32 +77,12 @@
 
 /* ── Iteration table ─────────────────────────────────────────────── */
 
+/* overflow-x is still needed inside the callout — Bootstrap/Quarto don't
+   scroll wide content for you. The callout's own padding already handles
+   spacing, so no margin here. */
 .ojs-table-container {
-  margin-top: 0.5rem;
   overflow-x: auto;
 }
-
-.ojs-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.82rem;
-}
-
-.ojs-table th,
-.ojs-table td {
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--bs-border-color, #dee2e6);
-  text-align: right;
-  white-space: nowrap;
-}
-
-.ojs-table th {
-  background: var(--bs-light, #f8f9fa);
-  font-weight: 600;
-}
-
-.ojs-table th:first-child,
-.ojs-table td:first-child { text-align: center; }
 
 /* ── Responsive ──────────────────────────────────────────────────── */
 
