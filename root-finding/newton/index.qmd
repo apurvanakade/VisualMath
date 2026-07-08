@@ -1,6 +1,7 @@
 ---
 title: "Newton's Method"
 description: "Uses tangent lines and derivative information to find roots of f(x)=0 with fast convergence."
+image: newton.png
 categories:
   - Derivatives
   - Fast convergence
@@ -17,7 +18,7 @@ Authors: Apurva Nakade, Dhruv Azad
 
 ```{ojs}
 //| output: false
-// VM is the shared utility library loaded from js/utils.js.
+// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/padded-range.js, js/render-table.js.
 // It provides makeFunction, makeDerivative, paddedRange, renderTable.
 VM = window.VM
 ```
@@ -259,7 +260,7 @@ result = {
 mainPlot(setup)
 ```
 
-:::: {.callout-note collapse="false" title="Convergence plots"}
+:::: {.callout-note collapse="true" title="Convergence plots"}
 
 ::: {layout-ncol=2}
 
@@ -357,7 +358,7 @@ convergencePlot = {
 
 ::::
 
-:::: {.callout-note collapse="false" title="Iteration table"}
+:::: {.callout-note collapse="true" title="Iteration table"}
 
 ```{ojs}
 // Iteration table — shows the entire run, not just the current step.

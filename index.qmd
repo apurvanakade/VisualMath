@@ -8,6 +8,6 @@ listing:
     - root-finding/newton/index.qmd
   type: grid
   sort: false
-  fields: [title, description, categories]
+  fields: [image, title, description, categories]
   categories: true
 ---

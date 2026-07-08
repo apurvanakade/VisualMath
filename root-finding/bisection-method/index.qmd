@@ -1,6 +1,7 @@
 ---
 title: "Bisection Method"
 description: "Finds a root by repeatedly halving an interval where f changes sign. Reliable and guaranteed to converge."
+image: bisection.png
 categories:
   - Bracketing
   - No derivatives
@@ -17,7 +18,7 @@ Authors: Apurva Nakade, Dhruv Azad
 
 ```{ojs}
 //| output: false
-// VM is the shared utility library loaded from js/utils.js.
+// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/padded-range.js, js/render-table.js.
 VM = window.VM
 ```
 
@@ -236,7 +237,7 @@ result = {
 mainPlot(setup)
 ```
 
-:::: {.callout-note collapse="false" title="Convergence plots"}
+:::: {.callout-note collapse="true" title="Convergence plots"}
 
 ::: {layout-ncol=2}
 
@@ -334,7 +335,7 @@ convergencePlot = {
 
 ::::
 
-:::: {.callout-note collapse="false" title="Iteration table"}
+:::: {.callout-note collapse="true" title="Iteration table"}
 
 ```{ojs}
 // Iteration table — shows the entire run, not just the current step.
