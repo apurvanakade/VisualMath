@@ -368,6 +368,8 @@ iterationTable = result.rows.length === 0
   : VM.renderTable({
       html,
       headers: ["n", tex`x_n`, tex`f(x_n)`, tex`f'(x_n)`, tex`x_{n+1}`, tex`|x_{n+1} - x_n|`],
+      csvHeaders: ["n", "x_n", "f(x_n)", "f'(x_n)", "x_{n+1}", "|x_{n+1} - x_n|"],
+      filename: "newton-method-iterations.csv",
       rows: result.rows.map(row => [
         row.i,
         Number.isFinite(row.x)     ? row.x.toPrecision(10)    : "NaN",

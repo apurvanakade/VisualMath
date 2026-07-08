@@ -314,6 +314,8 @@ iterationTable = result.rows.length === 0
   : VM.renderTable({
       html,
       headers: ["n", "x_n", tex`g(x_n) = x_{n+1}`, tex`|x_{n+1} - x_n|`],
+      csvHeaders: ["n", "x_n", "g(x_n) = x_{n+1}", "|x_{n+1} - x_n|"],
+      filename: "fixed-point-iterations.csv",
       rows: result.rows.map(row => [
         row.i,
         Number.isFinite(row.x)     ? row.x.toPrecision(10)    : "NaN",

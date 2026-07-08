@@ -345,6 +345,8 @@ iterationTable = result.rows.length === 0
   : VM.renderTable({
       html,
       headers: ["n", tex`a_n`, tex`b_n`, tex`m_n`, tex`f(a_n)`, tex`f(b_n)`, tex`f(m_n)`, "width"],
+      csvHeaders: ["n", "a_n", "b_n", "m_n", "f(a_n)", "f(b_n)", "f(m_n)", "width"],
+      filename: "bisection-method-iterations.csv",
       rows: result.rows.map(row => [
         row.n,
         Number.isFinite(row.a)     ? row.a.toPrecision(10)    : "NaN",
