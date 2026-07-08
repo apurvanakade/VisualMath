@@ -1,7 +1,6 @@
 ---
 title: "Fixed Point Iteration"
 description: "Rewrites an equation as x = g(x) and iterates x_{n+1} = g(x_n), visualized as a cobweb diagram."
-page-layout: full
 categories:
   - No derivatives
   - Fixed points
