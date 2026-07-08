@@ -86,7 +86,7 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-title','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-image','listing-title','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
       searchColumns: ["listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
@@ -107,7 +107,10 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="../../js/utils.js"></script>
+<script src="../../js/make-function.js"></script>
+<script src="../../js/make-derivative.js"></script>
+<script src="../../js/padded-range.js"></script>
+<script src="../../js/render-table.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -405,9 +408,12 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="QnJhY2tldGluZyUyQ05vJTIwZGVyaXZhdGl2ZXMlMkNHdWFyYW50ZWVkJTIwY29udmVyZ2VuY2UlMkNSb290JTIwZmluZGluZw==" data-listing-file-modified-sort="1783520810085" data-listing-reading-time-sort="13" data-listing-word-count-sort="2452">
+<div class="g-col-1" data-index="0" data-categories="QnJhY2tldGluZyUyQ05vJTIwZGVyaXZhdGl2ZXMlMkNHdWFyYW50ZWVkJTIwY29udmVyZ2VuY2UlMkNSb290JTIwZmluZGluZw==" data-listing-file-modified-sort="1783541205166" data-listing-reading-time-sort="13" data-listing-word-count-sort="2476">
 <a href="./root-finding/bisection-method/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./root-finding/bisection-method/bisection.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Bisection Method
@@ -429,9 +435,12 @@ Bisection Method
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="Tm8lMjBkZXJpdmF0aXZlcyUyQ0ZpeGVkJTIwcG9pbnRzJTJDTGluZWFyJTIwY29udmVyZ2VuY2UlMkNTbG93JTIwY29udmVyZ2VuY2U=" data-listing-file-modified-sort="1783520764355" data-listing-reading-time-sort="11" data-listing-word-count-sort="2088">
+<div class="g-col-1" data-index="1" data-categories="Tm8lMjBkZXJpdmF0aXZlcyUyQ0ZpeGVkJTIwcG9pbnRzJTJDTGluZWFyJTIwY29udmVyZ2VuY2UlMkNTbG93JTIwY29udmVyZ2VuY2U=" data-listing-file-modified-sort="1783541205167" data-listing-reading-time-sort="11" data-listing-word-count-sort="2112">
 <a href="./root-finding/fixed-point/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./root-finding/fixed-point/fixed-point.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Fixed Point Iteration
@@ -453,9 +462,12 @@ Fixed Point Iteration
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="RGVyaXZhdGl2ZXMlMkNGYXN0JTIwY29udmVyZ2VuY2UlMkNRdWFkcmF0aWMlMjBjb252ZXJnZW5jZSUyQ1Jvb3QlMjBmaW5kaW5n" data-listing-file-modified-sort="1783520839945" data-listing-reading-time-sort="14" data-listing-word-count-sort="2634">
+<div class="g-col-1" data-index="2" data-categories="RGVyaXZhdGl2ZXMlMkNGYXN0JTIwY29udmVyZ2VuY2UlMkNRdWFkcmF0aWMlMjBjb252ZXJnZW5jZSUyQ1Jvb3QlMjBmaW5kaW5n" data-listing-file-modified-sort="1783541205167" data-listing-reading-time-sort="14" data-listing-word-count-sort="2658">
 <a href="./root-finding/newton/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img loading="lazy" src="./root-finding/newton/newton.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Newton’s Method
