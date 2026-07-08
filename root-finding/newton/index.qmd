@@ -18,7 +18,7 @@ Authors: Apurva Nakade, Dhruv Azad
 ```{ojs}
 //| output: false
 // VM is the shared utility library loaded from js/utils.js.
-// It provides makeFunction, makeDerivative, pushFiniteValues, paddedRange, renderTable.
+// It provides makeFunction, makeDerivative, paddedRange, renderTable.
 VM = window.VM
 ```
 
@@ -26,103 +26,54 @@ Newton's method finds roots of $f(x) = 0$ by repeatedly linearizing the function
 
 ```{ojs}
 //| output: false
-// precompute runs Newton's method and returns all iteration data.
-//
-// Parameters:
-//   fText        — user's function string, e.g. "x^3 - x - 2"
-//   x0           — initial guess
-//   maxIterations — number of steps to run
-//
-// Returns: { rows, f, df }
-//   rows — array of { i, x, fx, dfx, xNext, error }, one entry per iteration
-//   f, df — parsed functions, reused for curve sampling in renderOutput
-precompute = ({fText, x0, maxIterations}) => {
-  const math = window.math
+// setup computes the data shared by all three plots below: which rows are
+// visible at the current step, and the axis ranges / curve samples for the
+// main chart.
+setup = {
+  const visibleRows = result.rows.slice(0, Math.min(Number(stepControl), result.rows.length) + 1)
 
-  // Parse f(x) and its symbolic derivative from the user's string.
-  // makeFunction / makeDerivative return null if the expression is invalid.
-  const f  = VM.makeFunction(math, fText)
-  const df = VM.makeDerivative(math, fText)
-  const fallback = x => NaN
+  // Axis ranges are computed from ALL rows, not just visibleRows,
+  // so the axes stay fixed as the user steps through iterations.
+  const xValues = [Number(x0)]
+  for (const row of result.rows) xValues.push(row.x, row.xNext)
+  const xRange = VM.paddedRange(xValues, {emptyRange: [-3, 3], singularPadding: 3, relativePadding: 0.45, minPadding: 1.0})
 
-  if (!f || !df) return {rows: [], f: fallback, df: fallback}
+  // Sample f across the x range for the smooth curve trace.
+  const N = 700
+  const sampleXs = Array.from({length: N}, (_, i) => xRange.lo + (xRange.hi - xRange.lo) * i / (N - 1))
+  const sampleYs = sampleXs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
 
-  const rows  = []
-  const start = Number(x0)
-
-  if (!Number.isFinite(start)) return {rows: [], f, df}
-
-  let x = start
-  let i = 0
-  while (i < maxIterations) {
-    const fx  = f(x)
-    const dfx = df(x)
-
-    // Stop if f or f' blows up — the method has diverged.
-    if (!Number.isFinite(fx) || !Number.isFinite(dfx)) {
-      rows.push({i, x, fx, dfx, xNext: NaN, error: NaN})
-      return {rows, f, df}
+  // Collect y values for the y-axis range, including tangent line endpoints.
+  // Cap at 1e8 so a near-vertical tangent doesn't blow up the axis range.
+  const yValues = [0, ...sampleYs]
+  for (const row of result.rows) {
+    if (Number.isFinite(row.fx) && Math.abs(row.fx) <= 1e8) yValues.push(row.fx)
+    if (Number.isFinite(row.x) && Number.isFinite(row.fx) && Number.isFinite(row.dfx) && Number.isFinite(row.xNext)) {
+      const tlo = Math.max(xRange.lo, Math.min(row.x, row.xNext) - 0.75)
+      const thi = Math.min(xRange.hi, Math.max(row.x, row.xNext) + 0.75)
+      for (const v of [row.fx + row.dfx * (tlo - row.x), row.fx + row.dfx * (thi - row.x)]) {
+        if (Number.isFinite(v) && Math.abs(v) <= 1e8) yValues.push(v)
+      }
     }
-
-    // Stop if the tangent is nearly flat — dividing by dfx would be unstable.
-    if (Math.abs(dfx) < 1e-14) {
-      rows.push({i, x, fx, dfx, xNext: NaN, error: NaN})
-      return {rows, f, df}
-    }
-
-    const xNext = x - fx / dfx        // Newton update: x-intercept of the tangent
-    const error = Math.abs(xNext - x)
-    rows.push({i, x, fx, dfx, xNext, error})
-
-    x = xNext
-    i++
   }
-  return {rows, f, df}
+  const yRange = VM.paddedRange(yValues, {emptyRange: [-1, 1], singularPadding: 1, relativePadding: 0.15, minPadding: 0.5})
+
+  return {visibleRows, xRange, yRange, sampleXs, sampleYs}
 }
 ```
 
 ```{ojs}
 //| output: false
-// renderOutput builds the chart and table for a given step.
+// mainPlot draws f(x), the tangent lines, the Newton points, and the
+// tangent x-intercepts.
 //
 // _plotDiv is kept in a closure so Plotly reuses the same DOM node across
 // reactive updates — this preserves zoom and pan when the step changes.
-renderOutput = {
+mainPlot = {
   const Plotly = window.Plotly
-  let _plotDiv  = null
-  let _plotDiv2 = null
-  let _plotDiv3 = null
+  let _plotDiv = null
 
-  return ({html, tex, result, stepControl, x0}) => {
-    // Rows 0..stepControl — what's visible at the current step.
-    const visibleRows = result.rows.slice(0, Math.min(Number(stepControl), result.rows.length) + 1)
-
-    // Axis ranges are computed from ALL rows, not just visibleRows,
-    // so the axes stay fixed as the user steps through iterations.
-    const xValues = [Number(x0)]
-    for (const row of result.rows) VM.pushFiniteValues(xValues, [row.x, row.xNext])
-    const xRange = VM.paddedRange(xValues, {emptyRange: [-3, 3], singularPadding: 3, relativePadding: 0.45, minPadding: 1.0})
-
-    // Sample f across the x range for the smooth curve trace.
-    const N = 700
-    const sampleXs = Array.from({length: N}, (_, i) => xRange.lo + (xRange.hi - xRange.lo) * i / (N - 1))
-    const sampleYs = sampleXs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
-
-    // Collect y values for the y-axis range, including tangent line endpoints.
-    const yValues = [0]
-    VM.pushFiniteValues(yValues, sampleYs, {maxAbs: 1e8})
-    for (const row of result.rows) {
-      VM.pushFiniteValues(yValues, [row.fx], {maxAbs: 1e8})
-      if (Number.isFinite(row.x) && Number.isFinite(row.fx) && Number.isFinite(row.dfx) && Number.isFinite(row.xNext)) {
-        const tlo = Math.max(xRange.lo, Math.min(row.x, row.xNext) - 0.75)
-        const thi = Math.min(xRange.hi, Math.max(row.x, row.xNext) + 0.75)
-        VM.pushFiniteValues(yValues, [row.fx + row.dfx * (tlo - row.x), row.fx + row.dfx * (thi - row.x)], {maxAbs: 1e8})
-      }
-    }
-    const yRange = VM.paddedRange(yValues, {emptyRange: [-1, 1], singularPadding: 1, relativePadding: 0.15, minPadding: 0.5})
-
-    // --- Plotly traces ---
-
+  return ({visibleRows, xRange, yRange, sampleXs, sampleYs}) => {
     const data = [
       // The function curve
       {x: sampleXs, y: sampleYs, type: "scatter", mode: "lines", name: "f(x)", showlegend: true, line: {color: "#2563eb", width: 3}},
@@ -202,104 +153,13 @@ renderOutput = {
       _plotDiv.className = "plotly-box-large"
       Plotly.newPlot(_plotDiv, data, layout, config)
       // newPlot fires before the div is in the DOM, so Plotly measures 0 width.
-      // Resize on the next tick, after OJS inserts the div into the page.
-      setTimeout(() => Plotly.Plots.resize(_plotDiv), 0)
+      // A ResizeObserver catches the real size once it's inserted and laid out,
+      // and keeps correcting it on any later layout/viewport change.
+      new ResizeObserver(() => Plotly.Plots.resize(_plotDiv)).observe(_plotDiv)
     } else {
       Plotly.react(_plotDiv, data, layout, config)
     }
-
-    // --- Sub-chart 1: x_n vs n ---
-    const xnData = [{
-      x: visibleRows.map(r => r.i),
-      y: visibleRows.map(r => Number.isFinite(r.x) ? r.x : null),
-      type: "scatter", mode: "markers+lines", name: "xₙ",
-      line: {color: "#2563eb"}, marker: {color: "#2563eb", size: 7}
-    }]
-    const xnLayout = {
-      margin: {l: 55, r: 10, t: 30, b: 40},
-      xaxis: {title: "n", dtick: 1},
-      yaxis: {title: "xₙ"},
-      title: {text: "Iterates xₙ", font: {size: 13}},
-      uirevision: "iterates",
-      autosize: true
-    }
-
-    if (!_plotDiv2) {
-      _plotDiv2 = document.createElement("div")
-      _plotDiv2.className = "plotly-box-small"
-      Plotly.newPlot(_plotDiv2, xnData, xnLayout, config)
-      setTimeout(() => Plotly.Plots.resize(_plotDiv2), 0)
-    } else {
-      Plotly.react(_plotDiv2, xnData, xnLayout, config)
-    }
-
-    // --- Sub-chart 2: log₁₀|f(x_n)| vs n with linear regression ---
-    const logRows = visibleRows.filter(r => r.i > 0 && Number.isFinite(r.fx) && r.fx !== 0)
-    const logNs   = logRows.map(r => Math.log10(r.i))
-    const logYs   = logRows.map(r => Math.log10(Math.abs(r.fx)))
-
-    const logData = [{
-      x: logNs, y: logYs,
-      type: "scatter", mode: "markers", name: "log₁₀|f(xₙ)|",
-      marker: {color: "#dc2626", size: 7}
-    }]
-
-    if (logNs.length >= 2) {
-      const m   = logNs.length
-      const sx  = logNs.reduce((a, b) => a + b, 0)
-      const sy  = logYs.reduce((a, b) => a + b, 0)
-      const sxy = logNs.reduce((s, x, i) => s + x * logYs[i], 0)
-      const sxx = logNs.reduce((s, x) => s + x * x, 0)
-      const denom = m * sxx - sx * sx
-      if (denom !== 0) {
-        const slope     = (m * sxy - sx * sy) / denom
-        const intercept = (sy - slope * sx) / m
-        const xlo = logNs[0], xhi = logNs[m - 1]
-        logData.push({
-          x: [xlo, xhi], y: [slope * xlo + intercept, slope * xhi + intercept],
-          type: "scatter", mode: "lines",
-          name: `slope ≈ ${slope.toFixed(2)}`,
-          line: {color: "#9333ea", width: 2, dash: "dash"}
-        })
-      }
-    }
-
-    const logLayout = {
-      margin: {l: 60, r: 10, t: 30, b: 55},
-      xaxis: {title: "log₁₀(n)"},
-      yaxis: {title: "log₁₀|f(xₙ)|"},
-      title: {text: "Convergence rate", font: {size: 13}},
-      legend: {orientation: "h", y: -0.35},
-      uirevision: "convergence",
-      autosize: true
-    }
-
-    if (!_plotDiv3) {
-      _plotDiv3 = document.createElement("div")
-      _plotDiv3.className = "plotly-box-small"
-      Plotly.newPlot(_plotDiv3, logData, logLayout, config)
-      setTimeout(() => Plotly.Plots.resize(_plotDiv3), 0)
-    } else {
-      Plotly.react(_plotDiv3, logData, logLayout, config)
-    }
-
-    // Iteration table — shows one row per step
-    const table = visibleRows.length === 0
-      ? null
-      : VM.renderTable({
-          html,
-          headers: ["n", tex`x_n`, tex`f(x_n)`, tex`f'(x_n)`, tex`x_{n+1}`, tex`|x_{n+1} - x_n|`],
-          rows: visibleRows.map(row => [
-            row.i,
-            Number.isFinite(row.x)     ? row.x.toPrecision(10)    : "NaN",
-            Number.isFinite(row.fx)    ? row.fx.toExponential(5)   : "NaN",
-            Number.isFinite(row.dfx)   ? row.dfx.toExponential(5)  : "NaN",
-            Number.isFinite(row.xNext) ? row.xNext.toPrecision(10) : "NaN",
-            Number.isFinite(row.error) ? row.error.toExponential(4) : "NaN"
-          ])
-        })
-
-    return html`<div>${_plotDiv}<div class="vm-subcharts-row">${_plotDiv2}${_plotDiv3}</div>${table}</div>`
+    return _plotDiv
   }
 }
 ```
@@ -345,14 +205,180 @@ viewof maxIterations = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
 
 ```{ojs}
 //| output: false
-result = precompute({fText, x0, maxIterations})
+// result: runs Newton's method with the current inputs.
+//   rows — array of { i, x, fx, dfx, xNext, error }, one entry per iteration
+//   f, df — parsed functions, reused for curve sampling in renderOutput
+result = {
+  const math = window.math
+
+  // Parse f(x) and its symbolic derivative from the user's string.
+  // makeFunction / makeDerivative return null if the expression is invalid.
+  const f  = VM.makeFunction(math, fText)
+  const df = VM.makeDerivative(math, fText)
+  const fallback = x => NaN
+
+  if (!f || !df) return {rows: [], f: fallback, df: fallback}
+
+  const rows  = []
+  const start = Number(x0)
+
+  if (!Number.isFinite(start)) return {rows: [], f, df}
+
+  let x = start
+  let i = 0
+  while (i < maxIterations) {
+    const fx  = f(x)
+    const dfx = df(x)
+
+    // Stop if f or f' blows up — the method has diverged.
+    if (!Number.isFinite(fx) || !Number.isFinite(dfx)) {
+      rows.push({i, x, fx, dfx, xNext: NaN, error: NaN})
+      return {rows, f, df}
+    }
+
+    // Stop if the tangent is nearly flat — dividing by dfx would be unstable.
+    if (Math.abs(dfx) < 1e-14) {
+      rows.push({i, x, fx, dfx, xNext: NaN, error: NaN})
+      return {rows, f, df}
+    }
+
+    const xNext = x - fx / dfx        // Newton update: x-intercept of the tangent
+    const error = Math.abs(xNext - x)
+    rows.push({i, x, fx, dfx, xNext, error})
+
+    x = xNext
+    i++
+  }
+  return {rows, f, df}
+}
 ```
 
 <div class="ojs-output-wide">
 
 ```{ojs}
-renderOutput({html, tex, result, stepControl, x0})
+mainPlot(setup)
 ```
+
+:::: {.callout-note collapse="false" title="Convergence plots"}
+
+::: {layout-ncol=2}
+
+```{ojs}
+// iteratesPlot draws xₙ vs n for the entire run — it doesn't depend on the
+// current step, so it's just plotted once per run.
+iteratesPlot = {
+  const Plotly = window.Plotly
+  const rows = result.rows
+
+  const xnData = [{
+    x: rows.map(r => r.i),
+    y: rows.map(r => Number.isFinite(r.x) ? r.x : null),
+    type: "scatter", mode: "markers+lines", name: "xₙ",
+    line: {color: "#2563eb"}, marker: {color: "#2563eb", size: 7}
+  }]
+  const xnLayout = {
+    margin: {l: 35, r: 10, t: 30, b: 40},
+    xaxis: {title: "n", dtick: 1},
+    yaxis: {},
+    title: {text: "Iterates xₙ", font: {size: 13}},
+    autosize: true
+  }
+  const config = {responsive: true, displaylogo: false}
+
+  const plotDiv = document.createElement("div")
+  plotDiv.className = "plotly-box-small"
+  Plotly.newPlot(plotDiv, xnData, xnLayout, config)
+  const observer = new ResizeObserver(() => Plotly.Plots.resize(plotDiv))
+  observer.observe(plotDiv)
+  invalidation.then(() => observer.disconnect())
+  return plotDiv
+}
+```
+
+```{ojs}
+// convergencePlot draws log₁₀|f(xₙ)| vs log₁₀(n) with a linear regression
+// line, for the entire run — it doesn't depend on the current step, so it's
+// just plotted once per run.
+convergencePlot = {
+  const Plotly = window.Plotly
+  const rows = result.rows
+
+  const logRows = rows.filter(r => r.i > 0 && Number.isFinite(r.fx) && r.fx !== 0)
+  const logNs   = logRows.map(r => Math.log10(r.i))
+  const logYs   = logRows.map(r => Math.log10(Math.abs(r.fx)))
+
+  const logData = [{
+    x: logNs, y: logYs,
+    type: "scatter", mode: "markers", name: "log₁₀|f(xₙ)|",
+    marker: {color: "#dc2626", size: 7}
+  }]
+
+  if (logNs.length >= 2) {
+    const m   = logNs.length
+    const sx  = logNs.reduce((a, b) => a + b, 0)
+    const sy  = logYs.reduce((a, b) => a + b, 0)
+    const sxy = logNs.reduce((s, x, i) => s + x * logYs[i], 0)
+    const sxx = logNs.reduce((s, x) => s + x * x, 0)
+    const denom = m * sxx - sx * sx
+    if (denom !== 0) {
+      const slope     = (m * sxy - sx * sy) / denom
+      const intercept = (sy - slope * sx) / m
+      const xlo = logNs[0], xhi = logNs[m - 1]
+      logData.push({
+        x: [xlo, xhi], y: [slope * xlo + intercept, slope * xhi + intercept],
+        type: "scatter", mode: "lines",
+        name: `slope ≈ ${slope.toFixed(2)}`,
+        line: {color: "#9333ea", width: 2, dash: "dash"}
+      })
+    }
+  }
+
+  const logLayout = {
+    margin: {l: 40, r: 10, t: 30, b: 55},
+    xaxis: {title: "log₁₀(n)"},
+    yaxis: {},
+    title: {text: "Convergence rate", font: {size: 13}},
+    legend: {orientation: "h", y: -0.35},
+    autosize: true
+  }
+  const config = {responsive: true, displaylogo: false}
+
+  const plotDiv = document.createElement("div")
+  plotDiv.className = "plotly-box-small"
+  Plotly.newPlot(plotDiv, logData, logLayout, config)
+  const observer = new ResizeObserver(() => Plotly.Plots.resize(plotDiv))
+  observer.observe(plotDiv)
+  invalidation.then(() => observer.disconnect())
+  return plotDiv
+}
+```
+
+:::
+
+::::
+
+:::: {.callout-note collapse="false" title="Iteration table"}
+
+```{ojs}
+// Iteration table — shows the entire run, not just the current step.
+iterationTable = result.rows.length === 0
+  ? document.createElement("div")  // always return a Node so Quarto's OJS runtime
+                                     // never latches this declaration cell as hidden
+  : VM.renderTable({
+      html,
+      headers: ["n", tex`x_n`, tex`f(x_n)`, tex`f'(x_n)`, tex`x_{n+1}`, tex`|x_{n+1} - x_n|`],
+      rows: result.rows.map(row => [
+        row.i,
+        Number.isFinite(row.x)     ? row.x.toPrecision(10)    : "NaN",
+        Number.isFinite(row.fx)    ? row.fx.toExponential(5)   : "NaN",
+        Number.isFinite(row.dfx)   ? row.dfx.toExponential(5)  : "NaN",
+        Number.isFinite(row.xNext) ? row.xNext.toPrecision(10) : "NaN",
+        Number.isFinite(row.error) ? row.error.toExponential(4) : "NaN"
+      ])
+    })
+```
+
+::::
 
 </div>
 
