@@ -4,16 +4,6 @@
  * Authors: Apurva Nakade
  */
 
-/* ── Full-width pages ────────────────────────────────────────────── */
-
-.page-layout-full .page-columns { display: block; }
-
-.page-layout-full main.content {
-  max-width: none;
-  width: 100%;
-  padding-inline: 1.5rem;
-}
-
 /* ── Parameter controls panel ────────────────────────────────────── */
 
 .ojs-controls-wide {
@@ -46,11 +36,6 @@
 .ojs-step-row > div:first-child { flex: 1; }
 
 /* ── Output area ─────────────────────────────────────────────────── */
-
-/* Quarto wraps each OJS cell in .cell > .cell-output-display; force them
-   to fill the available width so Plotly's width:100% reaches the page edge. */
-.ojs-output-wide .cell,
-.ojs-output-wide .cell-output-display { width: 100%; }
 
 .plotly-box-large {
   width: 100%;

@@ -30,7 +30,7 @@ website:
     #         href: root-finding/newton.qmd
 
   sidebar:
-    - style: docked
+    - style: floating
       # background: light
       contents:
         - section: "Root Finding"
