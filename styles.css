@@ -14,15 +14,7 @@
   background: var(--bs-light, #f8f9fa);
 }
 
-/* Observable Inputs' label column defaults to 120px and can't be reset from
-   an ancestor — it sets --label-width directly on each <form>, and a value
-   set on the element itself always wins over one inherited from a parent.
-   So each grid track needs to be wide enough for that 120px label plus our
-   fixed-width number input (below), or the overflow spills into the next
-   track and gets painted over. auto-fit (not auto-fill) also matters here:
-   auto-fill keeps generating extra empty tracks as the viewport widens,
-   which pins real tracks near the minmax floor instead of letting them
-   grow — auto-fit collapses the empty ones so real tracks get the space. */
+/* auto-fit so empty tracks collapse instead of pinning real ones to the minmax floor */
 .ojs-control-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -30,9 +22,7 @@
   align-items: end;
 }
 
-/* Observable Inputs only styles its <form> layout, not the native <input>
-   chrome — skin text/number/range controls to match the panel instead of
-   falling back to raw browser borders. */
+/* Skin native input chrome to match the panel */
 .ojs-controls-wide input,
 .ojs-step-row input {
   border: 1px solid var(--bs-border-color, #ced4da);
@@ -42,12 +32,7 @@
   background: white;
 }
 
-/* Two standard control widths — compact for numbers, wide for math
-   expressions — instead of each input inheriting whatever width its grid
-   or flex container happens to give it. !important is needed because
-   Observable Inputs sets its own flex-shrink (1.5 on the number spinner
-   that's paired with a range slider) via a stylesheet it injects after
-   ours, which otherwise wins ties in specificity through cascade order. */
+/* !important overrides Observable Inputs' own flex-shrink on the number spinner */
 .ojs-controls-wide input[type="number"],
 .ojs-step-row input[type="number"] {
   width: 5.5em;
@@ -89,20 +74,14 @@
   background: var(--bs-light, #f8f9fa);
 }
 
-/* Quarto wraps each OJS cell in a div. The slider grows to fill the row;
-   Observable's fixed 120px label makes each control's true minimum width
-   bigger than it looks, so instead of forcing a shrink (which just clips
-   or hides content) the max input wraps onto its own line when the row
-   doesn't have room for both. */
+/* Slider grows to fill the row; max input wraps to its own line if there's no room */
 .ojs-step-row > div { margin: 0; }
 .ojs-step-row > div:first-child { flex: 1 1 200px; }
 .ojs-step-row > div:last-child { flex: 0 0 auto; }
 
 /* ── Output area ─────────────────────────────────────────────────── */
 
-/* Quarto's layout-ncol panel cells default to min-width: auto (the flexbox
-   default), which stops them shrinking below the Plotly chart's intrinsic
-   content width. Allow them to shrink to their flex-basis share instead. */
+/* Let layout-ncol cells shrink below the Plotly chart's intrinsic width */
 .quarto-layout-cell {
   min-width: 0;
 }
@@ -140,9 +119,6 @@
 
 /* ── Iteration table ─────────────────────────────────────────────── */
 
-/* overflow-x is still needed inside the callout — Bootstrap/Quarto don't
-   scroll wide content for you. The callout's own padding already handles
-   spacing, so no margin here. */
 .ojs-table-container {
   overflow-x: auto;
 }

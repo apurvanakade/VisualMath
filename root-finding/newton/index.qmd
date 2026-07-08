@@ -18,7 +18,7 @@ Authors: Apurva Nakade, Dhruv Azad
 
 ```{ojs}
 //| output: false
-// VM is the shared utility library loaded from js/utils.js.
+// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/padded-range.js, js/render-table.js.
 // It provides makeFunction, makeDerivative, paddedRange, renderTable.
 VM = window.VM
 ```

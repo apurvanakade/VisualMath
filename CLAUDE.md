@@ -21,25 +21,25 @@ There are no test or lint commands; there is no package manager (no `package.jso
 
 Each method page (`root-finding/<method>/index.qmd`) is a self-contained interactive app:
 
-1. A raw-HTML block loads CDN scripts (math.js, Plotly), `js/utils.js`, and the page's own `method.js`.
+1. A raw-HTML block loads CDN scripts (math.js, Plotly), the shared `js/*.js` utilities, and the page's own `method.js`.
 2. `method.js` is an IIFE that attaches one global, e.g. `window.VisualMathNewtonMethod`, exposing two functions: `compute` and `renderOutput`.
 3. OJS cells wire Quarto `Inputs.*` controls → `page.compute({...})` → an `Inputs.range` step slider → `page.renderOutput({...})`. OJS reactivity re-runs everything downstream when any input changes.
 
 `compute()` returns `{ ok, statusType, message, rows, f, ... }`. `rows` is the full iteration history; `statusType` is `"good" | "warn" | "bad"` mapping to shared CSS status classes. `renderOutput()` receives the result and the current step slider value, slices the visible rows, builds the Plotly chart and iteration table inline, and returns a DOM node.
 
-### Shared utility (`js/utils.js`)
+### Shared utilities (`js/`)
 
-A single IIFE attaching `window.VM`:
+Each file is a small IIFE that extends `window.VM` with one function:
 
-- `VM.makeFunction(mathjs, expr)` — returns `(x) => number`, or `null` if the expression can't be parsed. Normalizes input (trim, replace `π` → `pi`), compiles via math.js, evaluates safely.
-- `VM.makeDerivative(mathjs, expr)` — like `makeFunction` but returns the symbolic derivative.
-- `VM.paddedRange(values, opts)` — returns `{lo, hi}` with configurable padding for axis ranges.
-- `VM.renderTable({html, headers, rows})` — returns a DOM table node styled with `ojs-table` classes.
+- `js/make-function.js` → `VM.makeFunction(mathjs, expr)` — returns `(x) => number`, or `null` if the expression can't be parsed. Normalizes input (trim, replace `π` → `pi`), compiles via math.js, evaluates safely.
+- `js/make-derivative.js` → `VM.makeDerivative(mathjs, expr)` — like `makeFunction` but returns the symbolic derivative.
+- `js/padded-range.js` → `VM.paddedRange(values, opts)` — returns `{lo, hi}` with configurable padding for axis ranges.
+- `js/render-table.js` → `VM.renderTable({html, headers, rows})` — returns a DOM table node styled with `ojs-table` classes.
 
 ### Adding a new method page
 
 1. Create `root-finding/<method>/method.js` — copy an existing one and change `compute()` and `renderOutput()`. The IIFE should attach `window.VisualMath<MethodName> = {compute, renderOutput}`.
-2. Create `root-finding/<method>/index.qmd` — copy an existing one, update the input labels and the page global name. The script block needs only mathjs, Plotly, `../../js/utils.js`, and `method.js`.
+2. Create `root-finding/<method>/index.qmd` — copy an existing one, update the input labels and the page global name. The script block needs only mathjs, Plotly, the `../../js/*.js` utilities, and `method.js`.
 3. Add the page to `root-finding/index.qmd` and `_quarto.yml` navigation.
 
 User-entered expressions are evaluated in-browser. Use `VM.makeFunction` (it handles normalization and error catching). Surface invalid input through the result's `message` field rather than throwing.

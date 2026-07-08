@@ -55,4 +55,7 @@ format:
       - text: |
           <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
           <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-          <script src="../../js/utils.js"></script>
+          <script src="../../js/make-function.js"></script>
+          <script src="../../js/make-derivative.js"></script>
+          <script src="../../js/padded-range.js"></script>
+          <script src="../../js/render-table.js"></script>
