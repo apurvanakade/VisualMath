@@ -244,33 +244,15 @@ mainPlot(setup)
 ```{ojs}
 // iteratesPlot draws the midpoint mₙ vs n for the entire run — it doesn't
 // depend on the current step, so it's just plotted once per run.
-iteratesPlot = {
-  const Plotly = window.Plotly
-  const rows = result.rows
-
-  const mnData = [{
-    x: rows.map(r => r.n),
-    y: rows.map(r => Number.isFinite(r.m) ? r.m : null),
-    type: "scatter", mode: "markers+lines", name: "mₙ",
-    line: {color: "#2563eb"}, marker: {color: "#2563eb", size: 7}
-  }]
-  const mnLayout = {
-    margin: {l: 35, r: 10, t: 30, b: 40},
-    xaxis: {title: "n", dtick: 1},
-    yaxis: {},
-    title: {text: "Midpoints mₙ", font: {size: 13}},
-    autosize: true
-  }
-  const config = {responsive: true, displaylogo: false}
-
-  const plotDiv = document.createElement("div")
-  plotDiv.className = "plotly-box-small"
-  Plotly.newPlot(plotDiv, mnData, mnLayout, config)
-  const observer = new ResizeObserver(() => Plotly.Plots.resize(plotDiv))
-  observer.observe(plotDiv)
-  invalidation.then(() => observer.disconnect())
-  return plotDiv
-}
+iteratesPlot = Plot.plot({
+  width: 340, height: 300, marginLeft: 46,
+  x: {label: "n"},
+  y: {label: "mₙ"},
+  marks: [
+    Plot.lineY(result.rows, {x: "n", y: d => Number.isFinite(d.m) ? d.m : null, stroke: "#2563eb"}),
+    Plot.dot(result.rows, {x: "n", y: d => Number.isFinite(d.m) ? d.m : null, fill: "#2563eb", r: 4})
+  ]
+})
 ```
 
 ```{ojs}
@@ -278,56 +260,47 @@ iteratesPlot = {
 // line, for the entire run — it doesn't depend on the current step, so it's
 // just plotted once per run.
 convergencePlot = {
-  const Plotly = window.Plotly
-  const rows = result.rows
+  const logRows = result.rows
+    .filter(r => r.n > 0 && Number.isFinite(r.fm) && r.fm !== 0)
+    .map(r => ({n: Math.log10(r.n), y: Math.log10(Math.abs(r.fm))}))
 
-  const logRows = rows.filter(r => r.n > 0 && Number.isFinite(r.fm) && r.fm !== 0)
-  const logNs   = logRows.map(r => Math.log10(r.n))
-  const logYs   = logRows.map(r => Math.log10(Math.abs(r.fm)))
+  const pointsName = "log₁₀|f(mₙ)|"
+  const marks = [Plot.dot(logRows, {x: "n", y: "y", fill: () => pointsName, r: 4})]
+  const colorDomain = [pointsName], colorRange = ["#dc2626"]
 
-  const logData = [{
-    x: logNs, y: logYs,
-    type: "scatter", mode: "markers", name: "log₁₀|f(mₙ)|",
-    marker: {color: "#dc2626", size: 7}
-  }]
-
-  if (logNs.length >= 2) {
-    const m   = logNs.length
-    const sx  = logNs.reduce((a, b) => a + b, 0)
-    const sy  = logYs.reduce((a, b) => a + b, 0)
-    const sxy = logNs.reduce((s, x, i) => s + x * logYs[i], 0)
-    const sxx = logNs.reduce((s, x) => s + x * x, 0)
+  if (logRows.length >= 2) {
+    const m     = logRows.length
+    const sx    = d3.sum(logRows, d => d.n)
+    const sy    = d3.sum(logRows, d => d.y)
+    const sxy   = d3.sum(logRows, d => d.n * d.y)
+    const sxx   = d3.sum(logRows, d => d.n * d.n)
     const denom = m * sxx - sx * sx
     if (denom !== 0) {
       const slope     = (m * sxy - sx * sy) / denom
       const intercept = (sy - slope * sx) / m
-      const xlo = logNs[0], xhi = logNs[m - 1]
-      logData.push({
-        x: [xlo, xhi], y: [slope * xlo + intercept, slope * xhi + intercept],
-        type: "scatter", mode: "lines",
-        name: `slope ≈ ${slope.toFixed(2)}`,
-        line: {color: "#9333ea", width: 2, dash: "dash"}
-      })
+      const [xlo, xhi] = [logRows[0].n, logRows[m - 1].n]
+      const lineName   = `slope ≈ ${slope.toFixed(2)}`
+      marks.push(Plot.line(
+        [{n: xlo, y: slope * xlo + intercept}, {n: xhi, y: slope * xhi + intercept}],
+        {x: "n", y: "y", stroke: () => lineName, strokeDasharray: "6,4"}
+      ))
+      colorDomain.push(lineName)
+      colorRange.push("#9333ea")
     }
   }
 
-  const logLayout = {
-    margin: {l: 40, r: 10, t: 30, b: 55},
-    xaxis: {title: "log₁₀(n)"},
-    yaxis: {},
-    title: {text: "Convergence rate", font: {size: 13}},
-    legend: {orientation: "h", y: -0.35},
-    autosize: true
-  }
-  const config = {responsive: true, displaylogo: false}
+  const chart = Plot.plot({
+    width: 340, height: 300, marginLeft: 46,
+    x: {label: "log₁₀(n)"},
+    y: {label: "log₁₀|f(mₙ)|"},
+    color: {domain: colorDomain, range: colorRange},
+    marks
+  })
+  const legend = Plot.legend({color: {domain: colorDomain, range: colorRange}})
 
-  const plotDiv = document.createElement("div")
-  plotDiv.className = "plotly-box-small"
-  Plotly.newPlot(plotDiv, logData, logLayout, config)
-  const observer = new ResizeObserver(() => Plotly.Plots.resize(plotDiv))
-  observer.observe(plotDiv)
-  invalidation.then(() => observer.disconnect())
-  return plotDiv
+  const container = document.createElement("div")
+  container.append(chart, legend)
+  return container
 }
 ```
 
