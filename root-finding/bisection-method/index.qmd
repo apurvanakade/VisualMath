@@ -54,12 +54,24 @@ setup = {
   // Sample f across the buffer range for the smooth curve trace.
   const N = 700
   const sampleXs = Array.from({length: N}, (_, i) => xBuffer.lo + (xBuffer.hi - xBuffer.lo) * i / (N - 1))
-  const sampleYs = sampleXs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
+  const sampleYs = []
+  for (const x of sampleXs) {
+    const y = result.f(x)
+    if (Number.isFinite(y) && Math.abs(y) < 1e8) {
+      sampleYs.push(y)
+    } else {
+      sampleYs.push(null)
+    }
+  }
 
   // Cap row values at 1e8 so a near-singularity doesn't blow up the axis range.
   // Only samples within the initial view (xRange) count, so yRange — and
   // the initial view — stay unaffected by the wider sampling.
-  const yValues = [0, ...sampleXs.map((x, i) => x >= xRange.lo && x <= xRange.hi ? sampleYs[i] : null).filter(y => y !== null)]
+  const yValues = [0]
+  for (let i = 0; i < sampleXs.length; i++) {
+    const x = sampleXs[i]
+    if (x >= xRange.lo && x <= xRange.hi && sampleYs[i] !== null) yValues.push(sampleYs[i])
+  }
   for (const row of result.rows) {
     for (const v of [row.fa, row.fb, row.fm]) {
       if (Number.isFinite(v) && Math.abs(v) <= 1e8) yValues.push(v)
@@ -91,12 +103,21 @@ mainPlot = {
     ]
 
     // Previous midpoints — all steps before the current one
-    const prevRows = visibleRows.slice(0, -1).filter(r => Number.isFinite(r.m) && Number.isFinite(r.fm))
+    const prevRows = []
+    for (const r of visibleRows.slice(0, -1)) {
+      if (Number.isFinite(r.m) && Number.isFinite(r.fm)) prevRows.push(r)
+    }
     if (prevRows.length > 0) {
+      const xs = [], ys = [], labels = []
+      for (const r of prevRows) {
+        xs.push(r.m)
+        ys.push(r.fm)
+        labels.push(`m${r.n}`)
+      }
       data.push({
-        x: prevRows.map(r => r.m), y: prevRows.map(r => r.fm),
+        x: xs, y: ys,
         type: "scatter", mode: "markers+text", name: "Previous midpoints", showlegend: true,
-        text: prevRows.map(r => `m${r.n}`), textposition: "top center",
+        text: labels, textposition: "top center",
         marker: {color: "#f97316", size: 8, symbol: "circle", line: {color: "white", width: 1}}
       })
     }
@@ -120,11 +141,14 @@ mainPlot = {
     }
 
     // Shaded rectangle showing the current bracket [a, b]
-    const shapes = currentRow ? [{
-      type: "rect", xref: "x", yref: "paper",
-      x0: currentRow.a, x1: currentRow.b, y0: 0, y1: 1,
-      fillcolor: "rgba(37, 99, 235, 0.14)", line: {width: 0}
-    }] : []
+    let shapes = []
+    if (currentRow) {
+      shapes = [{
+        type: "rect", xref: "x", yref: "paper",
+        x0: currentRow.a, x1: currentRow.b, y0: 0, y1: 1,
+        fillcolor: "rgba(37, 99, 235, 0.14)", line: {width: 0}
+      }]
+    }
 
     const layout = {
       margin: {l: 0, r: 0, t: 0, b: 0},
@@ -260,15 +284,21 @@ mainPlot(setup)
 ```{ojs}
 // iteratesPlot draws the midpoint mₙ vs n for the entire run — it doesn't
 // depend on the current step, so it's just plotted once per run.
-iteratesPlot = Plot.plot({
-  width: 340, height: 300, marginLeft: 46,
-  x: {label: "n"},
-  y: {label: "mₙ"},
-  marks: [
-    Plot.lineY(result.rows, {x: "n", y: d => Number.isFinite(d.m) ? d.m : null, stroke: "#2563eb"}),
-    Plot.dot(result.rows, {x: "n", y: d => Number.isFinite(d.m) ? d.m : null, fill: "#2563eb", r: 4})
-  ]
-})
+iteratesPlot = {
+  const mAccessor = d => {
+    if (Number.isFinite(d.m)) return d.m
+    return null
+  }
+  return Plot.plot({
+    width: 340, height: 300, marginLeft: 46,
+    x: {label: "n"},
+    y: {label: "mₙ"},
+    marks: [
+      Plot.lineY(result.rows, {x: "n", y: mAccessor, stroke: "#2563eb"}),
+      Plot.dot(result.rows, {x: "n", y: mAccessor, fill: "#2563eb", r: 4})
+    ]
+  })
+}
 ```
 
 ```{ojs}
@@ -276,20 +306,26 @@ iteratesPlot = Plot.plot({
 // line, for the entire run — it doesn't depend on the current step, so it's
 // just plotted once per run.
 convergencePlot = {
-  const logRows = result.rows
-    .filter(r => r.n > 0 && Number.isFinite(r.fm) && r.fm !== 0)
-    .map(r => ({n: Math.log10(r.n), y: Math.log10(Math.abs(r.fm))}))
+  const logRows = []
+  for (const r of result.rows) {
+    if (r.n > 0 && Number.isFinite(r.fm) && r.fm !== 0) {
+      logRows.push({n: Math.log10(r.n), y: Math.log10(Math.abs(r.fm))})
+    }
+  }
 
   const pointsName = "log₁₀|f(mₙ)|"
   const marks = [Plot.dot(logRows, {x: "n", y: "y", fill: () => pointsName, r: 4})]
   const colorDomain = [pointsName], colorRange = ["#dc2626"]
 
   if (logRows.length >= 2) {
-    const m     = logRows.length
-    const sx    = d3.sum(logRows, d => d.n)
-    const sy    = d3.sum(logRows, d => d.y)
-    const sxy   = d3.sum(logRows, d => d.n * d.y)
-    const sxx   = d3.sum(logRows, d => d.n * d.n)
+    const m = logRows.length
+    let sx = 0, sy = 0, sxy = 0, sxx = 0
+    for (const row of logRows) {
+      sx += row.n
+      sy += row.y
+      sxy += row.n * row.y
+      sxx += row.n * row.n
+    }
     const denom = m * sxx - sx * sx
     if (denom !== 0) {
       const slope     = (m * sxy - sx * sy) / denom
@@ -328,25 +364,47 @@ convergencePlot = {
 
 ```{ojs}
 // Iteration table — shows the entire run, not just the current step.
-iterationTable = result.rows.length === 0
-  ? document.createElement("div")  // always return a Node so Quarto's OJS runtime
-                                     // never latches this declaration cell as hidden
-  : VM.renderTable({
-      html,
-      headers: ["n", tex`a_n`, tex`b_n`, tex`m_n`, tex`f(a_n)`, tex`f(b_n)`, tex`f(m_n)`, "width"],
-      csvHeaders: ["n", "a_n", "b_n", "m_n", "f(a_n)", "f(b_n)", "f(m_n)", "width"],
-      filename: "bisection-method-iterations.csv",
-      rows: result.rows.map(row => [
-        row.n,
-        Number.isFinite(row.a)     ? row.a.toPrecision(10)    : "NaN",
-        Number.isFinite(row.b)     ? row.b.toPrecision(10)    : "NaN",
-        Number.isFinite(row.m)     ? row.m.toPrecision(10)    : "NaN",
-        Number.isFinite(row.fa)    ? row.fa.toExponential(5)  : "NaN",
-        Number.isFinite(row.fb)    ? row.fb.toExponential(5)  : "NaN",
-        Number.isFinite(row.fm)    ? row.fm.toExponential(5)  : "NaN",
-        Number.isFinite(row.width) ? row.width.toExponential(4) : "NaN"
-      ])
-    })
+iterationTable = {
+  if (result.rows.length === 0) {
+    // Always return a Node so Quarto's OJS runtime never latches this
+    // declaration cell as hidden.
+    return document.createElement("div")
+  }
+
+  const formattedRows = []
+  for (const row of result.rows) {
+    let aCell = "NaN"
+    if (Number.isFinite(row.a)) aCell = row.a.toPrecision(10)
+
+    let bCell = "NaN"
+    if (Number.isFinite(row.b)) bCell = row.b.toPrecision(10)
+
+    let mCell = "NaN"
+    if (Number.isFinite(row.m)) mCell = row.m.toPrecision(10)
+
+    let faCell = "NaN"
+    if (Number.isFinite(row.fa)) faCell = row.fa.toExponential(5)
+
+    let fbCell = "NaN"
+    if (Number.isFinite(row.fb)) fbCell = row.fb.toExponential(5)
+
+    let fmCell = "NaN"
+    if (Number.isFinite(row.fm)) fmCell = row.fm.toExponential(5)
+
+    let widthCell = "NaN"
+    if (Number.isFinite(row.width)) widthCell = row.width.toExponential(4)
+
+    formattedRows.push([row.n, aCell, bCell, mCell, faCell, fbCell, fmCell, widthCell])
+  }
+
+  return VM.renderTable({
+    html,
+    headers: ["n", tex`a_n`, tex`b_n`, tex`m_n`, tex`f(a_n)`, tex`f(b_n)`, tex`f(m_n)`, "width"],
+    csvHeaders: ["n", "a_n", "b_n", "m_n", "f(a_n)", "f(b_n)", "f(m_n)", "width"],
+    filename: "bisection-method-iterations.csv",
+    rows: formattedRows
+  })
+}
 ```
 
 ::::

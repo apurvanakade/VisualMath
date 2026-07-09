@@ -65,7 +65,15 @@ setup = {
   // Sample g across the buffer range for the smooth curve trace.
   const N  = 500
   const xs = Array.from({length: N}, (_, i) => bufferRange.lo + (bufferRange.hi - bufferRange.lo) * i / (N - 1))
-  const ys = xs.map(x => result.g(x)).map(y => Number.isFinite(y) ? y : null)
+  const ys = []
+  for (const x of xs) {
+    const y = result.g(x)
+    if (Number.isFinite(y)) {
+      ys.push(y)
+    } else {
+      ys.push(null)
+    }
+  }
 
   return {visibleRows, range, bufferRange, xs, ys, x0: Number(x0)}
 }
@@ -106,16 +114,24 @@ mainPlot = {
         cobwebY.push(row.gx, row.gx)
       }
 
+      // Green dots marking each iterate x_i on the diagonal
+      const iterateXs = [], iterateLabels = []
+      for (const r of visibleRows) {
+        if (Number.isFinite(r.x)) {
+          iterateXs.push(r.x)
+          iterateLabels.push(`x_${r.i}`)
+        }
+      }
+
       data.push(
         // The staircase path
         {x: cobwebX, y: cobwebY, type: "scatter", mode: "lines+markers", name: "Cobweb path", showlegend: true,
           line: {color: "#dc2626", width: 2}, marker: {color: "#dc2626", size: 7}},
-        // Green dots marking each iterate x_i on the diagonal
         {
-          x: visibleRows.map(r => r.x).filter(Number.isFinite),
-          y: visibleRows.map(r => r.x).filter(Number.isFinite),
+          x: iterateXs,
+          y: iterateXs,
           type: "scatter", mode: "markers+text", name: "Iterates", showlegend: true,
-          text: visibleRows.filter(r => Number.isFinite(r.x)).map(r => `x_${r.i}`),
+          text: iterateLabels,
           textposition: "top center",
           marker: {color: "#16a34a", size: 9, symbol: "circle", line: {color: "white", width: 1}}
         }
@@ -238,15 +254,21 @@ mainPlot(setup)
 ```{ojs}
 // iteratesPlot draws xₙ vs n for the entire run — it doesn't depend on the
 // current step, so it's just plotted once per run.
-iteratesPlot = Plot.plot({
-  width: 340, height: 300, marginLeft: 46,
-  x: {label: "n"},
-  y: {label: "xₙ"},
-  marks: [
-    Plot.lineY(result.rows, {x: "i", y: d => Number.isFinite(d.x) ? d.x : null, stroke: "#2563eb"}),
-    Plot.dot(result.rows, {x: "i", y: d => Number.isFinite(d.x) ? d.x : null, fill: "#2563eb", r: 4})
-  ]
-})
+iteratesPlot = {
+  const xAccessor = d => {
+    if (Number.isFinite(d.x)) return d.x
+    return null
+  }
+  return Plot.plot({
+    width: 340, height: 300, marginLeft: 46,
+    x: {label: "n"},
+    y: {label: "xₙ"},
+    marks: [
+      Plot.lineY(result.rows, {x: "i", y: xAccessor, stroke: "#2563eb"}),
+      Plot.dot(result.rows, {x: "i", y: xAccessor, fill: "#2563eb", r: 4})
+    ]
+  })
+}
 ```
 
 ```{ojs}
@@ -254,20 +276,26 @@ iteratesPlot = Plot.plot({
 // regression line, for the entire run — it doesn't depend on the current
 // step, so it's just plotted once per run.
 convergencePlot = {
-  const logRows = result.rows
-    .filter(r => r.i > 0 && Number.isFinite(r.error) && r.error > 0)
-    .map(r => ({n: Math.log10(r.i), y: Math.log10(r.error)}))
+  const logRows = []
+  for (const r of result.rows) {
+    if (r.i > 0 && Number.isFinite(r.error) && r.error > 0) {
+      logRows.push({n: Math.log10(r.i), y: Math.log10(r.error)})
+    }
+  }
 
   const pointsName = "log₁₀|xₙ − g(xₙ)|"
   const marks = [Plot.dot(logRows, {x: "n", y: "y", fill: () => pointsName, r: 4})]
   const colorDomain = [pointsName], colorRange = ["#dc2626"]
 
   if (logRows.length >= 2) {
-    const m     = logRows.length
-    const sx    = d3.sum(logRows, d => d.n)
-    const sy    = d3.sum(logRows, d => d.y)
-    const sxy   = d3.sum(logRows, d => d.n * d.y)
-    const sxx   = d3.sum(logRows, d => d.n * d.n)
+    const m = logRows.length
+    let sx = 0, sy = 0, sxy = 0, sxx = 0
+    for (const row of logRows) {
+      sx += row.n
+      sy += row.y
+      sxy += row.n * row.y
+      sxx += row.n * row.n
+    }
     const denom = m * sxx - sx * sx
     if (denom !== 0) {
       const slope     = (m * sxy - sx * sy) / denom
@@ -306,21 +334,35 @@ convergencePlot = {
 
 ```{ojs}
 // Iteration table — shows the entire run, not just the current step.
-iterationTable = result.rows.length === 0
-  ? document.createElement("div")  // always return a Node so Quarto's OJS runtime
-                                     // never latches this declaration cell as hidden
-  : VM.renderTable({
-      html,
-      headers: ["n", "x_n", tex`g(x_n) = x_{n+1}`, tex`|x_{n+1} - x_n|`],
-      csvHeaders: ["n", "x_n", "g(x_n) = x_{n+1}", "|x_{n+1} - x_n|"],
-      filename: "fixed-point-iterations.csv",
-      rows: result.rows.map(row => [
-        row.i,
-        Number.isFinite(row.x)     ? row.x.toPrecision(10)    : "NaN",
-        Number.isFinite(row.gx)    ? row.gx.toPrecision(10)   : "NaN",
-        Number.isFinite(row.error) ? row.error.toExponential(4) : "NaN"
-      ])
-    })
+iterationTable = {
+  if (result.rows.length === 0) {
+    // Always return a Node so Quarto's OJS runtime never latches this
+    // declaration cell as hidden.
+    return document.createElement("div")
+  }
+
+  const formattedRows = []
+  for (const row of result.rows) {
+    let xCell = "NaN"
+    if (Number.isFinite(row.x)) xCell = row.x.toPrecision(10)
+
+    let gxCell = "NaN"
+    if (Number.isFinite(row.gx)) gxCell = row.gx.toPrecision(10)
+
+    let errorCell = "NaN"
+    if (Number.isFinite(row.error)) errorCell = row.error.toExponential(4)
+
+    formattedRows.push([row.i, xCell, gxCell, errorCell])
+  }
+
+  return VM.renderTable({
+    html,
+    headers: ["n", "x_n", tex`g(x_n) = x_{n+1}`, tex`|x_{n+1} - x_n|`],
+    csvHeaders: ["n", "x_n", "g(x_n) = x_{n+1}", "|x_{n+1} - x_n|"],
+    filename: "fixed-point-iterations.csv",
+    rows: formattedRows
+  })
+}
 ```
 
 ::::

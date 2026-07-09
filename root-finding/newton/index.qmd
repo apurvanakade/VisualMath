@@ -60,13 +60,25 @@ setup = {
   // Sample f across the buffer range for the smooth curve trace.
   const N = 700
   const sampleXs = Array.from({length: N}, (_, i) => xBuffer.lo + (xBuffer.hi - xBuffer.lo) * i / (N - 1))
-  const sampleYs = sampleXs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
+  const sampleYs = []
+  for (const x of sampleXs) {
+    const y = result.f(x)
+    if (Number.isFinite(y) && Math.abs(y) < 1e8) {
+      sampleYs.push(y)
+    } else {
+      sampleYs.push(null)
+    }
+  }
 
   // Collect y values for the y-axis range, including tangent line endpoints.
   // Only samples within the initial view (xRange) count, so yRange — and
   // the initial view — stay unaffected by the wider sampling.
   // Cap at 1e8 so a near-vertical tangent doesn't blow up the axis range.
-  const yValues = [0, ...sampleXs.map((x, i) => x >= xRange.lo && x <= xRange.hi ? sampleYs[i] : null).filter(y => y !== null)]
+  const yValues = [0]
+  for (let i = 0; i < sampleXs.length; i++) {
+    const x = sampleXs[i]
+    if (x >= xRange.lo && x <= xRange.hi && sampleYs[i] !== null) yValues.push(sampleYs[i])
+  }
   for (const row of result.rows) {
     if (Number.isFinite(row.fx) && Math.abs(row.fx) <= 1e8) yValues.push(row.fx)
     if (Number.isFinite(row.x) && Number.isFinite(row.fx) && Number.isFinite(row.dfx) && Number.isFinite(row.xNext)) {
@@ -104,17 +116,24 @@ mainPlot = {
     ]
 
     // Dotted vertical lines from the x-axis up to each Newton point
-    const newtonPoints = visibleRows.filter(r => Number.isFinite(r.x) && Number.isFinite(r.fx))
+    const newtonPoints = []
+    for (const r of visibleRows) {
+      if (Number.isFinite(r.x) && Number.isFinite(r.fx)) newtonPoints.push(r)
+    }
     for (const r of newtonPoints) {
       data.push({x: [r.x, r.x], y: [0, r.fx], type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip", line: {color: "#94a3b8", width: 1.5, dash: "dot"}})
     }
 
     // Tangent lines: previous ones faded, current one solid
-    const validTangentRows = visibleRows.filter(r =>
-      Number.isFinite(r.x) && Number.isFinite(r.fx) && Number.isFinite(r.dfx) && Number.isFinite(r.xNext)
-    )
-    const prevTangents    = validTangentRows.slice(0, -1)
-    const currentTangent  = validTangentRows.length > 0 ? validTangentRows[validTangentRows.length - 1] : null
+    const validTangentRows = []
+    for (const r of visibleRows) {
+      if (Number.isFinite(r.x) && Number.isFinite(r.fx) && Number.isFinite(r.dfx) && Number.isFinite(r.xNext)) {
+        validTangentRows.push(r)
+      }
+    }
+    const prevTangents = validTangentRows.slice(0, -1)
+    let currentTangent = null
+    if (validTangentRows.length > 0) currentTangent = validTangentRows[validTangentRows.length - 1]
 
     for (const row of prevTangents) {
       const tlo = Math.max(xRange.lo, Math.min(row.x, row.xNext) - 0.75)
@@ -138,21 +157,36 @@ mainPlot = {
 
     // Red markers at each (x_i, f(x_i)) Newton point
     if (newtonPoints.length > 0) {
+      const xs = [], ys = [], labels = []
+      for (const r of newtonPoints) {
+        xs.push(r.x)
+        ys.push(r.fx)
+        labels.push(`x_${r.i}`)
+      }
       data.push({
-        x: newtonPoints.map(r => r.x), y: newtonPoints.map(r => r.fx),
+        x: xs, y: ys,
         type: "scatter", mode: "markers+text", name: "Newton points",
-        text: newtonPoints.map(r => `x_${r.i}`), textposition: "top center", showlegend: true,
+        text: labels, textposition: "top center", showlegend: true,
         marker: {color: "#dc2626", size: 10, symbol: "circle", line: {color: "white", width: 1}}
       })
     }
 
     // Green markers at each tangent x-intercept (x_{i+1})
-    const intercepts = visibleRows.filter(r => Number.isFinite(r.xNext)).map(r => ({i: r.i + 1, x: r.xNext}))
+    const intercepts = []
+    for (const r of visibleRows) {
+      if (Number.isFinite(r.xNext)) intercepts.push({i: r.i + 1, x: r.xNext})
+    }
     if (intercepts.length > 0) {
+      const xs = [], ys = [], labels = []
+      for (const r of intercepts) {
+        xs.push(r.x)
+        ys.push(0)
+        labels.push(`x_${r.i}`)
+      }
       data.push({
-        x: intercepts.map(r => r.x), y: intercepts.map(() => 0),
+        x: xs, y: ys,
         type: "scatter", mode: "markers+text", name: "Tangent x-intercepts",
-        text: intercepts.map(r => `x_${r.i}`), textposition: "bottom center", showlegend: true,
+        text: labels, textposition: "bottom center", showlegend: true,
         marker: {color: "#16a34a", size: 10, symbol: "circle", line: {color: "white", width: 1}}
       })
     }
@@ -288,15 +322,21 @@ mainPlot(setup)
 ```{ojs}
 // iteratesPlot draws xₙ vs n for the entire run — it doesn't depend on the
 // current step, so it's just plotted once per run.
-iteratesPlot = Plot.plot({
-  width: 340, height: 300, marginLeft: 46,
-  x: {label: "n"},
-  y: {label: "xₙ"},
-  marks: [
-    Plot.lineY(result.rows, {x: "i", y: d => Number.isFinite(d.x) ? d.x : null, stroke: "#2563eb"}),
-    Plot.dot(result.rows, {x: "i", y: d => Number.isFinite(d.x) ? d.x : null, fill: "#2563eb", r: 4})
-  ]
-})
+iteratesPlot = {
+  const xAccessor = d => {
+    if (Number.isFinite(d.x)) return d.x
+    return null
+  }
+  return Plot.plot({
+    width: 340, height: 300, marginLeft: 46,
+    x: {label: "n"},
+    y: {label: "xₙ"},
+    marks: [
+      Plot.lineY(result.rows, {x: "i", y: xAccessor, stroke: "#2563eb"}),
+      Plot.dot(result.rows, {x: "i", y: xAccessor, fill: "#2563eb", r: 4})
+    ]
+  })
+}
 ```
 
 ```{ojs}
@@ -304,20 +344,26 @@ iteratesPlot = Plot.plot({
 // line, for the entire run — it doesn't depend on the current step, so it's
 // just plotted once per run.
 convergencePlot = {
-  const logRows = result.rows
-    .filter(r => r.i > 0 && Number.isFinite(r.fx) && r.fx !== 0)
-    .map(r => ({n: Math.log10(r.i), y: Math.log10(Math.abs(r.fx))}))
+  const logRows = []
+  for (const r of result.rows) {
+    if (r.i > 0 && Number.isFinite(r.fx) && r.fx !== 0) {
+      logRows.push({n: Math.log10(r.i), y: Math.log10(Math.abs(r.fx))})
+    }
+  }
 
   const pointsName = "log₁₀|f(xₙ)|"
   const marks = [Plot.dot(logRows, {x: "n", y: "y", fill: () => pointsName, r: 4})]
   const colorDomain = [pointsName], colorRange = ["#dc2626"]
 
   if (logRows.length >= 2) {
-    const m     = logRows.length
-    const sx    = d3.sum(logRows, d => d.n)
-    const sy    = d3.sum(logRows, d => d.y)
-    const sxy   = d3.sum(logRows, d => d.n * d.y)
-    const sxx   = d3.sum(logRows, d => d.n * d.n)
+    const m = logRows.length
+    let sx = 0, sy = 0, sxy = 0, sxx = 0
+    for (const row of logRows) {
+      sx += row.n
+      sy += row.y
+      sxy += row.n * row.y
+      sxx += row.n * row.n
+    }
     const denom = m * sxx - sx * sx
     if (denom !== 0) {
       const slope     = (m * sxy - sx * sy) / denom
@@ -356,23 +402,41 @@ convergencePlot = {
 
 ```{ojs}
 // Iteration table — shows the entire run, not just the current step.
-iterationTable = result.rows.length === 0
-  ? document.createElement("div")  // always return a Node so Quarto's OJS runtime
-                                     // never latches this declaration cell as hidden
-  : VM.renderTable({
-      html,
-      headers: ["n", tex`x_n`, tex`f(x_n)`, tex`f'(x_n)`, tex`x_{n+1}`, tex`|x_{n+1} - x_n|`],
-      csvHeaders: ["n", "x_n", "f(x_n)", "f'(x_n)", "x_{n+1}", "|x_{n+1} - x_n|"],
-      filename: "newton-method-iterations.csv",
-      rows: result.rows.map(row => [
-        row.i,
-        Number.isFinite(row.x)     ? row.x.toPrecision(10)    : "NaN",
-        Number.isFinite(row.fx)    ? row.fx.toExponential(5)   : "NaN",
-        Number.isFinite(row.dfx)   ? row.dfx.toExponential(5)  : "NaN",
-        Number.isFinite(row.xNext) ? row.xNext.toPrecision(10) : "NaN",
-        Number.isFinite(row.error) ? row.error.toExponential(4) : "NaN"
-      ])
-    })
+iterationTable = {
+  if (result.rows.length === 0) {
+    // Always return a Node so Quarto's OJS runtime never latches this
+    // declaration cell as hidden.
+    return document.createElement("div")
+  }
+
+  const formattedRows = []
+  for (const row of result.rows) {
+    let xCell = "NaN"
+    if (Number.isFinite(row.x)) xCell = row.x.toPrecision(10)
+
+    let fxCell = "NaN"
+    if (Number.isFinite(row.fx)) fxCell = row.fx.toExponential(5)
+
+    let dfxCell = "NaN"
+    if (Number.isFinite(row.dfx)) dfxCell = row.dfx.toExponential(5)
+
+    let xNextCell = "NaN"
+    if (Number.isFinite(row.xNext)) xNextCell = row.xNext.toPrecision(10)
+
+    let errorCell = "NaN"
+    if (Number.isFinite(row.error)) errorCell = row.error.toExponential(4)
+
+    formattedRows.push([row.i, xCell, fxCell, dfxCell, xNextCell, errorCell])
+  }
+
+  return VM.renderTable({
+    html,
+    headers: ["n", tex`x_n`, tex`f(x_n)`, tex`f'(x_n)`, tex`x_{n+1}`, tex`|x_{n+1} - x_n|`],
+    csvHeaders: ["n", "x_n", "f(x_n)", "f'(x_n)", "x_{n+1}", "|x_{n+1} - x_n|"],
+    filename: "newton-method-iterations.csv",
+    rows: formattedRows
+  })
+}
 ```
 
 ::::
