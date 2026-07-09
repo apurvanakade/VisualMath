@@ -1,0 +1,10 @@
+---
+title: "VisualMath"
+subtitle: "Interactive, browser-based visualizations of numerical methods."
+listing:
+  contents: "root-finding/*/index.qmd"
+  type: grid
+  sort: "date desc"
+  fields: [image, title, description, categories]
+  categories: true
+---

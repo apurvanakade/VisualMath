@@ -1,0 +1,41 @@
+project:
+  type: website
+  output-dir: docs
+
+execute:
+  echo: false
+  warning: false
+  message: false
+
+website:
+  title: "VisualMath"
+  site-url: https://apurvanakade.github.io/VisualMath
+  page-navigation: true
+  bread-crumbs: true
+
+  navbar:
+    background: light
+    search: true
+
+  sidebar:
+    - style: floating
+      contents:
+        - section: root-finding/index.qmd
+          contents: "root-finding/*/index.qmd"
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: cyborg
+    css: styles.css
+    toc: true
+    html-math-method: mathjax
+    include-in-header:
+      - text: |
+          <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
+          <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+          <script src="../../js/make-function.js"></script>
+          <script src="../../js/make-derivative.js"></script>
+          <script src="../../js/padded-range.js"></script>
+          <script src="../../js/render-table.js"></script>
