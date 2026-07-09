@@ -1,6 +1,5 @@
 ---
 title: "Newton's Method"
-description: "Uses tangent lines and derivative information to find roots of f(x)=0 with fast convergence."
 image: newton.png
 categories:
   - Derivatives
@@ -10,9 +9,9 @@ categories:
 ---
 
 <!--
-Copyright (c) 2026 Apurva Nakade, Dhruv Azad. All rights reserved.
+Copyright (c) 2026 Dhruv Azad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Apurva Nakade, Dhruv Azad
+Authors: Dhruv Azad, Apurva Nakade
 -->
 
 
@@ -23,7 +22,21 @@ Authors: Apurva Nakade, Dhruv Azad
 VM = window.VM
 ```
 
+
+Newton's method is one of the most common methods for solving equations of the form
 Newton's method finds roots of $f(x) = 0$ by repeatedly linearizing the function: starting from a guess $x_0$, it draws the tangent line at $(x_n, f(x_n))$ and uses its $x$-intercept as the next guess.
+
+$$
+f(x)=0.
+$$
+
+Starting from an initial guess $x_0$, the method produces new approximations using
+
+$$
+x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}.
+$$
+
+
 
 ```{ojs}
 //| output: false
@@ -37,16 +50,23 @@ setup = {
   // so the axes stay fixed as the user steps through iterations.
   const xValues = [Number(x0)]
   for (const row of result.rows) xValues.push(row.x, row.xNext)
-  const xRange = VM.paddedRange(xValues, {emptyRange: [-3, 3], singularPadding: 3, relativePadding: 0.45, minPadding: 1.0})
+  const xRange = VM.paddedRange(xValues, {emptyRange: [-3, 3], relativePadding: 0.25, minPadding: 0.5})
 
-  // Sample f across the x range for the smooth curve trace.
+  // A wider domain (double the padding of xRange) so the curve is already
+  // sampled beyond the initial view — panning/zooming out reveals more of
+  // the curve instead of blank canvas. The initial view stays xRange.
+  const xBuffer = VM.paddedRange(xValues, {emptyRange: [-6, 6], relativePadding: 0.5, minPadding: 1.0})
+
+  // Sample f across the buffer range for the smooth curve trace.
   const N = 700
-  const sampleXs = Array.from({length: N}, (_, i) => xRange.lo + (xRange.hi - xRange.lo) * i / (N - 1))
+  const sampleXs = Array.from({length: N}, (_, i) => xBuffer.lo + (xBuffer.hi - xBuffer.lo) * i / (N - 1))
   const sampleYs = sampleXs.map(x => result.f(x)).map(y => Number.isFinite(y) && Math.abs(y) < 1e8 ? y : null)
 
   // Collect y values for the y-axis range, including tangent line endpoints.
+  // Only samples within the initial view (xRange) count, so yRange — and
+  // the initial view — stay unaffected by the wider sampling.
   // Cap at 1e8 so a near-vertical tangent doesn't blow up the axis range.
-  const yValues = [0, ...sampleYs]
+  const yValues = [0, ...sampleXs.map((x, i) => x >= xRange.lo && x <= xRange.hi ? sampleYs[i] : null).filter(y => y !== null)]
   for (const row of result.rows) {
     if (Number.isFinite(row.fx) && Math.abs(row.fx) <= 1e8) yValues.push(row.fx)
     if (Number.isFinite(row.x) && Number.isFinite(row.fx) && Number.isFinite(row.dfx) && Number.isFinite(row.xNext)) {
@@ -57,9 +77,9 @@ setup = {
       }
     }
   }
-  const yRange = VM.paddedRange(yValues, {emptyRange: [-1, 1], singularPadding: 1, relativePadding: 0.15, minPadding: 0.5})
+  const yRange = VM.paddedRange(yValues, {emptyRange: [-1, 1], relativePadding: 0.25, minPadding: 0.5})
 
-  return {visibleRows, xRange, yRange, sampleXs, sampleYs}
+  return {visibleRows, xRange, xBuffer, yRange, sampleXs, sampleYs}
 }
 ```
 
@@ -74,12 +94,13 @@ mainPlot = {
   const Plotly = window.Plotly
   let _plotDiv = null
 
-  return ({visibleRows, xRange, yRange, sampleXs, sampleYs}) => {
+  return ({visibleRows, xRange, xBuffer, yRange, sampleXs, sampleYs}) => {
     const data = [
       // The function curve
       {x: sampleXs, y: sampleYs, type: "scatter", mode: "lines", name: "f(x)", showlegend: true, line: {color: "#2563eb", width: 3}},
-      // The x-axis (y = 0 reference line)
-      {x: [xRange.lo, xRange.hi], y: [0, 0], type: "scatter", mode: "lines", name: "y = 0", showlegend: true, line: {color: "#111827", width: 2}}
+      // The x-axis (y = 0 reference line), spanning the buffer so it's still
+      // visible when the user pans/zooms out
+      {x: [xBuffer.lo, xBuffer.hi], y: [0, 0], type: "scatter", mode: "lines", name: "y = 0", showlegend: true, line: {color: "#111827", width: 2}}
     ]
 
     // Dotted vertical lines from the x-axis up to each Newton point
@@ -358,19 +379,6 @@ iterationTable = result.rows.length === 0
 
 </div>
 
-## Explanation
-
-Newton's method is one of the most common methods for solving equations of the form
-
-$$
-f(x)=0.
-$$
-
-Starting from an initial guess $x_0$, the method produces new approximations using
-
-$$
-x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}.
-$$
 
 ## What the picture is showing
 

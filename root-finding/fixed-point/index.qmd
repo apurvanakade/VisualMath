@@ -1,6 +1,5 @@
 ---
 title: "Fixed Point Iteration"
-description: "Rewrites an equation as x = g(x) and iterates x_{n+1} = g(x_n), visualized as a cobweb diagram."
 image: fixed-point.png
 categories:
   - No derivatives
@@ -10,9 +9,9 @@ categories:
 ---
 
 <!--
-Copyright (c) 2026 Apurva Nakade, Dhruv Azad. All rights reserved.
+Copyright (c) 2026 Dhruv Azad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Apurva Nakade, Dhruv Azad
+Authors: Dhruv Azad, Apurva Nakade
 -->
 
 
@@ -22,7 +21,27 @@ Authors: Apurva Nakade, Dhruv Azad
 VM = window.VM
 ```
 
-Fixed point iteration finds a value $\alpha$ where $g(\alpha) = \alpha$ by repeatedly applying $g$: starting from a guess $x_0$, it computes $x_1 = g(x_0)$, $x_2 = g(x_1)$, and so on.
+Fixed point iteration is a way to solve an equation after rewriting it in the form
+
+$$
+x=g(x).
+$$
+
+Starting with an initial guess $x_0$, the method repeatedly applies $g$:
+
+$$
+x_{n+1}=g(x_n).
+$$
+
+If the sequence settles down to a value $\alpha$, then that value satisfies
+
+$$
+\alpha=g(\alpha).
+$$
+
+So $\alpha$ is called a fixed point of $g$.
+
+
 
 ```{ojs}
 //| output: false
@@ -36,14 +55,19 @@ setup = {
   // The cobweb diagram uses a square plot (same range for x and y).
   const rangeValues = [Number(x0)]
   for (const row of result.rows) rangeValues.push(row.x, row.gx)
-  const range = VM.paddedRange(rangeValues, {emptyRange: [-2, 2], singularPadding: 2, relativePadding: 0.45, minPadding: 1.0})
+  const range = VM.paddedRange(rangeValues, {emptyRange: [-2, 2], relativePadding: 0.25, minPadding: 0.5})
 
-  // Sample g across the range for the smooth curve trace.
+  // A wider domain (double the padding of range) so the curve is already
+  // sampled beyond the initial view — panning/zooming out reveals more of
+  // the curve instead of blank canvas. The initial view stays range.
+  const bufferRange = VM.paddedRange(rangeValues, {emptyRange: [-4, 4], relativePadding: 0.5, minPadding: 1.0})
+
+  // Sample g across the buffer range for the smooth curve trace.
   const N  = 500
-  const xs = Array.from({length: N}, (_, i) => range.lo + (range.hi - range.lo) * i / (N - 1))
+  const xs = Array.from({length: N}, (_, i) => bufferRange.lo + (bufferRange.hi - bufferRange.lo) * i / (N - 1))
   const ys = xs.map(x => result.g(x)).map(y => Number.isFinite(y) ? y : null)
 
-  return {visibleRows, range, xs, ys, x0: Number(x0)}
+  return {visibleRows, range, bufferRange, xs, ys, x0: Number(x0)}
 }
 ```
 
@@ -58,14 +82,15 @@ mainPlot = {
   const Plotly = window.Plotly
   let _plotDiv = null
 
-  return ({visibleRows, range, xs, ys, x0}) => {
+  return ({visibleRows, range, bufferRange, xs, ys, x0}) => {
     const data = [
       // The iteration function g(x)
       {x: xs, y: ys, type: "scatter", mode: "lines", name: "g(x)", showlegend: true, line: {color: "#2563eb", width: 3}},
-      // The diagonal y = x — fixed points lie where g(x) crosses this line
-      {x: [range.lo, range.hi], y: [range.lo, range.hi], type: "scatter", mode: "lines", name: "y = x", showlegend: true, line: {color: "#111827", width: 2, dash: "dash"}},
+      // The diagonal y = x — fixed points lie where g(x) crosses this line.
+      // Spans the buffer so it's still visible when the user pans/zooms out.
+      {x: [bufferRange.lo, bufferRange.hi], y: [bufferRange.lo, bufferRange.hi], type: "scatter", mode: "lines", name: "y = x", showlegend: true, line: {color: "#111827", width: 2, dash: "dash"}},
       // The x-axis reference
-      {x: [range.lo, range.hi], y: [0, 0], type: "scatter", mode: "lines", showlegend: false, line: {color: "#94a3b8", width: 1}}
+      {x: [bufferRange.lo, bufferRange.hi], y: [0, 0], type: "scatter", mode: "lines", showlegend: false, line: {color: "#94a3b8", width: 1}}
     ]
 
     if (visibleRows.length > 0) {
@@ -302,27 +327,6 @@ iterationTable = result.rows.length === 0
 
 </div>
 
-## Explanation
-
-Fixed point iteration is a way to solve an equation after rewriting it in the form
-
-$$
-x=g(x).
-$$
-
-Starting with an initial guess $x_0$, the method repeatedly applies $g$:
-
-$$
-x_{n+1}=g(x_n).
-$$
-
-If the sequence settles down to a value $\alpha$, then that value satisfies
-
-$$
-\alpha=g(\alpha).
-$$
-
-So $\alpha$ is called a fixed point of $g$.
 
 ## What the picture is showing
 
