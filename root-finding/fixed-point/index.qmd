@@ -53,7 +53,7 @@ setup = {
 
   // Axis ranges from ALL rows so the axes stay fixed while stepping.
   // The cobweb diagram uses a square plot (same range for x and y).
-  const rangeValues = [Number(x0)]
+  const rangeValues = [Number(committed.x0)]
   for (const row of result.rows) rangeValues.push(row.x, row.gx)
   const range = VM.paddedRange(rangeValues, {emptyRange: [-2, 2], relativePadding: 0.25, minPadding: 0.5})
 
@@ -75,7 +75,7 @@ setup = {
     }
   }
 
-  return {visibleRows, range, bufferRange, xs, ys, x0: Number(x0)}
+  return {visibleRows, range, bufferRange, xs, ys, x0: Number(committed.x0)}
 }
 ```
 
@@ -167,19 +167,37 @@ mainPlot = {
 
 ```{ojs}
 viewof gText = {
-  const el = Inputs.text({label: "Function g(x)", value: "cos(x)", placeholder: "Example: cos(x), sqrt(x + 2), exp(-x)"})
+  const params = new URLSearchParams(window.location.search)
+  const el = Inputs.text({label: "Function g(x)", value: params.get("g") ?? "cos(x)", placeholder: "Example: cos(x), sqrt(x + 2), exp(-x)"})
   el.style.width = "100%"
   return el
 }
 ```
 
-<div class="ojs-control-grid">
+<div class="ojs-step-row">
 
 ```{ojs}
-viewof x0 = Inputs.number({
-  label: "Initial guess x₀",
-  value: 1
-})
+viewof x0 = {
+  const params = new URLSearchParams(window.location.search)
+  const raw = params.get("x0")
+  let value = 1
+  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
+  return Inputs.number({label: "Initial guess x₀", value})
+}
+```
+
+```{ojs}
+// Plot commits the current function/x₀ fields — edits above don't take
+// effect until this is clicked, so result/mainPlot don't recompute on
+// every keystroke. The step slider below is unaffected and stays reactive.
+viewof plotTrigger = {
+  const el = Inputs.button("Plot", {value: 0, reduce: v => v + 1})
+  // Inputs' form wrapper defaults to width: 100% (capped at 360px), which
+  // is much wider than the button itself and forces this row to wrap.
+  el.style.width = "auto"
+  el.style.flex = "none"
+  return el
+}
 ```
 
 </div>
@@ -196,26 +214,73 @@ viewof stepControl = {
 ```
 
 ```{ojs}
-viewof maxIterations = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
+viewof maxIterations = {
+  const el = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
+  // Inputs' form wrapper defaults to width: 100% (capped at 360px), which
+  // is much wider than the number field itself and forces this row to wrap.
+  el.style.width = "auto"
+  el.style.flex = "none"
+  return el
+}
 ```
 
 </div>
 
 ```{ojs}
 //| output: false
-// result: runs fixed-point iteration with the current inputs.
+// Pressing Enter in the function/x₀ fields clicks Plot instead of
+// submitting the field's own (invisible) form. Depends only on the stable
+// views, so this wiring runs once and is never re-attached.
+enterToPlot = {
+  for (const view of [viewof gText, viewof x0]) {
+    const input = view.querySelector("input")
+    if (!input) continue
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return
+      e.preventDefault()
+      viewof plotTrigger.querySelector("button").click()
+    })
+  }
+}
+```
+
+```{ojs}
+//| output: false
+// committed snapshots gText/x0 only when Plot is clicked, and writes them
+// back into the URL so the address bar stays a shareable link. It reads
+// `viewof gText`/`viewof x0` (the stable DOM views) rather than `gText`/`x0`
+// (the reactive values), so it does NOT rerun on every keystroke — only
+// when `plotTrigger` changes. It still runs once on initial page load, so
+// the first render uses the URL-provided (or default) values with no click.
+committed = {
+  plotTrigger
+  const gVal = (viewof gText).value
+  const x0Val = Number((viewof x0).value)
+
+  const params = new URLSearchParams(window.location.search)
+  params.set("g", gVal)
+  params.set("x0", String(x0Val))
+  history.replaceState(null, "", `${window.location.pathname}?${params}`)
+
+  return {gText: gVal, x0: x0Val}
+}
+```
+
+```{ojs}
+//| output: false
+// result: runs fixed-point iteration with the current committed inputs.
 //   rows — array of { i, x, gx, error }, one entry per iteration
 //   g    — parsed function, reused for curve sampling in renderOutput
 result = {
   const math = window.math
 
-  const g        = VM.makeFunction(math, gText)
+  const g        = VM.makeFunction(math, committed.gText)
   const fallback = x => NaN
 
   if (!g) return {rows: [], g: fallback}
 
   const rows  = []
-  const start = Number(x0)
+  const start = Number(committed.x0)
 
   if (!Number.isFinite(start)) return {rows: [], g}
 
@@ -271,14 +336,14 @@ iteratesPlot = {
 ```
 
 ```{ojs}
-// convergencePlot draws log₁₀|xₙ − g(xₙ)| vs log₁₀(n) with a linear
+// convergencePlot draws log₁₀|xₙ − g(xₙ)| vs n (semi-log) with a linear
 // regression line, for the entire run — it doesn't depend on the current
 // step, so it's just plotted once per run.
 convergencePlot = {
   const logRows = []
   for (const r of result.rows) {
-    if (r.i > 0 && Number.isFinite(r.error) && r.error > 0) {
-      logRows.push({n: Math.log10(r.i), y: Math.log10(r.error)})
+    if (Number.isFinite(r.error) && r.error > 0) {
+      logRows.push({n: r.i, y: Math.log10(r.error)})
     }
   }
 
@@ -312,7 +377,7 @@ convergencePlot = {
 
   const chart = Plot.plot({
     width: 340, height: 300, marginLeft: 46,
-    x: {label: "log₁₀(n)"},
+    x: {label: "n"},
     y: {label: "log₁₀|xₙ − g(xₙ)|"},
     color: {domain: colorDomain, range: colorRange},
     marks

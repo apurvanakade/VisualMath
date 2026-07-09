@@ -48,7 +48,7 @@ setup = {
 
   // Axis ranges are computed from ALL rows, not just visibleRows,
   // so the axes stay fixed as the user steps through iterations.
-  const xValues = [Number(x0)]
+  const xValues = [Number(committed.x0)]
   for (const row of result.rows) xValues.push(row.x, row.xNext)
   const xRange = VM.paddedRange(xValues, {emptyRange: [-3, 3], relativePadding: 0.25, minPadding: 0.5})
 
@@ -224,19 +224,37 @@ mainPlot = {
 
 ```{ojs}
 viewof fText = {
-  const el = Inputs.text({label: "Function f(x)", value: "x^2", placeholder: "Example: x^3 - x - 2, cos(x) - x"})
+  const params = new URLSearchParams(window.location.search)
+  const el = Inputs.text({label: "Function f(x)", value: params.get("f") ?? "x^2", placeholder: "Example: x^3 - x - 2, cos(x) - x"})
   el.style.width = "100%"
   return el
 }
 ```
 
-<div class="ojs-control-grid">
+<div class="ojs-step-row">
 
 ```{ojs}
-viewof x0 = Inputs.number({
-  label: "Initial guess x₀",
-  value: 1.5
-})
+viewof x0 = {
+  const params = new URLSearchParams(window.location.search)
+  const raw = params.get("x0")
+  let value = 1.5
+  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
+  return Inputs.number({label: "Initial guess x₀", value})
+}
+```
+
+```{ojs}
+// Plot commits the current function/x₀ fields — edits above don't take
+// effect until this is clicked, so result/mainPlot don't recompute on
+// every keystroke. The step slider below is unaffected and stays reactive.
+viewof plotTrigger = {
+  const el = Inputs.button("Plot", {value: 0, reduce: v => v + 1})
+  // Inputs' form wrapper defaults to width: 100% (capped at 360px), which
+  // is much wider than the button itself and forces this row to wrap.
+  el.style.width = "auto"
+  el.style.flex = "none"
+  return el
+}
 ```
 
 </div>
@@ -253,29 +271,76 @@ viewof stepControl = {
 ```
 
 ```{ojs}
-viewof maxIterations = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
+viewof maxIterations = {
+  const el = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
+  // Inputs' form wrapper defaults to width: 100% (capped at 360px), which
+  // is much wider than the number field itself and forces this row to wrap.
+  el.style.width = "auto"
+  el.style.flex = "none"
+  return el
+}
 ```
 
 </div>
 
 ```{ojs}
 //| output: false
-// result: runs Newton's method with the current inputs.
+// Pressing Enter in the function/x₀ fields clicks Plot instead of
+// submitting the field's own (invisible) form. Depends only on the stable
+// views, so this wiring runs once and is never re-attached.
+enterToPlot = {
+  for (const view of [viewof fText, viewof x0]) {
+    const input = view.querySelector("input")
+    if (!input) continue
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return
+      e.preventDefault()
+      viewof plotTrigger.querySelector("button").click()
+    })
+  }
+}
+```
+
+```{ojs}
+//| output: false
+// committed snapshots fText/x0 only when Plot is clicked, and writes them
+// back into the URL so the address bar stays a shareable link. It reads
+// `viewof fText`/`viewof x0` (the stable DOM views) rather than `fText`/`x0`
+// (the reactive values), so it does NOT rerun on every keystroke — only
+// when `plotTrigger` changes. It still runs once on initial page load, so
+// the first render uses the URL-provided (or default) values with no click.
+committed = {
+  plotTrigger
+  const fVal = (viewof fText).value
+  const x0Val = Number((viewof x0).value)
+
+  const params = new URLSearchParams(window.location.search)
+  params.set("f", fVal)
+  params.set("x0", String(x0Val))
+  history.replaceState(null, "", `${window.location.pathname}?${params}`)
+
+  return {fText: fVal, x0: x0Val}
+}
+```
+
+```{ojs}
+//| output: false
+// result: runs Newton's method with the current committed inputs.
 //   rows — array of { i, x, fx, dfx, xNext, error }, one entry per iteration
 //   f, df — parsed functions, reused for curve sampling in renderOutput
 result = {
   const math = window.math
 
-  // Parse f(x) and its symbolic derivative from the user's string.
+  // Parse f(x) and its symbolic derivative from the committed string.
   // makeFunction / makeDerivative return null if the expression is invalid.
-  const f  = VM.makeFunction(math, fText)
-  const df = VM.makeDerivative(math, fText)
+  const f  = VM.makeFunction(math, committed.fText)
+  const df = VM.makeDerivative(math, committed.fText)
   const fallback = x => NaN
 
   if (!f || !df) return {rows: [], f: fallback, df: fallback}
 
   const rows  = []
-  const start = Number(x0)
+  const start = Number(committed.x0)
 
   if (!Number.isFinite(start)) return {rows: [], f, df}
 
@@ -339,14 +404,14 @@ iteratesPlot = {
 ```
 
 ```{ojs}
-// convergencePlot draws log₁₀|f(xₙ)| vs log₁₀(n) with a linear regression
-// line, for the entire run — it doesn't depend on the current step, so it's
-// just plotted once per run.
+// convergencePlot draws log₁₀|f(xₙ)| vs n (semi-log) with a linear
+// regression line, for the entire run — it doesn't depend on the current
+// step, so it's just plotted once per run.
 convergencePlot = {
   const logRows = []
   for (const r of result.rows) {
-    if (r.i > 0 && Number.isFinite(r.fx) && r.fx !== 0) {
-      logRows.push({n: Math.log10(r.i), y: Math.log10(Math.abs(r.fx))})
+    if (Number.isFinite(r.fx) && r.fx !== 0) {
+      logRows.push({n: r.i, y: Math.log10(Math.abs(r.fx))})
     }
   }
 
@@ -380,7 +445,7 @@ convergencePlot = {
 
   const chart = Plot.plot({
     width: 340, height: 300, marginLeft: 46,
-    x: {label: "log₁₀(n)"},
+    x: {label: "n"},
     y: {label: "log₁₀|f(xₙ)|"},
     color: {domain: colorDomain, range: colorRange},
     marks
