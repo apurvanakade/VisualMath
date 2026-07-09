@@ -35,7 +35,173 @@ $$
 x_{n+1}=x_n-f(x_n)\frac{x_n-x_{n-1}}{f(x_n)-f(x_{n-1})}.
 $$
 
+<div class="ojs-panel">
 
+```{ojs}
+viewof fText = {
+  const params = new URLSearchParams(window.location.search)
+  const fTextInput = Inputs.text({label: "Function f(x)", value: params.get("f") ?? "x^3 - x - 2", placeholder: "Example: x^3 - x - 2, cos(x) - x"})
+  fTextInput.classList.add("ojs-fill")
+  return fTextInput
+}
+```
+
+<div class="ojs-grid">
+
+```{ojs}
+viewof x0 = {
+  const params = new URLSearchParams(window.location.search)
+  const raw = params.get("x0")
+  let value = 1
+  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
+  return Inputs.number({label: "Initial guess x₀", value})
+}
+```
+
+```{ojs}
+viewof x1 = {
+  const params = new URLSearchParams(window.location.search)
+  const raw = params.get("x1")
+  let value = 2
+  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
+  return Inputs.number({label: "Initial guess x₁", value})
+}
+```
+
+</div>
+
+<div class="ojs-row">
+
+```{ojs}
+// Plot commits the current function/x₀/x₁ fields — edits above don't take
+// effect until this is clicked, so result/mainPlot don't recompute on
+// every keystroke. The step slider below is unaffected and stays reactive.
+viewof plotTrigger = {
+  const plotButton = Inputs.button("Plot", {value: 0, reduce: v => v + 1})
+  plotButton.classList.add("ojs-auto")
+  return plotButton
+}
+```
+
+</div>
+</div>
+
+<div class="ojs-panel ojs-row">
+
+```{ojs}
+viewof stepControl = {
+  const stepSlider = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
+  stepSlider.classList.add("ojs-fill")
+  return stepSlider
+}
+```
+
+```{ojs}
+viewof maxIterations = {
+  const maxIterationsInput = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
+  maxIterationsInput.classList.add("ojs-auto")
+  return maxIterationsInput
+}
+```
+
+</div>
+
+```{ojs}
+//| output: false
+// Pressing Enter in the function/x₀/x₁ fields clicks Plot instead of
+// submitting the field's own (invisible) form. Depends only on the stable
+// views, so this wiring runs once and is never re-attached.
+enterToPlot = {
+  for (const view of [viewof fText, viewof x0, viewof x1]) {
+    const input = view.querySelector("input")
+    if (!input) continue
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return
+      e.preventDefault()
+      viewof plotTrigger.querySelector("button").click()
+    })
+  }
+}
+```
+
+```{ojs}
+//| output: false
+// committed snapshots fText/x0/x1 only when Plot is clicked, and writes them
+// back into the URL so the address bar stays a shareable link. It reads
+// `viewof fText`/`viewof x0`/`viewof x1` (the stable DOM views) rather than
+// `fText`/`x0`/`x1` (the reactive values), so it does NOT rerun on every
+// keystroke — only when `plotTrigger` changes. It still runs once on
+// initial page load, so the first render uses the URL-provided (or default)
+// values with no click.
+committed = {
+  plotTrigger
+  const fVal = (viewof fText).value
+  const x0Val = Number((viewof x0).value)
+  const x1Val = Number((viewof x1).value)
+
+  const params = new URLSearchParams(window.location.search)
+  params.set("f", fVal)
+  params.set("x0", String(x0Val))
+  params.set("x1", String(x1Val))
+  history.replaceState(null, "", `${window.location.pathname}?${params}`)
+
+  return {fText: fVal, x0: x0Val, x1: x1Val}
+}
+```
+
+```{ojs}
+//| output: false
+// result: runs the secant method with the current committed inputs.
+//   rows   — array of { i, xPrev, x, fxPrev, fx, xNext, error }, one entry per iteration
+//   points — every x visited so far, x_0, x_1, ..., x_N (used for the
+//            iterates plot, which needs the initial guesses too)
+//   f      — parsed function, reused for curve sampling in setup
+result = {
+  const math = window.math
+
+  // Parse f(x) from the committed string. makeFunction returns null if the
+  // expression is invalid.
+  const f = VM.makeFunction(math, committed.fText)
+  const fallback = x => NaN
+
+  if (!f) return {rows: [], points: [], f: fallback}
+
+  const initialGuess0 = Number(committed.x0)
+  const initialGuess1 = Number(committed.x1)
+
+  if (!Number.isFinite(initialGuess0) || !Number.isFinite(initialGuess1)) return {rows: [], points: [], f}
+
+  const points = [{x: initialGuess0, fx: f(initialGuess0)}, {x: initialGuess1, fx: f(initialGuess1)}]
+  const rows = []
+
+  let i = 1
+  while (i <= maxIterations) {
+    const prev = points[i - 1]
+    const curr = points[i]
+
+    // Stop if either point's f-value blew up — the method has diverged.
+    if (!Number.isFinite(prev.fx) || !Number.isFinite(curr.fx)) {
+      rows.push({i, xPrev: prev.x, x: curr.x, fxPrev: prev.fx, fx: curr.fx, xNext: NaN, error: NaN})
+      return {rows, points, f}
+    }
+
+    // Stop if the secant is nearly flat — dividing by the difference would be unstable.
+    if (Math.abs(curr.fx - prev.fx) < 1e-14) {
+      rows.push({i, xPrev: prev.x, x: curr.x, fxPrev: prev.fx, fx: curr.fx, xNext: NaN, error: NaN})
+      return {rows, points, f}
+    }
+
+    // Secant update: x-intercept of the line through (x_{n-1}, f(x_{n-1})) and (x_n, f(x_n))
+    const xNext = curr.x - curr.fx * (curr.x - prev.x) / (curr.fx - prev.fx)
+    const error = Math.abs(xNext - curr.x)
+    rows.push({i, xPrev: prev.x, x: curr.x, fxPrev: prev.fx, fx: curr.fx, xNext, error})
+
+    points.push({x: xNext, fx: f(xNext)})
+    i++
+  }
+  return {rows, points, f}
+}
+```
 
 ```{ojs}
 //| output: false
@@ -57,8 +223,8 @@ setup = {
   const xBuffer = VM.paddedRange(xValues, {emptyRange: [-6, 6], relativePadding: 0.5, minPadding: 1.0})
 
   // Sample f across the buffer range for the smooth curve trace.
-  const N = 700
-  const sampleXs = Array.from({length: N}, (_, i) => xBuffer.lo + (xBuffer.hi - xBuffer.lo) * i / (N - 1))
+  const sampleCount = 700
+  const sampleXs = Array.from({length: sampleCount}, (_, i) => xBuffer.lo + (xBuffer.hi - xBuffer.lo) * i / (sampleCount - 1))
   const sampleYs = []
   for (const x of sampleXs) {
     const y = result.f(x)
@@ -231,174 +397,6 @@ mainPlot = {
 }
 ```
 
-<div class="ojs-panel">
-
-```{ojs}
-viewof fText = {
-  const params = new URLSearchParams(window.location.search)
-  const el = Inputs.text({label: "Function f(x)", value: params.get("f") ?? "x^3 - x - 2", placeholder: "Example: x^3 - x - 2, cos(x) - x"})
-  el.classList.add("ojs-fill")
-  return el
-}
-```
-
-<div class="ojs-grid">
-
-```{ojs}
-viewof x0 = {
-  const params = new URLSearchParams(window.location.search)
-  const raw = params.get("x0")
-  let value = 1
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Initial guess x₀", value})
-}
-```
-
-```{ojs}
-viewof x1 = {
-  const params = new URLSearchParams(window.location.search)
-  const raw = params.get("x1")
-  let value = 2
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Initial guess x₁", value})
-}
-```
-
-</div>
-
-<div class="ojs-row">
-
-```{ojs}
-// Plot commits the current function/x₀/x₁ fields — edits above don't take
-// effect until this is clicked, so result/mainPlot don't recompute on
-// every keystroke. The step slider below is unaffected and stays reactive.
-viewof plotTrigger = {
-  const el = Inputs.button("Plot", {value: 0, reduce: v => v + 1})
-  el.classList.add("ojs-auto")
-  return el
-}
-```
-
-</div>
-</div>
-
-<div class="ojs-panel ojs-row">
-
-```{ojs}
-viewof stepControl = {
-  const el = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
-  el.classList.add("ojs-fill")
-  return el
-}
-```
-
-```{ojs}
-viewof maxIterations = {
-  const el = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
-  el.classList.add("ojs-auto")
-  return el
-}
-```
-
-</div>
-
-```{ojs}
-//| output: false
-// Pressing Enter in the function/x₀/x₁ fields clicks Plot instead of
-// submitting the field's own (invisible) form. Depends only on the stable
-// views, so this wiring runs once and is never re-attached.
-enterToPlot = {
-  for (const view of [viewof fText, viewof x0, viewof x1]) {
-    const input = view.querySelector("input")
-    if (!input) continue
-    input.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter") return
-      e.preventDefault()
-      viewof plotTrigger.querySelector("button").click()
-    })
-  }
-}
-```
-
-```{ojs}
-//| output: false
-// committed snapshots fText/x0/x1 only when Plot is clicked, and writes them
-// back into the URL so the address bar stays a shareable link. It reads
-// `viewof fText`/`viewof x0`/`viewof x1` (the stable DOM views) rather than
-// `fText`/`x0`/`x1` (the reactive values), so it does NOT rerun on every
-// keystroke — only when `plotTrigger` changes. It still runs once on
-// initial page load, so the first render uses the URL-provided (or default)
-// values with no click.
-committed = {
-  plotTrigger
-  const fVal = (viewof fText).value
-  const x0Val = Number((viewof x0).value)
-  const x1Val = Number((viewof x1).value)
-
-  const params = new URLSearchParams(window.location.search)
-  params.set("f", fVal)
-  params.set("x0", String(x0Val))
-  params.set("x1", String(x1Val))
-  history.replaceState(null, "", `${window.location.pathname}?${params}`)
-
-  return {fText: fVal, x0: x0Val, x1: x1Val}
-}
-```
-
-```{ojs}
-//| output: false
-// result: runs the secant method with the current committed inputs.
-//   rows   — array of { i, xPrev, x, fxPrev, fx, xNext, error }, one entry per iteration
-//   points — every x visited so far, x_0, x_1, ..., x_N (used for the
-//            iterates plot, which needs the initial guesses too)
-//   f      — parsed function, reused for curve sampling in setup
-result = {
-  const math = window.math
-
-  // Parse f(x) from the committed string. makeFunction returns null if the
-  // expression is invalid.
-  const f = VM.makeFunction(math, committed.fText)
-  const fallback = x => NaN
-
-  if (!f) return {rows: [], points: [], f: fallback}
-
-  const start0 = Number(committed.x0)
-  const start1 = Number(committed.x1)
-
-  if (!Number.isFinite(start0) || !Number.isFinite(start1)) return {rows: [], points: [], f}
-
-  const points = [{x: start0, fx: f(start0)}, {x: start1, fx: f(start1)}]
-  const rows = []
-
-  let i = 1
-  while (i <= maxIterations) {
-    const prev = points[i - 1]
-    const curr = points[i]
-
-    // Stop if either point's f-value blew up — the method has diverged.
-    if (!Number.isFinite(prev.fx) || !Number.isFinite(curr.fx)) {
-      rows.push({i, xPrev: prev.x, x: curr.x, fxPrev: prev.fx, fx: curr.fx, xNext: NaN, error: NaN})
-      return {rows, points, f}
-    }
-
-    // Stop if the secant is nearly flat — dividing by the difference would be unstable.
-    if (Math.abs(curr.fx - prev.fx) < 1e-14) {
-      rows.push({i, xPrev: prev.x, x: curr.x, fxPrev: prev.fx, fx: curr.fx, xNext: NaN, error: NaN})
-      return {rows, points, f}
-    }
-
-    // Secant update: x-intercept of the line through (x_{n-1}, f(x_{n-1})) and (x_n, f(x_n))
-    const xNext = curr.x - curr.fx * (curr.x - prev.x) / (curr.fx - prev.fx)
-    const error = Math.abs(xNext - curr.x)
-    rows.push({i, xPrev: prev.x, x: curr.x, fxPrev: prev.fx, fx: curr.fx, xNext, error})
-
-    points.push({x: xNext, fx: f(xNext)})
-    i++
-  }
-  return {rows, points, f}
-}
-```
-
 <div class="ojs-output-wide">
 
 ```{ojs}
@@ -414,18 +412,18 @@ mainPlot(setup)
 // guesses — it doesn't depend on the current step, so it's just plotted
 // once per run.
 iteratesPlot = {
-  const ptRows = []
+  const pointRows = []
   for (let k = 0; k < result.points.length; k++) {
-    const p = result.points[k]
-    if (Number.isFinite(p.x)) ptRows.push({i: k, x: p.x})
+    const point = result.points[k]
+    if (Number.isFinite(point.x)) pointRows.push({i: k, x: point.x})
   }
   return Plot.plot({
     width: 340, height: 300, marginLeft: 46,
     x: {label: "n"},
     y: {label: "xₙ"},
     marks: [
-      Plot.lineY(ptRows, {x: "i", y: "x", stroke: "#2563eb"}),
-      Plot.dot(ptRows, {x: "i", y: "x", fill: "#2563eb", r: 4})
+      Plot.lineY(pointRows, {x: "i", y: "x", stroke: "#2563eb"}),
+      Plot.dot(pointRows, {x: "i", y: "x", fill: "#2563eb", r: 4})
     ]
   })
 }
@@ -454,7 +452,7 @@ convergencePlot = {
   const colorDomain = [pointsName], colorRange = ["#dc2626"]
 
   if (logRows.length >= 2) {
-    const m = logRows.length
+    const pointCount = logRows.length
     let sx = 0, sy = 0, sxy = 0, sxx = 0
     for (const row of logRows) {
       sx += row.x
@@ -462,11 +460,11 @@ convergencePlot = {
       sxy += row.x * row.y
       sxx += row.x * row.x
     }
-    const denom = m * sxx - sx * sx
+    const denom = pointCount * sxx - sx * sx
     if (denom !== 0) {
-      const slope     = (m * sxy - sx * sy) / denom
-      const intercept = (sy - slope * sx) / m
-      const [xlo, xhi] = [logRows[0].x, logRows[m - 1].x]
+      const slope     = (pointCount * sxy - sx * sy) / denom
+      const intercept = (sy - slope * sx) / pointCount
+      const [xlo, xhi] = [logRows[0].x, logRows[pointCount - 1].x]
       const lineName   = `order ≈ ${slope.toFixed(2)}`
       marks.push(Plot.line(
         [{x: xlo, y: slope * xlo + intercept}, {x: xhi, y: slope * xhi + intercept}],

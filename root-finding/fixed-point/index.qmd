@@ -42,7 +42,141 @@ $$
 
 So $\alpha$ is called a fixed point of $g$.
 
+<div class="ojs-panel">
 
+```{ojs}
+viewof gText = {
+  const params = new URLSearchParams(window.location.search)
+  const gTextInput = Inputs.text({label: "Function g(x)", value: params.get("g") ?? "cos(x)", placeholder: "Example: cos(x), sqrt(x + 2), exp(-x)"})
+  gTextInput.classList.add("ojs-fill")
+  return gTextInput
+}
+```
+
+<div class="ojs-row">
+
+```{ojs}
+viewof x0 = {
+  const params = new URLSearchParams(window.location.search)
+  const raw = params.get("x0")
+  let value = 1
+  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
+  return Inputs.number({label: "Initial guess x₀", value})
+}
+```
+
+```{ojs}
+// Plot commits the current function/x₀ fields — edits above don't take
+// effect until this is clicked, so result/mainPlot don't recompute on
+// every keystroke. The step slider below is unaffected and stays reactive.
+viewof plotTrigger = {
+  const plotButton = Inputs.button("Plot", {value: 0, reduce: v => v + 1})
+  plotButton.classList.add("ojs-auto")
+  return plotButton
+}
+```
+
+</div>
+</div>
+
+<div class="ojs-panel ojs-row">
+
+```{ojs}
+viewof stepControl = {
+  const stepSlider = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
+  stepSlider.classList.add("ojs-fill")
+  return stepSlider
+}
+```
+
+```{ojs}
+viewof maxIterations = {
+  const maxIterationsInput = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
+  maxIterationsInput.classList.add("ojs-auto")
+  return maxIterationsInput
+}
+```
+
+</div>
+
+```{ojs}
+//| output: false
+// Pressing Enter in the function/x₀ fields clicks Plot instead of
+// submitting the field's own (invisible) form. Depends only on the stable
+// views, so this wiring runs once and is never re-attached.
+enterToPlot = {
+  for (const view of [viewof gText, viewof x0]) {
+    const input = view.querySelector("input")
+    if (!input) continue
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return
+      e.preventDefault()
+      viewof plotTrigger.querySelector("button").click()
+    })
+  }
+}
+```
+
+```{ojs}
+//| output: false
+// committed snapshots gText/x0 only when Plot is clicked, and writes them
+// back into the URL so the address bar stays a shareable link. It reads
+// `viewof gText`/`viewof x0` (the stable DOM views) rather than `gText`/`x0`
+// (the reactive values), so it does NOT rerun on every keystroke — only
+// when `plotTrigger` changes. It still runs once on initial page load, so
+// the first render uses the URL-provided (or default) values with no click.
+committed = {
+  plotTrigger
+  const gVal = (viewof gText).value
+  const x0Val = Number((viewof x0).value)
+
+  const params = new URLSearchParams(window.location.search)
+  params.set("g", gVal)
+  params.set("x0", String(x0Val))
+  history.replaceState(null, "", `${window.location.pathname}?${params}`)
+
+  return {gText: gVal, x0: x0Val}
+}
+```
+
+```{ojs}
+//| output: false
+// result: runs fixed-point iteration with the current committed inputs.
+//   rows — array of { i, x, gx, error }, one entry per iteration
+//   g    — parsed function, reused for curve sampling in setup
+result = {
+  const math = window.math
+
+  const g        = VM.makeFunction(math, committed.gText)
+  const fallback = x => NaN
+
+  if (!g) return {rows: [], g: fallback}
+
+  const rows  = []
+  const initialGuess = Number(committed.x0)
+
+  if (!Number.isFinite(initialGuess)) return {rows: [], g}
+
+  let x = initialGuess
+  let i = 0
+  while (i < maxIterations) {
+    const gx = g(x)
+
+    // Stop if g(x) blows up — the iteration has diverged.
+    if (!Number.isFinite(gx)) {
+      rows.push({i, x, gx, error: NaN})
+      return {rows, g}
+    }
+
+    const error = Math.abs(gx - x)
+    rows.push({i, x, gx, error})
+
+    x = gx
+    i++
+  }
+  return {rows, g}
+}
+```
 
 ```{ojs}
 //| output: false
@@ -64,19 +198,19 @@ setup = {
   const bufferRange = VM.paddedRange(rangeValues, {emptyRange: [-4, 4], relativePadding: 0.5, minPadding: 1.0})
 
   // Sample g across the buffer range for the smooth curve trace.
-  const N  = 500
-  const xs = Array.from({length: N}, (_, i) => bufferRange.lo + (bufferRange.hi - bufferRange.lo) * i / (N - 1))
-  const ys = []
-  for (const x of xs) {
+  const sampleCount = 500
+  const sampleXs = Array.from({length: sampleCount}, (_, i) => bufferRange.lo + (bufferRange.hi - bufferRange.lo) * i / (sampleCount - 1))
+  const sampleYs = []
+  for (const x of sampleXs) {
     const y = result.g(x)
     if (Number.isFinite(y)) {
-      ys.push(y)
+      sampleYs.push(y)
     } else {
-      ys.push(null)
+      sampleYs.push(null)
     }
   }
 
-  return {visibleRows, range, bufferRange, xs, ys, x0: Number(committed.x0)}
+  return {visibleRows, range, bufferRange, sampleXs, sampleYs, x0: Number(committed.x0)}
 }
 ```
 
@@ -91,10 +225,10 @@ mainPlot = {
   const Plotly = window.Plotly
   let _plotDiv = null
 
-  return ({visibleRows, range, bufferRange, xs, ys, x0}) => {
+  return ({visibleRows, range, bufferRange, sampleXs, sampleYs, x0}) => {
     const data = [
       // The iteration function g(x)
-      {x: xs, y: ys, type: "scatter", mode: "lines", name: "g(x)", showlegend: true, line: {color: "#2563eb", width: 3}},
+      {x: sampleXs, y: sampleYs, type: "scatter", mode: "lines", name: "g(x)", showlegend: true, line: {color: "#2563eb", width: 3}},
       // The diagonal y = x — fixed points lie where g(x) crosses this line.
       // Spans the buffer so it's still visible when the user pans/zooms out.
       {x: [bufferRange.lo, bufferRange.hi], y: [bufferRange.lo, bufferRange.hi], type: "scatter", mode: "lines", name: "y = x", showlegend: true, line: {color: "#111827", width: 2, dash: "dash"}},
@@ -164,142 +298,6 @@ mainPlot = {
 }
 ```
 
-<div class="ojs-panel">
-
-```{ojs}
-viewof gText = {
-  const params = new URLSearchParams(window.location.search)
-  const el = Inputs.text({label: "Function g(x)", value: params.get("g") ?? "cos(x)", placeholder: "Example: cos(x), sqrt(x + 2), exp(-x)"})
-  el.classList.add("ojs-fill")
-  return el
-}
-```
-
-<div class="ojs-row">
-
-```{ojs}
-viewof x0 = {
-  const params = new URLSearchParams(window.location.search)
-  const raw = params.get("x0")
-  let value = 1
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Initial guess x₀", value})
-}
-```
-
-```{ojs}
-// Plot commits the current function/x₀ fields — edits above don't take
-// effect until this is clicked, so result/mainPlot don't recompute on
-// every keystroke. The step slider below is unaffected and stays reactive.
-viewof plotTrigger = {
-  const el = Inputs.button("Plot", {value: 0, reduce: v => v + 1})
-  el.classList.add("ojs-auto")
-  return el
-}
-```
-
-</div>
-</div>
-
-<div class="ojs-panel ojs-row">
-
-```{ojs}
-viewof stepControl = {
-  const el = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
-  el.classList.add("ojs-fill")
-  return el
-}
-```
-
-```{ojs}
-viewof maxIterations = {
-  const el = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
-  el.classList.add("ojs-auto")
-  return el
-}
-```
-
-</div>
-
-```{ojs}
-//| output: false
-// Pressing Enter in the function/x₀ fields clicks Plot instead of
-// submitting the field's own (invisible) form. Depends only on the stable
-// views, so this wiring runs once and is never re-attached.
-enterToPlot = {
-  for (const view of [viewof gText, viewof x0]) {
-    const input = view.querySelector("input")
-    if (!input) continue
-    input.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter") return
-      e.preventDefault()
-      viewof plotTrigger.querySelector("button").click()
-    })
-  }
-}
-```
-
-```{ojs}
-//| output: false
-// committed snapshots gText/x0 only when Plot is clicked, and writes them
-// back into the URL so the address bar stays a shareable link. It reads
-// `viewof gText`/`viewof x0` (the stable DOM views) rather than `gText`/`x0`
-// (the reactive values), so it does NOT rerun on every keystroke — only
-// when `plotTrigger` changes. It still runs once on initial page load, so
-// the first render uses the URL-provided (or default) values with no click.
-committed = {
-  plotTrigger
-  const gVal = (viewof gText).value
-  const x0Val = Number((viewof x0).value)
-
-  const params = new URLSearchParams(window.location.search)
-  params.set("g", gVal)
-  params.set("x0", String(x0Val))
-  history.replaceState(null, "", `${window.location.pathname}?${params}`)
-
-  return {gText: gVal, x0: x0Val}
-}
-```
-
-```{ojs}
-//| output: false
-// result: runs fixed-point iteration with the current committed inputs.
-//   rows — array of { i, x, gx, error }, one entry per iteration
-//   g    — parsed function, reused for curve sampling in renderOutput
-result = {
-  const math = window.math
-
-  const g        = VM.makeFunction(math, committed.gText)
-  const fallback = x => NaN
-
-  if (!g) return {rows: [], g: fallback}
-
-  const rows  = []
-  const start = Number(committed.x0)
-
-  if (!Number.isFinite(start)) return {rows: [], g}
-
-  let x = start
-  let i = 0
-  while (i < maxIterations) {
-    const gx = g(x)
-
-    // Stop if g(x) blows up — the iteration has diverged.
-    if (!Number.isFinite(gx)) {
-      rows.push({i, x, gx, error: NaN})
-      return {rows, g}
-    }
-
-    const error = Math.abs(gx - x)
-    rows.push({i, x, gx, error})
-
-    x = gx
-    i++
-  }
-  return {rows, g}
-}
-```
-
 <div class="ojs-output-wide">
 
 ```{ojs}
@@ -314,8 +312,8 @@ mainPlot(setup)
 // iteratesPlot draws xₙ vs n for the entire run — it doesn't depend on the
 // current step, so it's just plotted once per run.
 iteratesPlot = {
-  const xAccessor = d => {
-    if (Number.isFinite(d.x)) return d.x
+  const xAccessor = row => {
+    if (Number.isFinite(row.x)) return row.x
     return null
   }
   return Plot.plot({
@@ -347,7 +345,7 @@ convergencePlot = {
   const colorDomain = [pointsName], colorRange = ["#dc2626"]
 
   if (logRows.length >= 2) {
-    const m = logRows.length
+    const pointCount = logRows.length
     let sx = 0, sy = 0, sxy = 0, sxx = 0
     for (const row of logRows) {
       sx += row.n
@@ -355,11 +353,11 @@ convergencePlot = {
       sxy += row.n * row.y
       sxx += row.n * row.n
     }
-    const denom = m * sxx - sx * sx
+    const denom = pointCount * sxx - sx * sx
     if (denom !== 0) {
-      const slope     = (m * sxy - sx * sy) / denom
-      const intercept = (sy - slope * sx) / m
-      const [xlo, xhi] = [logRows[0].n, logRows[m - 1].n]
+      const slope     = (pointCount * sxy - sx * sy) / denom
+      const intercept = (sy - slope * sx) / pointCount
+      const [xlo, xhi] = [logRows[0].n, logRows[pointCount - 1].n]
       const lineName   = `slope ≈ ${slope.toFixed(2)}`
       marks.push(Plot.line(
         [{n: xlo, y: slope * xlo + intercept}, {n: xhi, y: slope * xhi + intercept}],
