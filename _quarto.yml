@@ -16,32 +16,12 @@ website:
   navbar:
     background: light
     search: true
-    # left:
-    #   - text: "Root Finding"
-    #     menu:
-    #       - text: "Overview"
-    #         href: root-finding/index.qmd
-    #       - text: "---"
-    #       - text: "Bisection Method"
-    #         href: root-finding/bisection-method.qmd
-    #       - text: "Fixed Point Iteration"
-    #         href: root-finding/fixed-point.qmd
-    #       - text: "Newton's Method"
-    #         href: root-finding/newton.qmd
 
   sidebar:
     - style: floating
-      # background: light
       contents:
-        - section: "Root Finding"
-          href: root-finding/index.qmd
-          contents:
-            - href: root-finding/bisection-method/index.qmd
-              text: Bisection Method
-            - href: root-finding/fixed-point/index.qmd
-              text: Fixed Point Iteration
-            - href: root-finding/newton/index.qmd
-              text: Newton's Method
+        - section: root-finding/index.qmd
+          contents: "root-finding/*/index.qmd"
 
 format:
   html:

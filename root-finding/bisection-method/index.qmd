@@ -1,5 +1,6 @@
 ---
 title: "Bisection Method"
+order: 1
 image: bisection.png
 categories:
   - Bracketing
@@ -477,11 +478,3 @@ iterationTable = {
 ::::
 
 </div>
-
-## What the picture is showing
-
-The blue curve is the graph of $f(x)$. The black horizontal line is $y=0$.
-
-The shaded blue region is the current interval $[a,b]$. The blue points show the endpoint values $(a,f(a))$ and $(b,f(b))$.
-
-The red point is the midpoint $(m,f(m))$. Each step halves the interval and keeps the side that still contains a sign change.
