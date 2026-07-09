@@ -176,18 +176,18 @@ mainPlot = {
 }
 ```
 
-<div class="ojs-controls-wide">
+<div class="ojs-panel">
 
 ```{ojs}
 viewof fText = {
   const params = new URLSearchParams(window.location.search)
   const el = Inputs.text({label: "Function f(x)", value: params.get("f") ?? "x^3 - x - 2", placeholder: "Example: x^3 - x - 2, cos(x) - x"})
-  el.style.width = "100%"
+  el.classList.add("ojs-fill")
   return el
 }
 ```
 
-<div class="ojs-control-grid">
+<div class="ojs-grid">
 
 ```{ojs}
 viewof a0 = {
@@ -201,7 +201,7 @@ viewof a0 = {
 
 </div>
 
-<div class="ojs-step-row">
+<div class="ojs-row">
 
 ```{ojs}
 viewof b0 = {
@@ -219,10 +219,7 @@ viewof b0 = {
 // every keystroke. The step slider below is unaffected and stays reactive.
 viewof plotTrigger = {
   const el = Inputs.button("Plot", {value: 0, reduce: v => v + 1})
-  // Inputs' form wrapper defaults to width: 100% (capped at 360px), which
-  // is much wider than the button itself and forces this row to wrap.
-  el.style.width = "auto"
-  el.style.flex = "none"
+  el.classList.add("ojs-auto")
   return el
 }
 ```
@@ -230,12 +227,12 @@ viewof plotTrigger = {
 </div>
 </div>
 
-<div class="ojs-step-row">
+<div class="ojs-panel ojs-row">
 
 ```{ojs}
 viewof stepControl = {
   const el = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
-  el.style.width = "100%"
+  el.classList.add("ojs-fill")
   return el
 }
 ```
@@ -243,10 +240,7 @@ viewof stepControl = {
 ```{ojs}
 viewof maxIterations = {
   const el = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
-  // Inputs' form wrapper defaults to width: 100% (capped at 360px), which
-  // is much wider than the number field itself and forces this row to wrap.
-  el.style.width = "auto"
-  el.style.flex = "none"
+  el.classList.add("ojs-auto")
   return el
 }
 ```

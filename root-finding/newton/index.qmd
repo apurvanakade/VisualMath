@@ -220,18 +220,18 @@ mainPlot = {
 }
 ```
 
-<div class="ojs-controls-wide">
+<div class="ojs-panel">
 
 ```{ojs}
 viewof fText = {
   const params = new URLSearchParams(window.location.search)
   const el = Inputs.text({label: "Function f(x)", value: params.get("f") ?? "x^2", placeholder: "Example: x^3 - x - 2, cos(x) - x"})
-  el.style.width = "100%"
+  el.classList.add("ojs-fill")
   return el
 }
 ```
 
-<div class="ojs-step-row">
+<div class="ojs-row">
 
 ```{ojs}
 viewof x0 = {
@@ -249,10 +249,7 @@ viewof x0 = {
 // every keystroke. The step slider below is unaffected and stays reactive.
 viewof plotTrigger = {
   const el = Inputs.button("Plot", {value: 0, reduce: v => v + 1})
-  // Inputs' form wrapper defaults to width: 100% (capped at 360px), which
-  // is much wider than the button itself and forces this row to wrap.
-  el.style.width = "auto"
-  el.style.flex = "none"
+  el.classList.add("ojs-auto")
   return el
 }
 ```
@@ -260,12 +257,12 @@ viewof plotTrigger = {
 </div>
 </div>
 
-<div class="ojs-step-row">
+<div class="ojs-panel ojs-row">
 
 ```{ojs}
 viewof stepControl = {
   const el = Inputs.range([0, maxIterations - 1], {step: 1, value: 0, label: "Step"})
-  el.style.width = "100%"
+  el.classList.add("ojs-fill")
   return el
 }
 ```
@@ -273,10 +270,7 @@ viewof stepControl = {
 ```{ojs}
 viewof maxIterations = {
   const el = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
-  // Inputs' form wrapper defaults to width: 100% (capped at 360px), which
-  // is much wider than the number field itself and forces this row to wrap.
-  el.style.width = "auto"
-  el.style.flex = "none"
+  el.classList.add("ojs-auto")
   return el
 }
 ```
@@ -404,39 +398,48 @@ iteratesPlot = {
 ```
 
 ```{ojs}
-// convergencePlot draws log₁₀|f(xₙ)| vs n (semi-log) with a linear
-// regression line, for the entire run — it doesn't depend on the current
-// step, so it's just plotted once per run.
+// convergencePlot draws log₁₀|eₙ₊₁| vs log₁₀|eₙ| (successive step sizes,
+// eₙ = |xₙ₊₁ − xₙ|) with a linear regression line, for the entire run.
+// Newton converges quadratically for a simple root (eₙ₊₁ ~ C·eₙ²), which
+// isn't a straight line vs n or log(n) — it only takes a handful of steps
+// to hit machine precision, and fitting log|error| vs n (as bisection and
+// fixed-point iteration do, since they converge linearly) gives a "slope"
+// that's just an artifact of however many points survive before underflow.
+// This log-log successive-error plot is the standard diagnostic instead:
+// its slope estimates the order of convergence p directly (≈2 for a simple
+// root, ≈1 for a multiple root, as in the default x² example).
 convergencePlot = {
   const logRows = []
-  for (const r of result.rows) {
-    if (Number.isFinite(r.fx) && r.fx !== 0) {
-      logRows.push({n: r.i, y: Math.log10(Math.abs(r.fx))})
+  for (let k = 0; k < result.rows.length - 1; k++) {
+    const en  = result.rows[k].error
+    const en1 = result.rows[k + 1].error
+    if (Number.isFinite(en) && en > 0 && Number.isFinite(en1) && en1 > 0) {
+      logRows.push({x: Math.log10(en), y: Math.log10(en1)})
     }
   }
 
-  const pointsName = "log₁₀|f(xₙ)|"
-  const marks = [Plot.dot(logRows, {x: "n", y: "y", fill: () => pointsName, r: 4})]
+  const pointsName = "log₁₀|eₙ₊₁| vs log₁₀|eₙ|"
+  const marks = [Plot.dot(logRows, {x: "x", y: "y", fill: () => pointsName, r: 4})]
   const colorDomain = [pointsName], colorRange = ["#dc2626"]
 
   if (logRows.length >= 2) {
     const m = logRows.length
     let sx = 0, sy = 0, sxy = 0, sxx = 0
     for (const row of logRows) {
-      sx += row.n
+      sx += row.x
       sy += row.y
-      sxy += row.n * row.y
-      sxx += row.n * row.n
+      sxy += row.x * row.y
+      sxx += row.x * row.x
     }
     const denom = m * sxx - sx * sx
     if (denom !== 0) {
       const slope     = (m * sxy - sx * sy) / denom
       const intercept = (sy - slope * sx) / m
-      const [xlo, xhi] = [logRows[0].n, logRows[m - 1].n]
-      const lineName   = `slope ≈ ${slope.toFixed(2)}`
+      const [xlo, xhi] = [logRows[0].x, logRows[m - 1].x]
+      const lineName   = `order ≈ ${slope.toFixed(2)}`
       marks.push(Plot.line(
-        [{n: xlo, y: slope * xlo + intercept}, {n: xhi, y: slope * xhi + intercept}],
-        {x: "n", y: "y", stroke: () => lineName, strokeDasharray: "6,4"}
+        [{x: xlo, y: slope * xlo + intercept}, {x: xhi, y: slope * xhi + intercept}],
+        {x: "x", y: "y", stroke: () => lineName, strokeDasharray: "6,4"}
       ))
       colorDomain.push(lineName)
       colorRange.push("#9333ea")
@@ -445,8 +448,8 @@ convergencePlot = {
 
   const chart = Plot.plot({
     width: 340, height: 300, marginLeft: 46,
-    x: {label: "n"},
-    y: {label: "log₁₀|f(xₙ)|"},
+    x: {label: "log₁₀|eₙ|"},
+    y: {label: "log₁₀|eₙ₊₁|"},
     color: {domain: colorDomain, range: colorRange},
     marks
   })
