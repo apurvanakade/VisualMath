@@ -19,13 +19,16 @@ There are no test or lint commands; there is no package manager (no `package.jso
 
 ## Architecture
 
-Each method page (`root-finding/<method>/index.qmd`) is a self-contained interactive app:
+Each method page (`root-finding/<method>/index.qmd`) is a self-contained interactive app. There is no `method.js` per page — all method logic and rendering live directly in named OJS cells inside the `.qmd`:
 
-1. A raw-HTML block loads CDN scripts (math.js, Plotly), the shared `js/*.js` utilities, and the page's own `method.js`.
-2. `method.js` is an IIFE that attaches one global, e.g. `window.VisualMathNewtonMethod`, exposing two functions: `compute` and `renderOutput`.
-3. OJS cells wire Quarto `Inputs.*` controls → `page.compute({...})` → an `Inputs.range` step slider → `page.renderOutput({...})`. OJS reactivity re-runs everything downstream when any input changes.
+1. A raw-HTML block loads CDN scripts (math.js, Plotly) and the shared `js/*.js` utilities, exposing `window.VM` (see below).
+2. `result` — runs the numerical method with the current inputs (e.g. Newton, bisection, fixed-point) and returns `{rows, f, ...}`. `rows` is the full iteration history; each page's `result` cell already reads like plain imperative code (`while` loop, explicit early returns) rather than a functional pipeline.
+3. `setup` — derives the data shared by the plots below from `result`: which rows are visible at the current step, axis ranges, and a sampled curve for the smooth function trace.
+4. `mainPlot` — builds the primary Plotly chart. It's a closure over a `_plotDiv` variable so the same DOM node is reused across reactive re-renders (`Plotly.react` instead of `Plotly.newPlot` after the first render) — this is what preserves user zoom/pan when the step slider moves.
+5. `iteratesPlot`, `convergencePlot` — Observable Plot charts covering the entire run (not just the current step), shown in a collapsed "Convergence plots" callout.
+6. `iterationTable` — builds a DOM table via `VM.renderTable`, shown in a collapsed "Iteration table" callout.
 
-`compute()` returns `{ ok, statusType, message, rows, f, ... }`. `rows` is the full iteration history; `statusType` is `"good" | "warn" | "bad"` mapping to shared CSS status classes. `renderOutput()` receives the result and the current step slider value, slices the visible rows, builds the Plotly chart and iteration table inline, and returns a DOM node.
+OJS cells wire Quarto `Inputs.*` controls (function text, initial guess/endpoints, max iterations) → `result` → an `Inputs.range` step slider → `setup` → `mainPlot(setup)`. OJS reactivity re-runs everything downstream when any input changes.
 
 ### Shared utilities (`js/`)
 
@@ -38,15 +41,14 @@ Each file is a small IIFE that extends `window.VM` with one function:
 
 ### Adding a new method page
 
-1. Create `root-finding/<method>/method.js` — copy an existing one and change `compute()` and `renderOutput()`. The IIFE should attach `window.VisualMath<MethodName> = {compute, renderOutput}`.
-2. Create `root-finding/<method>/index.qmd` — copy an existing one, update the input labels and the page global name. The script block needs only mathjs, Plotly, the `../../js/*.js` utilities, and `method.js`.
-3. Add the page to `root-finding/index.qmd` and `_quarto.yml` navigation.
+1. Create `root-finding/<method>/index.qmd` — copy an existing page (e.g. `root-finding/newton/index.qmd`) and adapt its `result`, `setup`, `mainPlot`, `iteratesPlot`, `convergencePlot`, and `iterationTable` cells to the new method's math and input fields. The script block needs only mathjs, Plotly, and the `../../js/*.js` utilities.
+2. Add the page to `root-finding/index.qmd` and `_quarto.yml` navigation.
 
-User-entered expressions are evaluated in-browser. Use `VM.makeFunction` (it handles normalization and error catching). Surface invalid input through the result's `message` field rather than throwing.
+User-entered expressions are evaluated in-browser. Use `VM.makeFunction`/`VM.makeDerivative` (they handle normalization and error catching, returning `null` on a bad expression) rather than calling math.js directly. Currently, invalid input just makes `result` return empty `rows` (blank chart, empty table) — there's no surfaced error message to the user yet.
 
 ## Conventions
 
 - Every new code/content file must begin with the copyright/license header for its file type — see `CONTRIBUTING.md`. Authorship is per-file and per-contributor; add your name to `Authors:` for significant additions.
-- Interactive pages use `page-layout: full` and reuse the design-system CSS classes in `styles.css` (`vm-*`, `ojs-*`, `plotly-box-large`, `ojs-status-*`, `ojs-table*`) rather than ad hoc per-page styling.
-- Keep OJS logic in small named cells and keep method logic in `method.js`; the `.qmd` should mostly declare controls and wire them to the page global.
-- A sibling `.github/copilot-instructions.md` covers overlapping guidance; keep the two roughly in sync when conventions change.
+- Interactive pages use `page-layout: full` and reuse the design-system CSS classes in `styles.css` (`ojs-control-grid`, `ojs-controls-wide`, `ojs-step-row`, `ojs-table-container`, `ojs-table-toolbar`, `plotly-box-large`) rather than ad hoc per-page styling.
+- Keep each page's logic in small named OJS cells (`result`, `setup`, `mainPlot`, `iteratesPlot`, `convergencePlot`, `iterationTable`) rather than one large cell, and keep the same cell names/shapes across method pages for consistency.
+- Prefer explicit `for`/`while` loops and `if`/`else` over `.map()/.filter()/.reduce()` chains and ternaries in OJS cells and `js/*.js` — this codebase is read by a Python-oriented audience, and imperative control flow reads more naturally to them than JS-functional chains. Callbacks required by an API (Plotly config values, `Plot` accessors, `addEventListener`) are fine to keep; clean up their bodies per the same rule if they contain a chain/ternary. Stateful closures that exist for a real reason (e.g. `mainPlot`'s `_plotDiv` reuse) are not a style violation and shouldn't be "fixed."
