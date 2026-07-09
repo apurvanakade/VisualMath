@@ -1,12 +1,9 @@
 ---
 title: "Root Finding"
 listing:
-  contents:
-    - bisection-method/index.qmd
-    - fixed-point/index.qmd
-    - newton/index.qmd
+  contents: "*/index.qmd"
   type: grid
-  sort: false
+  sort: "date desc"
   fields: [image, title, description, categories]
   categories: true
 ---

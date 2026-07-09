@@ -1,5 +1,6 @@
 ---
 title: "Fixed Point Iteration"
+order: 2
 image: fixed-point.png
 categories:
   - No derivatives
@@ -426,23 +427,3 @@ iterationTable = {
 ::::
 
 </div>
-
-
-## What the picture is showing
-
-The plot shows two curves:
-
-- the function $y=g(x)$,
-- the line $y=x$.
-
-The red path shows the iteration. From the current point, the method moves vertically to the curve $y=g(x)$, then horizontally to the line $y=x$. Repeating this creates the cobweb pattern.
-
-This visualization is useful because it shows whether the iteration appears to be moving toward a fixed point, moving away from it, or oscillating.
-
-A common condition that helps guarantee local convergence is
-
-$$
-|g'(x)|<1
-$$
-
-near the fixed point.

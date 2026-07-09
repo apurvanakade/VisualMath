@@ -7,7 +7,7 @@ VisualMath is a Quarto website of interactive, browser-based visualizations of n
 ## Commands
 
 - `quarto render` — render the whole site into `docs/` (`_quarto.yml` sets `project.output-dir: docs`).
-- `quarto render root-finding/newton/index.qmd` — render a single page while iterating.
+- `quarto render root-finding/newton-method/index.qmd` — render a single page while iterating.
 - `quarto preview` — local live-reload preview server.
 
 There are no test or lint commands; there is no package manager (no `package.json`). JS is served as static files, not bundled.
@@ -41,8 +41,8 @@ Each file is a small IIFE that extends `window.VM` with one function:
 
 ### Adding a new method page
 
-1. Create `root-finding/<method>/index.qmd` — copy an existing page (e.g. `root-finding/newton/index.qmd`) and adapt its `result`, `setup`, `mainPlot`, `iteratesPlot`, `convergencePlot`, and `iterationTable` cells to the new method's math and input fields. The script block needs only mathjs, Plotly, and the `../../js/*.js` utilities.
-2. Add the page to `root-finding/index.qmd` and `_quarto.yml` navigation.
+1. Create `root-finding/<method>/index.qmd` — copy an existing page (e.g. `root-finding/newton-method/index.qmd`) and adapt its `result`, `setup`, `mainPlot`, `iteratesPlot`, `convergencePlot`, and `iterationTable` cells to the new method's math and input fields. The script block needs only mathjs, Plotly, and the `../../js/*.js` utilities.
+2. Give the front matter an `order: <n>` field one higher than the current last method, so the sidebar (which auto-discovers pages and sorts on this field, since every page is named `index.qmd`) places it correctly. No other file needs editing — `root-finding/index.qmd`, the homepage `index.qmd`, and `_quarto.yml`'s sidebar all discover pages via glob (`root-finding/*/index.qmd`).
 
 User-entered expressions are evaluated in-browser. Use `VM.makeFunction`/`VM.makeDerivative` (they handle normalization and error catching, returning `null` on a bad expression) rather than calling math.js directly. Currently, invalid input just makes `result` return empty `rows` (blank chart, empty table) — there's no surfaced error message to the user yet.
 
