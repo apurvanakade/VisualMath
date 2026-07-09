@@ -178,8 +178,7 @@ viewof gText = {
 ```{ojs}
 viewof x0 = Inputs.number({
   label: "Initial guess x₀",
-  value: 1,
-  step: 0.1
+  value: 1
 })
 ```
 

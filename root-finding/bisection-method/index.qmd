@@ -191,16 +191,14 @@ viewof fText = {
 ```{ojs}
 viewof a0 = Inputs.number({
   label: "Left endpoint a",
-  value: 1,
-  step: 0.1
+  value: 1
 })
 ```
 
 ```{ojs}
 viewof b0 = Inputs.number({
   label: "Right endpoint b",
-  value: 2,
-  step: 0.1
+  value: 2
 })
 ```
 
