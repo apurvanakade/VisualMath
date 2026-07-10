@@ -483,7 +483,7 @@ summary = {
 mainPlot(setup)
 ```
 
-The recursion tree below traces every interval the algorithm considered while building the partition above — gray segments were split further, green segments were accepted as a leaf. It shares the same x-axis as the main chart, so you can line up a cluster of low, refined segments with the region of $f$ that caused it.
+<!-- The recursion tree below traces every interval the algorithm considered while building the partition above — gray segments were split further, green segments were accepted as a leaf. It shares the same x-axis as the main chart, so you can line up a cluster of low, refined segments with the region of $f$ that caused it. -->
 
 ```{ojs}
 // decisionTreePlot draws that recursion tree: one horizontal segment per
@@ -536,7 +536,7 @@ decisionTreePlot = {
   }
 
   const colorDomain = [splitName, acceptedName]
-  const colorRange = ["#94a3b8", "#16a34a"]
+  const colorRange = ["#d3d7dc9e", "#16a34a"]
 
   const chart = Plot.plot({
     width,
