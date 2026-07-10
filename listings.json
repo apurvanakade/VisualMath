@@ -1,11 +1,8 @@
 [
   {
-    "listing": "/index.html",
+    "listing": "/piecewise-interpolation/index.html",
     "items": [
-      "/root-finding/bisection-method/index.html",
-      "/root-finding/fixed-point/index.html",
-      "/root-finding/newton-method/index.html",
-      "/root-finding/secant-method/index.html",
+      "/piecewise-interpolation/adaptive-integration/index.html",
       "/piecewise-interpolation/integration/index.html",
       "/piecewise-interpolation/linear-cubic/index.html"
     ]
@@ -20,8 +17,13 @@
     ]
   },
   {
-    "listing": "/piecewise-interpolation/index.html",
+    "listing": "/index.html",
     "items": [
+      "/root-finding/bisection-method/index.html",
+      "/root-finding/fixed-point/index.html",
+      "/root-finding/newton-method/index.html",
+      "/root-finding/secant-method/index.html",
+      "/piecewise-interpolation/adaptive-integration/index.html",
       "/piecewise-interpolation/integration/index.html",
       "/piecewise-interpolation/linear-cubic/index.html"
     ]
