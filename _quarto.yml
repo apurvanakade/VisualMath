@@ -22,6 +22,8 @@ website:
       contents:
         - section: root-finding/index.qmd
           contents: "root-finding/*/index.qmd"
+        - section: piecewise-interpolation/index.qmd
+          contents: "piecewise-interpolation/*/index.qmd"
 
 format:
   html:
@@ -39,3 +41,4 @@ format:
           <script src="../../js/make-derivative.js"></script>
           <script src="../../js/padded-range.js"></script>
           <script src="../../js/render-table.js"></script>
+          <script src="../../js/cubic-spline.js"></script>

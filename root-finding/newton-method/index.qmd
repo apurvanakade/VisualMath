@@ -342,7 +342,7 @@ mainPlot = {
       margin: {l: 0, r: 0, t: 0, b: 0},
       xaxis: {title: "x", range: [xRange.lo, xRange.hi], zeroline: true},
       yaxis: {title: "f(x)", range: [yRange.lo, yRange.hi], zeroline: true},
-      legend: {orientation: "h", y: -0.18},
+      legend: {orientation: "h", y: -0.08},
       hovermode: "closest",
       uirevision: "static",  // keeps zoom/pan state across reactive updates
       autosize: true
@@ -420,6 +420,10 @@ convergencePlot = {
   const pointsName = "log₁₀|eₙ₊₁| vs log₁₀|eₙ|"
   const marks = [Plot.dot(logRows, {x: "x", y: "y", fill: () => pointsName, r: 4})]
   const colorDomain = [pointsName], colorRange = ["#dc2626"]
+  // legendDomain/legendRange hold only the regression line(s) — the legend
+  // shown below the chart displays just the fitted order, not the raw
+  // point series, to keep it uncluttered.
+  const legendDomain = [], legendRange = []
 
   if (logRows.length >= 2) {
     const pointCount = logRows.length
@@ -442,6 +446,8 @@ convergencePlot = {
       ))
       colorDomain.push(lineName)
       colorRange.push("#9333ea")
+      legendDomain.push(lineName)
+      legendRange.push("#9333ea")
     }
   }
 
@@ -452,7 +458,7 @@ convergencePlot = {
     color: {domain: colorDomain, range: colorRange},
     marks
   })
-  const legend = Plot.legend({color: {domain: colorDomain, range: colorRange}})
+  const legend = Plot.legend({color: {domain: legendDomain, range: legendRange}})
 
   const container = document.createElement("div")
   container.append(chart, legend)
