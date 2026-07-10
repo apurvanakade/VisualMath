@@ -15,7 +15,10 @@ website:
 
   navbar:
     background: light
-    search: true
+
+  search:
+    location: navbar
+    type: textbox
 
   sidebar:
     - style: floating
@@ -31,7 +34,7 @@ format:
       light: cosmo
       dark: cyborg
     css: styles.css
-    toc: true
+    toc: false
     html-math-method: mathjax
     include-in-header:
       - text: |
@@ -42,3 +45,4 @@ format:
           <script src="../../js/padded-range.js"></script>
           <script src="../../js/render-table.js"></script>
           <script src="../../js/cubic-spline.js"></script>
+          <script src="../../js/plotly-fullscreen-button.js"></script>

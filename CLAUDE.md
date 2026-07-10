@@ -38,11 +38,12 @@ Each file is a small IIFE that extends `window.VM` with one function:
 - `js/make-derivative.js` → `VM.makeDerivative(mathjs, expr)` — like `makeFunction` but returns the symbolic derivative.
 - `js/padded-range.js` → `VM.paddedRange(values, opts)` — returns `{lo, hi}` with configurable padding for axis ranges.
 - `js/render-table.js` → `VM.renderTable({html, headers, rows})` — returns a DOM table node styled with `ojs-table` classes.
+- `js/plotly-fullscreen-button.js` → patches `Plotly.newPlot`/`Plotly.react` to add a fullscreen-toggle button to every chart's modebar automatically — no per-page wiring needed, including on new method pages.
 
 ### Adding a new method page
 
 1. Create `root-finding/<method>/index.qmd` — copy an existing page (e.g. `root-finding/newton-method/index.qmd`) and adapt its `result`, `setup`, `mainPlot`, `iteratesPlot`, `convergencePlot`, and `iterationTable` cells to the new method's math and input fields. The script block needs only mathjs, Plotly, and the `../../js/*.js` utilities.
-2. Give the front matter an `order: <n>` field one higher than the current last method, so the sidebar (which auto-discovers pages and sorts on this field, since every page is named `index.qmd`) places it correctly. No other file needs editing — `root-finding/index.qmd`, the homepage `index.qmd`, and `_quarto.yml`'s sidebar all discover pages via glob (`root-finding/*/index.qmd`).
+2. Give the front matter an `order: <n>` field one higher than the current last method — `root-finding/index.qmd`, the homepage `index.qmd`, and `_quarto.yml`'s sidebar all auto-discover pages via glob (`root-finding/*/index.qmd`) and sort on this field. No other file needs editing.
 
 User-entered expressions are evaluated in-browser. Use `VM.makeFunction`/`VM.makeDerivative` (they handle normalization and error catching, returning `null` on a bad expression) rather than calling math.js directly. Currently, invalid input just makes `result` return empty `rows` (blank chart, empty table) — there's no surfaced error message to the user yet.
 
