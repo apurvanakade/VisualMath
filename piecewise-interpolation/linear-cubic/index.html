@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Linear vs.&nbsp;Cubic Spline Interpolation – VisualMath</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../piecewise-interpolation/integration/index.html" rel="next">
+<link href="../../piecewise-interpolation/index.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-26d9cc88ab9604001aabd73cb1ea1d8f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-1cac052cedcf2979d227980a6e05382f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-26d9cc88ab9604001aabd73cb1ea1d8f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script type="module" src="../../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="../../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="../../js/make-function.js"></script>
+<script src="../../js/make-derivative.js"></script>
+<script src="../../js/padded-range.js"></script>
+<script src="../../js/render-table.js"></script>
+<script src="../../js/cubic-spline.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">VisualMath</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../piecewise-interpolation/index.html">Piecewise Interpolation</a></li><li class="breadcrumb-item"><a href="../../piecewise-interpolation/linear-cubic/index.html">Linear vs.&nbsp;Cubic Spline Interpolation</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../root-finding/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Root Finding</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../root-finding/bisection-method/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bisection Method</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../root-finding/fixed-point/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fixed Point Iteration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../root-finding/newton-method/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Newton’s Method</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../root-finding/secant-method/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Secant Method</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../piecewise-interpolation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Piecewise Interpolation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../piecewise-interpolation/linear-cubic/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Linear vs.&nbsp;Cubic Spline Interpolation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../piecewise-interpolation/integration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Numerical Integration</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../piecewise-interpolation/index.html">Piecewise Interpolation</a></li><li class="breadcrumb-item"><a href="../../piecewise-interpolation/linear-cubic/index.html">Linear vs.&nbsp;Cubic Spline Interpolation</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Linear vs.&nbsp;Cubic Spline Interpolation</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Interpolation</div>
+    <div class="quarto-category">Linear interpolation</div>
+    <div class="quarto-category">Cubic splines</div>
+    <div class="quarto-category">Arc length</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="18" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 17;"><span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/padded-range.js, js/render-table.js, js/cubic-spline.js.</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>VM <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">VM</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<p>Given a function <span class="math inline">\(f\)</span> on <span class="math inline">\([a, b]\)</span>, sample it at <span class="math inline">\(n+1\)</span> equally spaced nodes <span class="math inline">\(x_0 &lt; x_1 &lt; \dots &lt; x_n\)</span> and connect the samples <span class="math inline">\((x_i, f(x_i))\)</span> with simple pieces. A <strong>linear interpolant</strong> joins consecutive samples with straight segments; a <strong>cubic spline interpolant</strong> joins them with cubic polynomials chosen so the curve and its first two derivatives match up at each node.</p>
+<p>As <span class="math inline">\(n\)</span> grows, both interpolants should converge to <span class="math inline">\(f\)</span> — but at different rates. This page tracks that convergence through the <strong>arc length</strong> of each interpolant,</p>
+<p><span class="math display">\[
+L = \int_a^b \sqrt{1 + g'(x)^2}\, dx,
+\]</span></p>
+<p>comparing <span class="math inline">\(L_{\text{linear}}(n)\)</span> and <span class="math inline">\(L_{\text{cubic}}(n)\)</span> against the true arc length of <span class="math inline">\(f\)</span> as <span class="math inline">\(n\)</span> increases.</p>
+<div class="ojs-panel">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="35" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 34;"><span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>viewof fText <span class="op">=</span> {</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> params <span class="op">=</span> <span class="kw">new</span> <span class="fu">URLSearchParams</span>(<span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">search</span>)</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> fTextInput <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">text</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"Function f(x)"</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> params<span class="op">.</span><span class="fu">get</span>(<span class="st">"f"</span>) <span class="op">??</span> <span class="st">"sin(x)"</span><span class="op">,</span> placeholder<span class="op">:</span> <span class="st">"Example: sin(x), x^3 - x, 1 / (1 + x^2)"</span>})</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  fTextInput<span class="op">.</span><span class="at">classList</span><span class="op">.</span><span class="fu">add</span>(<span class="st">"ojs-fill"</span>)</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> fTextInput</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="ojs-grid">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="46" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 45;"><span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>viewof a0 <span class="op">=</span> {</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> params <span class="op">=</span> <span class="kw">new</span> <span class="fu">URLSearchParams</span>(<span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">search</span>)</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> raw <span class="op">=</span> params<span class="op">.</span><span class="fu">get</span>(<span class="st">"a"</span>)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> value <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (raw <span class="op">!==</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> <span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(<span class="bu">Number</span>(raw))) value <span class="op">=</span> <span class="bu">Number</span>(raw)</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> Inputs<span class="op">.</span><span class="fu">number</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"Left endpoint a"</span><span class="op">,</span> value})</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="ojs-row">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="60" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 59;"><span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>viewof b0 <span class="op">=</span> {</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> params <span class="op">=</span> <span class="kw">new</span> <span class="fu">URLSearchParams</span>(<span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">search</span>)</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> raw <span class="op">=</span> params<span class="op">.</span><span class="fu">get</span>(<span class="st">"b"</span>)</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> value <span class="op">=</span> <span class="fl">6.283185307179586</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (raw <span class="op">!==</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> <span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(<span class="bu">Number</span>(raw))) value <span class="op">=</span> <span class="bu">Number</span>(raw)</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> Inputs<span class="op">.</span><span class="fu">number</span>({<span class="dt">label</span><span class="op">:</span> <span class="st">"Right endpoint b"</span><span class="op">,</span> value})</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="70" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 69;"><span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a><span class="co">// Plot commits the current function/endpoint fields — edits above don't</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="co">// take effect until this is clicked, so result/mainPlot don't recompute on</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="co">// every keystroke. The n slider and the interpolant checkboxes below are</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a><span class="co">// unaffected and stay reactive.</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>viewof plotTrigger <span class="op">=</span> {</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> plotButton <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Plot"</span><span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">reduce</span><span class="op">:</span> v <span class="kw">=&gt;</span> v <span class="op">+</span> <span class="dv">1</span>})</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>  plotButton<span class="op">.</span><span class="at">classList</span><span class="op">.</span><span class="fu">add</span>(<span class="st">"ojs-auto"</span>)</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> plotButton</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="ojs-panel ojs-row">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="87" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 86;"><span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>viewof nControl <span class="op">=</span> {</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> nSlider <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> maxN]<span class="op">,</span> {<span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="dv">4</span><span class="op">,</span> maxN)<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"n (subintervals)"</span>})</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>  nSlider<span class="op">.</span><span class="at">classList</span><span class="op">.</span><span class="fu">add</span>(<span class="st">"ojs-fill"</span>)</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> nSlider</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="95" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 94;"><span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>viewof maxN <span class="op">=</span> {</span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> maxNInput <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">number</span>({<span class="dt">value</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span> <span class="dt">min</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Max"</span>})</span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>  maxNInput<span class="op">.</span><span class="at">classList</span><span class="op">.</span><span class="fu">add</span>(<span class="st">"ojs-auto"</span>)</span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> maxNInput</span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="ojs-panel ojs-row">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="107" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 106;"><span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a>viewof interpolants <span class="op">=</span> {</span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> options <span class="op">=</span> [<span class="st">"Linear interpolant"</span><span class="op">,</span> <span class="st">"Cubic spline interpolant"</span>]</span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> checkboxInput <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">checkbox</span>(options<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> options})</span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a>  checkboxInput<span class="op">.</span><span class="at">classList</span><span class="op">.</span><span class="fu">add</span>(<span class="st">"ojs-fill"</span>)</span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> checkboxInput</span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-8" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="119" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 118;"><span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a>showLinear <span class="op">=</span> interpolants<span class="op">.</span><span class="fu">includes</span>(<span class="st">"Linear interpolant"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-9" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="124" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 123;"><span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a>showCubic <span class="op">=</span> interpolants<span class="op">.</span><span class="fu">includes</span>(<span class="st">"Cubic spline interpolant"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-10" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb11" data-startfrom="129" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 128;"><span id="cb11-129"><a href="#cb11-129" aria-hidden="true" tabindex="-1"></a><span class="co">// Pressing Enter in the function/endpoint fields clicks Plot instead of</span></span>
+<span id="cb11-130"><a href="#cb11-130" aria-hidden="true" tabindex="-1"></a><span class="co">// submitting the field's own (invisible) form. Depends only on the stable</span></span>
+<span id="cb11-131"><a href="#cb11-131" aria-hidden="true" tabindex="-1"></a><span class="co">// views, so this wiring runs once and is never re-attached.</span></span>
+<span id="cb11-132"><a href="#cb11-132" aria-hidden="true" tabindex="-1"></a>enterToPlot <span class="op">=</span> {</span>
+<span id="cb11-133"><a href="#cb11-133" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> view <span class="kw">of</span> [viewof fText<span class="op">,</span> viewof a0<span class="op">,</span> viewof b0]) {</span>
+<span id="cb11-134"><a href="#cb11-134" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> input <span class="op">=</span> view<span class="op">.</span><span class="fu">querySelector</span>(<span class="st">"input"</span>)</span>
+<span id="cb11-135"><a href="#cb11-135" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>input) <span class="cf">continue</span></span>
+<span id="cb11-136"><a href="#cb11-136" aria-hidden="true" tabindex="-1"></a>    input<span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">"keydown"</span><span class="op">,</span> (e) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-137"><a href="#cb11-137" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (e<span class="op">.</span><span class="at">key</span> <span class="op">!==</span> <span class="st">"Enter"</span>) <span class="cf">return</span></span>
+<span id="cb11-138"><a href="#cb11-138" aria-hidden="true" tabindex="-1"></a>      e<span class="op">.</span><span class="fu">preventDefault</span>()</span>
+<span id="cb11-139"><a href="#cb11-139" aria-hidden="true" tabindex="-1"></a>      viewof plotTrigger<span class="op">.</span><span class="fu">querySelector</span>(<span class="st">"button"</span>)<span class="op">.</span><span class="fu">click</span>()</span>
+<span id="cb11-140"><a href="#cb11-140" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb11-141"><a href="#cb11-141" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-142"><a href="#cb11-142" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-11" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="147" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 146;"><span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a><span class="co">// committed snapshots fText/a0/b0 only when Plot is clicked, and writes them</span></span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a><span class="co">// back into the URL so the address bar stays a shareable link. It reads</span></span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a><span class="co">// `viewof fText`/`viewof a0`/`viewof b0` (the stable DOM views) rather than</span></span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a><span class="co">// `fText`/`a0`/`b0` (the reactive values), so it does NOT rerun on every</span></span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a><span class="co">// keystroke — only when `plotTrigger` changes. It still runs once on</span></span>
+<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a><span class="co">// initial page load, so the first render uses the URL-provided (or</span></span>
+<span id="cb12-153"><a href="#cb12-153" aria-hidden="true" tabindex="-1"></a><span class="co">// default) values with no click.</span></span>
+<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a>committed <span class="op">=</span> {</span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a>  plotTrigger</span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> fVal <span class="op">=</span> (viewof fText)<span class="op">.</span><span class="at">value</span></span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> aVal <span class="op">=</span> <span class="bu">Number</span>((viewof a0)<span class="op">.</span><span class="at">value</span>)</span>
+<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> bVal <span class="op">=</span> <span class="bu">Number</span>((viewof b0)<span class="op">.</span><span class="at">value</span>)</span>
+<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> params <span class="op">=</span> <span class="kw">new</span> <span class="fu">URLSearchParams</span>(<span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">search</span>)</span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a>  params<span class="op">.</span><span class="fu">set</span>(<span class="st">"f"</span><span class="op">,</span> fVal)</span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a>  params<span class="op">.</span><span class="fu">set</span>(<span class="st">"a"</span><span class="op">,</span> <span class="bu">String</span>(aVal))</span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a>  params<span class="op">.</span><span class="fu">set</span>(<span class="st">"b"</span><span class="op">,</span> <span class="bu">String</span>(bVal))</span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a>  history<span class="op">.</span><span class="fu">replaceState</span>(<span class="kw">null</span><span class="op">,</span> <span class="st">""</span><span class="op">,</span> <span class="vs">`</span><span class="sc">${</span><span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">pathname</span><span class="sc">}</span><span class="vs">?</span><span class="sc">${</span>params<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {<span class="dt">fText</span><span class="op">:</span> fVal<span class="op">,</span> <span class="dt">a0</span><span class="op">:</span> aVal<span class="op">,</span> <span class="dt">b0</span><span class="op">:</span> bVal}</span>
+<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-12" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb13" data-startfrom="172" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 171;"><span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a><span class="co">// result: for the current committed function/endpoints, builds the arc-length</span></span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a><span class="co">// history used by the convergence plots and tables.</span></span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a><span class="co">//   rows — array of { n, linearLength, cubicLength, trueArcLength, linearError, cubicError },</span></span>
+<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a><span class="co">//     one entry per subinterval count n = 1..maxN</span></span>
+<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a><span class="co">//   f — parsed function, reused for curve sampling in setup</span></span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a><span class="co">//   trueArcLength — reference arc length of f itself, shared by every row</span></span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> {</span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> math <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">math</span></span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> f <span class="op">=</span> VM<span class="op">.</span><span class="fu">makeFunction</span>(math<span class="op">,</span> committed<span class="op">.</span><span class="at">fText</span>)</span>
+<span id="cb13-182"><a href="#cb13-182" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> fallback <span class="op">=</span> x <span class="kw">=&gt;</span> <span class="kw">NaN</span></span>
+<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>f) <span class="cf">return</span> {<span class="dt">rows</span><span class="op">:</span> []<span class="op">,</span> <span class="dt">f</span><span class="op">:</span> fallback<span class="op">,</span> <span class="dt">trueArcLength</span><span class="op">:</span> <span class="kw">NaN</span>}</span>
+<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> <span class="bu">Number</span>(committed<span class="op">.</span><span class="at">a0</span>)</span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> <span class="bu">Number</span>(committed<span class="op">.</span><span class="at">b0</span>)</span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(a) <span class="op">||</span> <span class="op">!</span><span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(b) <span class="op">||</span> a <span class="op">===</span> b) <span class="cf">return</span> {<span class="dt">rows</span><span class="op">:</span> []<span class="op">,</span> f<span class="op">,</span> <span class="dt">trueArcLength</span><span class="op">:</span> <span class="kw">NaN</span>}</span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> lo <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(a<span class="op">,</span> b)</span>
+<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> hi <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(a<span class="op">,</span> b)</span>
+<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Reference arc length of f: chord-length sum over a very fine uniform</span></span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a>  <span class="co">// grid, far finer than any interpolant tested below.</span></span>
+<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> refCount <span class="op">=</span> <span class="dv">4000</span></span>
+<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> trueArcLength <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> xPrev <span class="op">=</span> lo</span>
+<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> yPrev <span class="op">=</span> <span class="fu">f</span>(xPrev)</span>
+<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> k <span class="op">&lt;=</span> refCount<span class="op">;</span> k<span class="op">++</span>) {</span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> x <span class="op">=</span> lo <span class="op">+</span> (hi <span class="op">-</span> lo) <span class="op">*</span> k <span class="op">/</span> refCount</span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> y <span class="op">=</span> <span class="fu">f</span>(x)</span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(yPrev) <span class="op">&amp;&amp;</span> <span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(y)) {</span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> dx <span class="op">=</span> x <span class="op">-</span> xPrev</span>
+<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> dy <span class="op">=</span> y <span class="op">-</span> yPrev</span>
+<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a>      trueArcLength <span class="op">+=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sqrt</span>(dx <span class="op">*</span> dx <span class="op">+</span> dy <span class="op">*</span> dy)</span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a>    xPrev <span class="op">=</span> x</span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a>    yPrev <span class="op">=</span> y</span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> []</span>
+<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> n <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (n <span class="op">&lt;=</span> maxN) {</span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a>    <span class="co">// n+1 equally spaced interpolation nodes over [lo, hi]</span></span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> nodesX <span class="op">=</span> []</span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> nodesY <span class="op">=</span> []</span>
+<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> k <span class="op">&lt;=</span> n<span class="op">;</span> k<span class="op">++</span>) {</span>
+<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> x <span class="op">=</span> lo <span class="op">+</span> (hi <span class="op">-</span> lo) <span class="op">*</span> k <span class="op">/</span> n</span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a>      nodesX<span class="op">.</span><span class="fu">push</span>(x)</span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a>      nodesY<span class="op">.</span><span class="fu">push</span>(<span class="fu">f</span>(x))</span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Linear interpolant arc length: exact sum of segment lengths.</span></span>
+<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> linearLength <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> k <span class="op">&lt;</span> n<span class="op">;</span> k<span class="op">++</span>) {</span>
+<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> dx <span class="op">=</span> nodesX[k <span class="op">+</span> <span class="dv">1</span>] <span class="op">-</span> nodesX[k]</span>
+<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> dy <span class="op">=</span> nodesY[k <span class="op">+</span> <span class="dv">1</span>] <span class="op">-</span> nodesY[k]</span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(dy)) linearLength <span class="op">+=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sqrt</span>(dx <span class="op">*</span> dx <span class="op">+</span> dy <span class="op">*</span> dy)</span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Cubic spline arc length: approximated by sampling the spline densely</span></span>
+<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a>    <span class="co">// and summing chord lengths along the sampled curve.</span></span>
+<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> spline <span class="op">=</span> VM<span class="op">.</span><span class="fu">cubicSpline</span>(nodesX<span class="op">,</span> nodesY)</span>
+<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> cubicLength <span class="op">=</span> <span class="kw">NaN</span></span>
+<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (spline) {</span>
+<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> sampleCount <span class="op">=</span> n <span class="op">*</span> <span class="dv">20</span></span>
+<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a>      <span class="kw">let</span> sxPrev <span class="op">=</span> nodesX[<span class="dv">0</span>]</span>
+<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a>      <span class="kw">let</span> syPrev <span class="op">=</span> <span class="fu">spline</span>(sxPrev)</span>
+<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a>      cubicLength <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> k <span class="op">&lt;=</span> sampleCount<span class="op">;</span> k<span class="op">++</span>) {</span>
+<span id="cb13-241"><a href="#cb13-241" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> x <span class="op">=</span> lo <span class="op">+</span> (hi <span class="op">-</span> lo) <span class="op">*</span> k <span class="op">/</span> sampleCount</span>
+<span id="cb13-242"><a href="#cb13-242" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> y <span class="op">=</span> <span class="fu">spline</span>(x)</span>
+<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(syPrev) <span class="op">&amp;&amp;</span> <span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(y)) {</span>
+<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a>          <span class="kw">const</span> dx <span class="op">=</span> x <span class="op">-</span> sxPrev</span>
+<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a>          <span class="kw">const</span> dy <span class="op">=</span> y <span class="op">-</span> syPrev</span>
+<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a>          cubicLength <span class="op">+=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sqrt</span>(dx <span class="op">*</span> dx <span class="op">+</span> dy <span class="op">*</span> dy)</span>
+<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a>        sxPrev <span class="op">=</span> x</span>
+<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a>        syPrev <span class="op">=</span> y</span>
+<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> linearError <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(linearLength <span class="op">-</span> trueArcLength)</span>
+<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> cubicError <span class="op">=</span> <span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(cubicLength) <span class="op">?</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(cubicLength <span class="op">-</span> trueArcLength) <span class="op">:</span> <span class="kw">NaN</span></span>
+<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a>    rows<span class="op">.</span><span class="fu">push</span>({n<span class="op">,</span> linearLength<span class="op">,</span> cubicLength<span class="op">,</span> trueArcLength<span class="op">,</span> linearError<span class="op">,</span> cubicError})</span>
+<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a>    n<span class="op">++</span></span>
+<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {rows<span class="op">,</span> f<span class="op">,</span> trueArcLength}</span>
+<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-13" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb14" data-startfrom="266" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 265;"><span id="cb14-266"><a href="#cb14-266" aria-hidden="true" tabindex="-1"></a><span class="co">// setup computes the data needed by the main chart at the current n: the</span></span>
+<span id="cb14-267"><a href="#cb14-267" aria-hidden="true" tabindex="-1"></a><span class="co">// interpolation nodes, the linear polyline, a dense sample of the cubic</span></span>
+<span id="cb14-268"><a href="#cb14-268" aria-hidden="true" tabindex="-1"></a><span class="co">// spline, and the axis ranges / smooth f(x) curve.</span></span>
+<span id="cb14-269"><a href="#cb14-269" aria-hidden="true" tabindex="-1"></a>setup <span class="op">=</span> {</span>
+<span id="cb14-270"><a href="#cb14-270" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (result<span class="op">.</span><span class="at">rows</span><span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) {</span>
+<span id="cb14-271"><a href="#cb14-271" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> empty <span class="op">=</span> {<span class="dt">lo</span><span class="op">:</span> <span class="op">-</span><span class="dv">3</span><span class="op">,</span> <span class="dt">hi</span><span class="op">:</span> <span class="dv">3</span>}</span>
+<span id="cb14-272"><a href="#cb14-272" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="dt">n</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">nodesX</span><span class="op">:</span> []<span class="op">,</span> <span class="dt">nodesY</span><span class="op">:</span> []<span class="op">,</span> <span class="dt">linearX</span><span class="op">:</span> []<span class="op">,</span> <span class="dt">linearY</span><span class="op">:</span> []<span class="op">,</span> <span class="dt">cubicX</span><span class="op">:</span> []<span class="op">,</span> <span class="dt">cubicY</span><span class="op">:</span> []<span class="op">,</span> <span class="dt">sampleXs</span><span class="op">:</span> []<span class="op">,</span> <span class="dt">sampleYs</span><span class="op">:</span> []<span class="op">,</span> <span class="dt">xRange</span><span class="op">:</span> empty<span class="op">,</span> <span class="dt">xBuffer</span><span class="op">:</span> empty<span class="op">,</span> <span class="dt">yRange</span><span class="op">:</span> {<span class="dt">lo</span><span class="op">:</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="dt">hi</span><span class="op">:</span> <span class="dv">1</span>}}</span>
+<span id="cb14-273"><a href="#cb14-273" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-274"><a href="#cb14-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-275"><a href="#cb14-275" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(<span class="bu">Number</span>(nControl))<span class="op">,</span> <span class="dv">1</span>)<span class="op">,</span> result<span class="op">.</span><span class="at">rows</span><span class="op">.</span><span class="at">length</span>)</span>
+<span id="cb14-276"><a href="#cb14-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-277"><a href="#cb14-277" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> <span class="bu">Number</span>(committed<span class="op">.</span><span class="at">a0</span>)</span>
+<span id="cb14-278"><a href="#cb14-278" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> <span class="bu">Number</span>(committed<span class="op">.</span><span class="at">b0</span>)</span>
+<span id="cb14-279"><a href="#cb14-279" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> lo <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(a<span class="op">,</span> b)</span>
+<span id="cb14-280"><a href="#cb14-280" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> hi <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(a<span class="op">,</span> b)</span>
+<span id="cb14-281"><a href="#cb14-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-282"><a href="#cb14-282" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Interpolation nodes for the current n.</span></span>
+<span id="cb14-283"><a href="#cb14-283" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> nodesX <span class="op">=</span> []</span>
+<span id="cb14-284"><a href="#cb14-284" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> nodesY <span class="op">=</span> []</span>
+<span id="cb14-285"><a href="#cb14-285" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> k <span class="op">&lt;=</span> n<span class="op">;</span> k<span class="op">++</span>) {</span>
+<span id="cb14-286"><a href="#cb14-286" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> x <span class="op">=</span> lo <span class="op">+</span> (hi <span class="op">-</span> lo) <span class="op">*</span> k <span class="op">/</span> n</span>
+<span id="cb14-287"><a href="#cb14-287" aria-hidden="true" tabindex="-1"></a>    nodesX<span class="op">.</span><span class="fu">push</span>(x)</span>
+<span id="cb14-288"><a href="#cb14-288" aria-hidden="true" tabindex="-1"></a>    nodesY<span class="op">.</span><span class="fu">push</span>(result<span class="op">.</span><span class="fu">f</span>(x))</span>
+<span id="cb14-289"><a href="#cb14-289" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-290"><a href="#cb14-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-291"><a href="#cb14-291" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Linear interpolant is just the node polyline.</span></span>
+<span id="cb14-292"><a href="#cb14-292" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> linearX <span class="op">=</span> nodesX<span class="op">.</span><span class="fu">slice</span>()</span>
+<span id="cb14-293"><a href="#cb14-293" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> linearY <span class="op">=</span> nodesY<span class="op">.</span><span class="fu">slice</span>()</span>
+<span id="cb14-294"><a href="#cb14-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-295"><a href="#cb14-295" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Cubic spline: dense samples for a smooth curve.</span></span>
+<span id="cb14-296"><a href="#cb14-296" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> spline <span class="op">=</span> VM<span class="op">.</span><span class="fu">cubicSpline</span>(nodesX<span class="op">,</span> nodesY)</span>
+<span id="cb14-297"><a href="#cb14-297" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cubicX <span class="op">=</span> []</span>
+<span id="cb14-298"><a href="#cb14-298" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cubicY <span class="op">=</span> []</span>
+<span id="cb14-299"><a href="#cb14-299" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (spline) {</span>
+<span id="cb14-300"><a href="#cb14-300" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> sampleCount <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(<span class="dv">200</span><span class="op">,</span> n <span class="op">*</span> <span class="dv">20</span>)</span>
+<span id="cb14-301"><a href="#cb14-301" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> k <span class="op">&lt;=</span> sampleCount<span class="op">;</span> k<span class="op">++</span>) {</span>
+<span id="cb14-302"><a href="#cb14-302" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> x <span class="op">=</span> lo <span class="op">+</span> (hi <span class="op">-</span> lo) <span class="op">*</span> k <span class="op">/</span> sampleCount</span>
+<span id="cb14-303"><a href="#cb14-303" aria-hidden="true" tabindex="-1"></a>      cubicX<span class="op">.</span><span class="fu">push</span>(x)</span>
+<span id="cb14-304"><a href="#cb14-304" aria-hidden="true" tabindex="-1"></a>      cubicY<span class="op">.</span><span class="fu">push</span>(<span class="fu">spline</span>(x))</span>
+<span id="cb14-305"><a href="#cb14-305" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-306"><a href="#cb14-306" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-307"><a href="#cb14-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-308"><a href="#cb14-308" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xRange <span class="op">=</span> VM<span class="op">.</span><span class="fu">paddedRange</span>([lo<span class="op">,</span> hi]<span class="op">,</span> {<span class="dt">emptyRange</span><span class="op">:</span> [<span class="op">-</span><span class="dv">3</span><span class="op">,</span> <span class="dv">3</span>]<span class="op">,</span> <span class="dt">relativePadding</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">minPadding</span><span class="op">:</span> <span class="fl">0.25</span>})</span>
+<span id="cb14-309"><a href="#cb14-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-310"><a href="#cb14-310" aria-hidden="true" tabindex="-1"></a>  <span class="co">// A wider domain (double the padding of xRange) so the curve is already</span></span>
+<span id="cb14-311"><a href="#cb14-311" aria-hidden="true" tabindex="-1"></a>  <span class="co">// sampled beyond the initial view — panning/zooming out reveals more of</span></span>
+<span id="cb14-312"><a href="#cb14-312" aria-hidden="true" tabindex="-1"></a>  <span class="co">// the curve instead of blank canvas. The initial view stays xRange.</span></span>
+<span id="cb14-313"><a href="#cb14-313" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> xBuffer <span class="op">=</span> VM<span class="op">.</span><span class="fu">paddedRange</span>([lo<span class="op">,</span> hi]<span class="op">,</span> {<span class="dt">emptyRange</span><span class="op">:</span> [<span class="op">-</span><span class="dv">6</span><span class="op">,</span> <span class="dv">6</span>]<span class="op">,</span> <span class="dt">relativePadding</span><span class="op">:</span> <span class="fl">0.25</span><span class="op">,</span> <span class="dt">minPadding</span><span class="op">:</span> <span class="fl">0.5</span>})</span>
+<span id="cb14-314"><a href="#cb14-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-315"><a href="#cb14-315" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Sample f across the buffer range for the smooth curve trace.</span></span>
+<span id="cb14-316"><a href="#cb14-316" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> sampleCount <span class="op">=</span> <span class="dv">700</span></span>
+<span id="cb14-317"><a href="#cb14-317" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> sampleXs <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> sampleCount}<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> xBuffer<span class="op">.</span><span class="at">lo</span> <span class="op">+</span> (xBuffer<span class="op">.</span><span class="at">hi</span> <span class="op">-</span> xBuffer<span class="op">.</span><span class="at">lo</span>) <span class="op">*</span> i <span class="op">/</span> (sampleCount <span class="op">-</span> <span class="dv">1</span>))</span>
+<span id="cb14-318"><a href="#cb14-318" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> sampleYs <span class="op">=</span> []</span>
+<span id="cb14-319"><a href="#cb14-319" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> x <span class="kw">of</span> sampleXs) {</span>
+<span id="cb14-320"><a href="#cb14-320" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> y <span class="op">=</span> result<span class="op">.</span><span class="fu">f</span>(x)</span>
+<span id="cb14-321"><a href="#cb14-321" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(y) <span class="op">&amp;&amp;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(y) <span class="op">&lt;</span> <span class="fl">1e8</span>) {</span>
+<span id="cb14-322"><a href="#cb14-322" aria-hidden="true" tabindex="-1"></a>      sampleYs<span class="op">.</span><span class="fu">push</span>(y)</span>
+<span id="cb14-323"><a href="#cb14-323" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb14-324"><a href="#cb14-324" aria-hidden="true" tabindex="-1"></a>      sampleYs<span class="op">.</span><span class="fu">push</span>(<span class="kw">null</span>)</span>
+<span id="cb14-325"><a href="#cb14-325" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-326"><a href="#cb14-326" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-327"><a href="#cb14-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-328"><a href="#cb14-328" aria-hidden="true" tabindex="-1"></a>  <span class="co">// y-range from f over [lo, hi] plus node and cubic-spline values.</span></span>
+<span id="cb14-329"><a href="#cb14-329" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> yValues <span class="op">=</span> []</span>
+<span id="cb14-330"><a href="#cb14-330" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> sampleXs<span class="op">.</span><span class="at">length</span><span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb14-331"><a href="#cb14-331" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> x <span class="op">=</span> sampleXs[i]</span>
+<span id="cb14-332"><a href="#cb14-332" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (x <span class="op">&gt;=</span> xRange<span class="op">.</span><span class="at">lo</span> <span class="op">&amp;&amp;</span> x <span class="op">&lt;=</span> xRange<span class="op">.</span><span class="at">hi</span> <span class="op">&amp;&amp;</span> sampleYs[i] <span class="op">!==</span> <span class="kw">null</span>) yValues<span class="op">.</span><span class="fu">push</span>(sampleYs[i])</span>
+<span id="cb14-333"><a href="#cb14-333" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-334"><a href="#cb14-334" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> y <span class="kw">of</span> nodesY) <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(y)) yValues<span class="op">.</span><span class="fu">push</span>(y)</span>
+<span id="cb14-335"><a href="#cb14-335" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> y <span class="kw">of</span> cubicY) <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(y)) yValues<span class="op">.</span><span class="fu">push</span>(y)</span>
+<span id="cb14-336"><a href="#cb14-336" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> yRange <span class="op">=</span> VM<span class="op">.</span><span class="fu">paddedRange</span>(yValues<span class="op">,</span> {<span class="dt">emptyRange</span><span class="op">:</span> [<span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> <span class="dt">relativePadding</span><span class="op">:</span> <span class="fl">0.25</span><span class="op">,</span> <span class="dt">minPadding</span><span class="op">:</span> <span class="fl">0.5</span>})</span>
+<span id="cb14-337"><a href="#cb14-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-338"><a href="#cb14-338" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {n<span class="op">,</span> nodesX<span class="op">,</span> nodesY<span class="op">,</span> linearX<span class="op">,</span> linearY<span class="op">,</span> cubicX<span class="op">,</span> cubicY<span class="op">,</span> sampleXs<span class="op">,</span> sampleYs<span class="op">,</span> xRange<span class="op">,</span> xBuffer<span class="op">,</span> yRange}</span>
+<span id="cb14-339"><a href="#cb14-339" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-14" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb15" data-startfrom="344" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 343;"><span id="cb15-344"><a href="#cb15-344" aria-hidden="true" tabindex="-1"></a><span class="co">// mainPlot draws f(x) and, depending on the checkboxes, the linear and/or</span></span>
+<span id="cb15-345"><a href="#cb15-345" aria-hidden="true" tabindex="-1"></a><span class="co">// cubic spline interpolant through the current n's nodes.</span></span>
+<span id="cb15-346"><a href="#cb15-346" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span>
+<span id="cb15-347"><a href="#cb15-347" aria-hidden="true" tabindex="-1"></a><span class="co">// _plotDiv is kept in a closure so Plotly reuses the same DOM node across</span></span>
+<span id="cb15-348"><a href="#cb15-348" aria-hidden="true" tabindex="-1"></a><span class="co">// reactive updates — this preserves zoom and pan when n or the checkboxes</span></span>
+<span id="cb15-349"><a href="#cb15-349" aria-hidden="true" tabindex="-1"></a><span class="co">// change.</span></span>
+<span id="cb15-350"><a href="#cb15-350" aria-hidden="true" tabindex="-1"></a>mainPlot <span class="op">=</span> {</span>
+<span id="cb15-351"><a href="#cb15-351" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> Plotly <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">Plotly</span></span>
+<span id="cb15-352"><a href="#cb15-352" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> _plotDiv <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb15-353"><a href="#cb15-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-354"><a href="#cb15-354" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> (data<span class="op">,</span> showLinear<span class="op">,</span> showCubic) <span class="kw">=&gt;</span> {</span>
+<span id="cb15-355"><a href="#cb15-355" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> traces <span class="op">=</span> [</span>
+<span id="cb15-356"><a href="#cb15-356" aria-hidden="true" tabindex="-1"></a>      <span class="co">// The function curve</span></span>
+<span id="cb15-357"><a href="#cb15-357" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">x</span><span class="op">:</span> data<span class="op">.</span><span class="at">sampleXs</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> data<span class="op">.</span><span class="at">sampleYs</span><span class="op">,</span> <span class="dt">type</span><span class="op">:</span> <span class="st">"scatter"</span><span class="op">,</span> <span class="dt">mode</span><span class="op">:</span> <span class="st">"lines"</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">"f(x)"</span><span class="op">,</span> <span class="dt">showlegend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> <span class="st">"#2563eb"</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="dv">3</span>}}</span>
+<span id="cb15-358"><a href="#cb15-358" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb15-359"><a href="#cb15-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-360"><a href="#cb15-360" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (showLinear <span class="op">&amp;&amp;</span> data<span class="op">.</span><span class="at">linearX</span><span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb15-361"><a href="#cb15-361" aria-hidden="true" tabindex="-1"></a>      traces<span class="op">.</span><span class="fu">push</span>({<span class="dt">x</span><span class="op">:</span> data<span class="op">.</span><span class="at">linearX</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> data<span class="op">.</span><span class="at">linearY</span><span class="op">,</span> <span class="dt">type</span><span class="op">:</span> <span class="st">"scatter"</span><span class="op">,</span> <span class="dt">mode</span><span class="op">:</span> <span class="st">"lines"</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">"Linear interpolant"</span><span class="op">,</span> <span class="dt">showlegend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> <span class="st">"#dc2626"</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="fl">2.5</span>}})</span>
+<span id="cb15-362"><a href="#cb15-362" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-363"><a href="#cb15-363" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (showCubic <span class="op">&amp;&amp;</span> data<span class="op">.</span><span class="at">cubicX</span><span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb15-364"><a href="#cb15-364" aria-hidden="true" tabindex="-1"></a>      traces<span class="op">.</span><span class="fu">push</span>({<span class="dt">x</span><span class="op">:</span> data<span class="op">.</span><span class="at">cubicX</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> data<span class="op">.</span><span class="at">cubicY</span><span class="op">,</span> <span class="dt">type</span><span class="op">:</span> <span class="st">"scatter"</span><span class="op">,</span> <span class="dt">mode</span><span class="op">:</span> <span class="st">"lines"</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">"Cubic spline interpolant"</span><span class="op">,</span> <span class="dt">showlegend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> <span class="st">"#16a34a"</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="fl">2.5</span>}})</span>
+<span id="cb15-365"><a href="#cb15-365" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-366"><a href="#cb15-366" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (data<span class="op">.</span><span class="at">nodesX</span><span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> (showLinear <span class="op">||</span> showCubic)) {</span>
+<span id="cb15-367"><a href="#cb15-367" aria-hidden="true" tabindex="-1"></a>      traces<span class="op">.</span><span class="fu">push</span>({<span class="dt">x</span><span class="op">:</span> data<span class="op">.</span><span class="at">nodesX</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> data<span class="op">.</span><span class="at">nodesY</span><span class="op">,</span> <span class="dt">type</span><span class="op">:</span> <span class="st">"scatter"</span><span class="op">,</span> <span class="dt">mode</span><span class="op">:</span> <span class="st">"markers"</span><span class="op">,</span> <span class="dt">name</span><span class="op">:</span> <span class="st">"Interpolation nodes"</span><span class="op">,</span> <span class="dt">showlegend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">marker</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> <span class="st">"#111827"</span><span class="op">,</span> <span class="dt">size</span><span class="op">:</span> <span class="dv">8</span><span class="op">,</span> <span class="dt">symbol</span><span class="op">:</span> <span class="st">"circle"</span><span class="op">,</span> <span class="dt">line</span><span class="op">:</span> {<span class="dt">color</span><span class="op">:</span> <span class="st">"white"</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> <span class="dv">1</span>}}})</span>
+<span id="cb15-368"><a href="#cb15-368" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-369"><a href="#cb15-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-370"><a href="#cb15-370" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> layout <span class="op">=</span> {</span>
+<span id="cb15-371"><a href="#cb15-371" aria-hidden="true" tabindex="-1"></a>      <span class="dt">margin</span><span class="op">:</span> {<span class="dt">l</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">t</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">b</span><span class="op">:</span> <span class="dv">0</span>}<span class="op">,</span></span>
+<span id="cb15-372"><a href="#cb15-372" aria-hidden="true" tabindex="-1"></a>      <span class="dt">xaxis</span><span class="op">:</span> {<span class="dt">title</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">range</span><span class="op">:</span> [data<span class="op">.</span><span class="at">xRange</span><span class="op">.</span><span class="at">lo</span><span class="op">,</span> data<span class="op">.</span><span class="at">xRange</span><span class="op">.</span><span class="at">hi</span>]<span class="op">,</span> <span class="dt">zeroline</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb15-373"><a href="#cb15-373" aria-hidden="true" tabindex="-1"></a>      <span class="dt">yaxis</span><span class="op">:</span> {<span class="dt">title</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">range</span><span class="op">:</span> [data<span class="op">.</span><span class="at">yRange</span><span class="op">.</span><span class="at">lo</span><span class="op">,</span> data<span class="op">.</span><span class="at">yRange</span><span class="op">.</span><span class="at">hi</span>]<span class="op">,</span> <span class="dt">zeroline</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb15-374"><a href="#cb15-374" aria-hidden="true" tabindex="-1"></a>      <span class="dt">legend</span><span class="op">:</span> {<span class="dt">orientation</span><span class="op">:</span> <span class="st">"h"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.08</span>}<span class="op">,</span></span>
+<span id="cb15-375"><a href="#cb15-375" aria-hidden="true" tabindex="-1"></a>      <span class="dt">hovermode</span><span class="op">:</span> <span class="st">"closest"</span><span class="op">,</span></span>
+<span id="cb15-376"><a href="#cb15-376" aria-hidden="true" tabindex="-1"></a>      <span class="dt">uirevision</span><span class="op">:</span> <span class="st">"static"</span><span class="op">,</span>  <span class="co">// keeps zoom/pan state across reactive updates</span></span>
+<span id="cb15-377"><a href="#cb15-377" aria-hidden="true" tabindex="-1"></a>      <span class="dt">autosize</span><span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb15-378"><a href="#cb15-378" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-379"><a href="#cb15-379" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> config <span class="op">=</span> {<span class="dt">responsive</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">displaylogo</span><span class="op">:</span> <span class="kw">false</span>}</span>
+<span id="cb15-380"><a href="#cb15-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-381"><a href="#cb15-381" aria-hidden="true" tabindex="-1"></a>    <span class="co">// First render: create the div. Later renders: update in place (preserves zoom).</span></span>
+<span id="cb15-382"><a href="#cb15-382" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>_plotDiv) {</span>
+<span id="cb15-383"><a href="#cb15-383" aria-hidden="true" tabindex="-1"></a>      _plotDiv <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb15-384"><a href="#cb15-384" aria-hidden="true" tabindex="-1"></a>      _plotDiv<span class="op">.</span><span class="at">className</span> <span class="op">=</span> <span class="st">"plotly-box-large"</span></span>
+<span id="cb15-385"><a href="#cb15-385" aria-hidden="true" tabindex="-1"></a>      Plotly<span class="op">.</span><span class="fu">newPlot</span>(_plotDiv<span class="op">,</span> traces<span class="op">,</span> layout<span class="op">,</span> config)</span>
+<span id="cb15-386"><a href="#cb15-386" aria-hidden="true" tabindex="-1"></a>      <span class="co">// newPlot fires before the div is in the DOM, so Plotly measures 0 width.</span></span>
+<span id="cb15-387"><a href="#cb15-387" aria-hidden="true" tabindex="-1"></a>      <span class="co">// A ResizeObserver catches the real size once it's inserted and laid out,</span></span>
+<span id="cb15-388"><a href="#cb15-388" aria-hidden="true" tabindex="-1"></a>      <span class="co">// and keeps correcting it on any later layout/viewport change.</span></span>
+<span id="cb15-389"><a href="#cb15-389" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">ResizeObserver</span>(() <span class="kw">=&gt;</span> Plotly<span class="op">.</span><span class="at">Plots</span><span class="op">.</span><span class="fu">resize</span>(_plotDiv))<span class="op">.</span><span class="fu">observe</span>(_plotDiv)</span>
+<span id="cb15-390"><a href="#cb15-390" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb15-391"><a href="#cb15-391" aria-hidden="true" tabindex="-1"></a>      Plotly<span class="op">.</span><span class="fu">react</span>(_plotDiv<span class="op">,</span> traces<span class="op">,</span> layout<span class="op">,</span> config)</span>
+<span id="cb15-392"><a href="#cb15-392" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-393"><a href="#cb15-393" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> _plotDiv</span>
+<span id="cb15-394"><a href="#cb15-394" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-395"><a href="#cb15-395" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div id="ojs-cell-15" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="ojs-output-wide">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb16" data-startfrom="401" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 400;"><span id="cb16-401"><a href="#cb16-401" aria-hidden="true" tabindex="-1"></a><span class="fu">mainPlot</span>(setup<span class="op">,</span> showLinear<span class="op">,</span> showCubic)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-16" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Convergence plots">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Convergence plots
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb17" data-startfrom="409" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 408;"><span id="cb17-409"><a href="#cb17-409" aria-hidden="true" tabindex="-1"></a><span class="co">// iteratesPlot draws the linear and cubic spline arc lengths vs n for the</span></span>
+<span id="cb17-410"><a href="#cb17-410" aria-hidden="true" tabindex="-1"></a><span class="co">// entire run, against a reference line at the true arc length of f — it</span></span>
+<span id="cb17-411"><a href="#cb17-411" aria-hidden="true" tabindex="-1"></a><span class="co">// doesn't depend on the current step, so it's just plotted once per run.</span></span>
+<span id="cb17-412"><a href="#cb17-412" aria-hidden="true" tabindex="-1"></a>iteratesPlot <span class="op">=</span> {</span>
+<span id="cb17-413"><a href="#cb17-413" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> linearName <span class="op">=</span> <span class="st">"Linear interpolant"</span></span>
+<span id="cb17-414"><a href="#cb17-414" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cubicName <span class="op">=</span> <span class="st">"Cubic spline interpolant"</span></span>
+<span id="cb17-415"><a href="#cb17-415" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> trueName <span class="op">=</span> <span class="st">"True arc length"</span></span>
+<span id="cb17-416"><a href="#cb17-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-417"><a href="#cb17-417" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> marks <span class="op">=</span> [</span>
+<span id="cb17-418"><a href="#cb17-418" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([result<span class="op">.</span><span class="at">trueArcLength</span>]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> () <span class="kw">=&gt;</span> trueName<span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"4,3"</span>})<span class="op">,</span></span>
+<span id="cb17-419"><a href="#cb17-419" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">lineY</span>(result<span class="op">.</span><span class="at">rows</span><span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"linearLength"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> () <span class="kw">=&gt;</span> linearName})<span class="op">,</span></span>
+<span id="cb17-420"><a href="#cb17-420" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(result<span class="op">.</span><span class="at">rows</span><span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"linearLength"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> () <span class="kw">=&gt;</span> linearName<span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">3</span>})<span class="op">,</span></span>
+<span id="cb17-421"><a href="#cb17-421" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">lineY</span>(result<span class="op">.</span><span class="at">rows</span><span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"cubicLength"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> () <span class="kw">=&gt;</span> cubicName})<span class="op">,</span></span>
+<span id="cb17-422"><a href="#cb17-422" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(result<span class="op">.</span><span class="at">rows</span><span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"cubicLength"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> () <span class="kw">=&gt;</span> cubicName<span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">3</span>})</span>
+<span id="cb17-423"><a href="#cb17-423" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb17-424"><a href="#cb17-424" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> colorDomain <span class="op">=</span> [linearName<span class="op">,</span> cubicName<span class="op">,</span> trueName]</span>
+<span id="cb17-425"><a href="#cb17-425" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> colorRange <span class="op">=</span> [<span class="st">"#dc2626"</span><span class="op">,</span> <span class="st">"#16a34a"</span><span class="op">,</span> <span class="st">"#111827"</span>]</span>
+<span id="cb17-426"><a href="#cb17-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-427"><a href="#cb17-427" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> chart <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb17-428"><a href="#cb17-428" aria-hidden="true" tabindex="-1"></a>    <span class="dt">width</span><span class="op">:</span> <span class="dv">340</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span><span class="op">,</span> <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">46</span><span class="op">,</span></span>
+<span id="cb17-429"><a href="#cb17-429" aria-hidden="true" tabindex="-1"></a>    <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"n"</span>}<span class="op">,</span></span>
+<span id="cb17-430"><a href="#cb17-430" aria-hidden="true" tabindex="-1"></a>    <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"arc length"</span>}<span class="op">,</span></span>
+<span id="cb17-431"><a href="#cb17-431" aria-hidden="true" tabindex="-1"></a>    <span class="dt">color</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> colorDomain<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> colorRange}<span class="op">,</span></span>
+<span id="cb17-432"><a href="#cb17-432" aria-hidden="true" tabindex="-1"></a>    marks</span>
+<span id="cb17-433"><a href="#cb17-433" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb17-434"><a href="#cb17-434" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> legend <span class="op">=</span> Plot<span class="op">.</span><span class="fu">legend</span>({<span class="dt">color</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> colorDomain<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> colorRange}})</span>
+<span id="cb17-435"><a href="#cb17-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-436"><a href="#cb17-436" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> container <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb17-437"><a href="#cb17-437" aria-hidden="true" tabindex="-1"></a>  container<span class="op">.</span><span class="fu">append</span>(chart<span class="op">,</span> legend)</span>
+<span id="cb17-438"><a href="#cb17-438" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> container</span>
+<span id="cb17-439"><a href="#cb17-439" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-440"><a href="#cb17-440" aria-hidden="true" tabindex="-1"></a><span class="co">// convergencePlot draws log₁₀|error| vs log₁₀ n for both interpolants, with</span></span>
+<span id="cb17-441"><a href="#cb17-441" aria-hidden="true" tabindex="-1"></a><span class="co">// a linear regression line for each. The slope of each line estimates the</span></span>
+<span id="cb17-442"><a href="#cb17-442" aria-hidden="true" tabindex="-1"></a><span class="co">// order of convergence of that interpolant's arc length (negated, since</span></span>
+<span id="cb17-443"><a href="#cb17-443" aria-hidden="true" tabindex="-1"></a><span class="co">// error shrinks as n grows) — for the entire run, so it's just plotted once</span></span>
+<span id="cb17-444"><a href="#cb17-444" aria-hidden="true" tabindex="-1"></a><span class="co">// per run.</span></span>
+<span id="cb17-445"><a href="#cb17-445" aria-hidden="true" tabindex="-1"></a>convergencePlot <span class="op">=</span> {</span>
+<span id="cb17-446"><a href="#cb17-446" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> regression <span class="op">=</span> points <span class="kw">=&gt;</span> {</span>
+<span id="cb17-447"><a href="#cb17-447" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (points<span class="op">.</span><span class="at">length</span> <span class="op">&lt;</span> <span class="dv">2</span>) <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb17-448"><a href="#cb17-448" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> pointCount <span class="op">=</span> points<span class="op">.</span><span class="at">length</span></span>
+<span id="cb17-449"><a href="#cb17-449" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> sx <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> sy <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> sxy <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> sxx <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb17-450"><a href="#cb17-450" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> p <span class="kw">of</span> points) {</span>
+<span id="cb17-451"><a href="#cb17-451" aria-hidden="true" tabindex="-1"></a>      sx <span class="op">+=</span> p<span class="op">.</span><span class="at">x</span></span>
+<span id="cb17-452"><a href="#cb17-452" aria-hidden="true" tabindex="-1"></a>      sy <span class="op">+=</span> p<span class="op">.</span><span class="at">y</span></span>
+<span id="cb17-453"><a href="#cb17-453" aria-hidden="true" tabindex="-1"></a>      sxy <span class="op">+=</span> p<span class="op">.</span><span class="at">x</span> <span class="op">*</span> p<span class="op">.</span><span class="at">y</span></span>
+<span id="cb17-454"><a href="#cb17-454" aria-hidden="true" tabindex="-1"></a>      sxx <span class="op">+=</span> p<span class="op">.</span><span class="at">x</span> <span class="op">*</span> p<span class="op">.</span><span class="at">x</span></span>
+<span id="cb17-455"><a href="#cb17-455" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-456"><a href="#cb17-456" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> denom <span class="op">=</span> pointCount <span class="op">*</span> sxx <span class="op">-</span> sx <span class="op">*</span> sx</span>
+<span id="cb17-457"><a href="#cb17-457" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (denom <span class="op">===</span> <span class="dv">0</span>) <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb17-458"><a href="#cb17-458" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> slope <span class="op">=</span> (pointCount <span class="op">*</span> sxy <span class="op">-</span> sx <span class="op">*</span> sy) <span class="op">/</span> denom</span>
+<span id="cb17-459"><a href="#cb17-459" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> intercept <span class="op">=</span> (sy <span class="op">-</span> slope <span class="op">*</span> sx) <span class="op">/</span> pointCount</span>
+<span id="cb17-460"><a href="#cb17-460" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {slope<span class="op">,</span> intercept<span class="op">,</span> <span class="dt">xlo</span><span class="op">:</span> points[<span class="dv">0</span>]<span class="op">.</span><span class="at">x</span><span class="op">,</span> <span class="dt">xhi</span><span class="op">:</span> points[pointCount <span class="op">-</span> <span class="dv">1</span>]<span class="op">.</span><span class="at">x</span>}</span>
+<span id="cb17-461"><a href="#cb17-461" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-462"><a href="#cb17-462" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-463"><a href="#cb17-463" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> linearPts <span class="op">=</span> []</span>
+<span id="cb17-464"><a href="#cb17-464" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cubicPts <span class="op">=</span> []</span>
+<span id="cb17-465"><a href="#cb17-465" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> row <span class="kw">of</span> result<span class="op">.</span><span class="at">rows</span>) {</span>
+<span id="cb17-466"><a href="#cb17-466" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(row<span class="op">.</span><span class="at">linearError</span>) <span class="op">&amp;&amp;</span> row<span class="op">.</span><span class="at">linearError</span> <span class="op">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb17-467"><a href="#cb17-467" aria-hidden="true" tabindex="-1"></a>      linearPts<span class="op">.</span><span class="fu">push</span>({<span class="dt">x</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">log10</span>(row<span class="op">.</span><span class="at">n</span>)<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">log10</span>(row<span class="op">.</span><span class="at">linearError</span>)})</span>
+<span id="cb17-468"><a href="#cb17-468" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-469"><a href="#cb17-469" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(row<span class="op">.</span><span class="at">cubicError</span>) <span class="op">&amp;&amp;</span> row<span class="op">.</span><span class="at">cubicError</span> <span class="op">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb17-470"><a href="#cb17-470" aria-hidden="true" tabindex="-1"></a>      cubicPts<span class="op">.</span><span class="fu">push</span>({<span class="dt">x</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">log10</span>(row<span class="op">.</span><span class="at">n</span>)<span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">log10</span>(row<span class="op">.</span><span class="at">cubicError</span>)})</span>
+<span id="cb17-471"><a href="#cb17-471" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-472"><a href="#cb17-472" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-473"><a href="#cb17-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-474"><a href="#cb17-474" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> linearName <span class="op">=</span> <span class="st">"Linear interpolant error"</span></span>
+<span id="cb17-475"><a href="#cb17-475" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cubicName <span class="op">=</span> <span class="st">"Cubic spline error"</span></span>
+<span id="cb17-476"><a href="#cb17-476" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> marks <span class="op">=</span> [</span>
+<span id="cb17-477"><a href="#cb17-477" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(linearPts<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> () <span class="kw">=&gt;</span> linearName<span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb17-478"><a href="#cb17-478" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(cubicPts<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> () <span class="kw">=&gt;</span> cubicName<span class="op">,</span> <span class="dt">r</span><span class="op">:</span> <span class="dv">4</span>})</span>
+<span id="cb17-479"><a href="#cb17-479" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb17-480"><a href="#cb17-480" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> colorDomain <span class="op">=</span> [linearName<span class="op">,</span> cubicName]</span>
+<span id="cb17-481"><a href="#cb17-481" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> colorRange <span class="op">=</span> [<span class="st">"#dc2626"</span><span class="op">,</span> <span class="st">"#16a34a"</span>]</span>
+<span id="cb17-482"><a href="#cb17-482" aria-hidden="true" tabindex="-1"></a>  <span class="co">// legendDomain/legendRange hold only the regression lines — the legend</span></span>
+<span id="cb17-483"><a href="#cb17-483" aria-hidden="true" tabindex="-1"></a>  <span class="co">// shown below the chart displays just the fitted orders, not the raw</span></span>
+<span id="cb17-484"><a href="#cb17-484" aria-hidden="true" tabindex="-1"></a>  <span class="co">// point series, to keep it uncluttered.</span></span>
+<span id="cb17-485"><a href="#cb17-485" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> legendDomain <span class="op">=</span> []<span class="op">,</span> legendRange <span class="op">=</span> []</span>
+<span id="cb17-486"><a href="#cb17-486" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-487"><a href="#cb17-487" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> linearFit <span class="op">=</span> <span class="fu">regression</span>(linearPts)</span>
+<span id="cb17-488"><a href="#cb17-488" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (linearFit) {</span>
+<span id="cb17-489"><a href="#cb17-489" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> lineName <span class="op">=</span> <span class="vs">`linear order ≈ </span><span class="sc">${</span>(<span class="op">-</span>linearFit<span class="op">.</span><span class="at">slope</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb17-490"><a href="#cb17-490" aria-hidden="true" tabindex="-1"></a>    marks<span class="op">.</span><span class="fu">push</span>(Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb17-491"><a href="#cb17-491" aria-hidden="true" tabindex="-1"></a>      [{<span class="dt">x</span><span class="op">:</span> linearFit<span class="op">.</span><span class="at">xlo</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> linearFit<span class="op">.</span><span class="at">slope</span> <span class="op">*</span> linearFit<span class="op">.</span><span class="at">xlo</span> <span class="op">+</span> linearFit<span class="op">.</span><span class="at">intercept</span>}<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> linearFit<span class="op">.</span><span class="at">xhi</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> linearFit<span class="op">.</span><span class="at">slope</span> <span class="op">*</span> linearFit<span class="op">.</span><span class="at">xhi</span> <span class="op">+</span> linearFit<span class="op">.</span><span class="at">intercept</span>}]<span class="op">,</span></span>
+<span id="cb17-492"><a href="#cb17-492" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> () <span class="kw">=&gt;</span> lineName<span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"6,4"</span>}</span>
+<span id="cb17-493"><a href="#cb17-493" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb17-494"><a href="#cb17-494" aria-hidden="true" tabindex="-1"></a>    colorDomain<span class="op">.</span><span class="fu">push</span>(lineName)</span>
+<span id="cb17-495"><a href="#cb17-495" aria-hidden="true" tabindex="-1"></a>    colorRange<span class="op">.</span><span class="fu">push</span>(<span class="st">"#f87171"</span>)</span>
+<span id="cb17-496"><a href="#cb17-496" aria-hidden="true" tabindex="-1"></a>    legendDomain<span class="op">.</span><span class="fu">push</span>(lineName)</span>
+<span id="cb17-497"><a href="#cb17-497" aria-hidden="true" tabindex="-1"></a>    legendRange<span class="op">.</span><span class="fu">push</span>(<span class="st">"#f87171"</span>)</span>
+<span id="cb17-498"><a href="#cb17-498" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-499"><a href="#cb17-499" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-500"><a href="#cb17-500" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cubicFit <span class="op">=</span> <span class="fu">regression</span>(cubicPts)</span>
+<span id="cb17-501"><a href="#cb17-501" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (cubicFit) {</span>
+<span id="cb17-502"><a href="#cb17-502" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> lineName <span class="op">=</span> <span class="vs">`cubic order ≈ </span><span class="sc">${</span>(<span class="op">-</span>cubicFit<span class="op">.</span><span class="at">slope</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb17-503"><a href="#cb17-503" aria-hidden="true" tabindex="-1"></a>    marks<span class="op">.</span><span class="fu">push</span>(Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb17-504"><a href="#cb17-504" aria-hidden="true" tabindex="-1"></a>      [{<span class="dt">x</span><span class="op">:</span> cubicFit<span class="op">.</span><span class="at">xlo</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> cubicFit<span class="op">.</span><span class="at">slope</span> <span class="op">*</span> cubicFit<span class="op">.</span><span class="at">xlo</span> <span class="op">+</span> cubicFit<span class="op">.</span><span class="at">intercept</span>}<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> cubicFit<span class="op">.</span><span class="at">xhi</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> cubicFit<span class="op">.</span><span class="at">slope</span> <span class="op">*</span> cubicFit<span class="op">.</span><span class="at">xhi</span> <span class="op">+</span> cubicFit<span class="op">.</span><span class="at">intercept</span>}]<span class="op">,</span></span>
+<span id="cb17-505"><a href="#cb17-505" aria-hidden="true" tabindex="-1"></a>      {<span class="dt">x</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"y"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> () <span class="kw">=&gt;</span> lineName<span class="op">,</span> <span class="dt">strokeDasharray</span><span class="op">:</span> <span class="st">"6,4"</span>}</span>
+<span id="cb17-506"><a href="#cb17-506" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb17-507"><a href="#cb17-507" aria-hidden="true" tabindex="-1"></a>    colorDomain<span class="op">.</span><span class="fu">push</span>(lineName)</span>
+<span id="cb17-508"><a href="#cb17-508" aria-hidden="true" tabindex="-1"></a>    colorRange<span class="op">.</span><span class="fu">push</span>(<span class="st">"#4ade80"</span>)</span>
+<span id="cb17-509"><a href="#cb17-509" aria-hidden="true" tabindex="-1"></a>    legendDomain<span class="op">.</span><span class="fu">push</span>(lineName)</span>
+<span id="cb17-510"><a href="#cb17-510" aria-hidden="true" tabindex="-1"></a>    legendRange<span class="op">.</span><span class="fu">push</span>(<span class="st">"#4ade80"</span>)</span>
+<span id="cb17-511"><a href="#cb17-511" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-512"><a href="#cb17-512" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-513"><a href="#cb17-513" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> chart <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb17-514"><a href="#cb17-514" aria-hidden="true" tabindex="-1"></a>    <span class="dt">width</span><span class="op">:</span> <span class="dv">340</span><span class="op">,</span> <span class="dt">height</span><span class="op">:</span> <span class="dv">300</span><span class="op">,</span> <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">46</span><span class="op">,</span></span>
+<span id="cb17-515"><a href="#cb17-515" aria-hidden="true" tabindex="-1"></a>    <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"log₁₀ n"</span>}<span class="op">,</span></span>
+<span id="cb17-516"><a href="#cb17-516" aria-hidden="true" tabindex="-1"></a>    <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"log₁₀ |error|"</span>}<span class="op">,</span></span>
+<span id="cb17-517"><a href="#cb17-517" aria-hidden="true" tabindex="-1"></a>    <span class="dt">color</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> colorDomain<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> colorRange}<span class="op">,</span></span>
+<span id="cb17-518"><a href="#cb17-518" aria-hidden="true" tabindex="-1"></a>    marks</span>
+<span id="cb17-519"><a href="#cb17-519" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb17-520"><a href="#cb17-520" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> legend <span class="op">=</span> Plot<span class="op">.</span><span class="fu">legend</span>({<span class="dt">color</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> legendDomain<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> legendRange}})</span>
+<span id="cb17-521"><a href="#cb17-521" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-522"><a href="#cb17-522" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> container <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb17-523"><a href="#cb17-523" aria-hidden="true" tabindex="-1"></a>  container<span class="op">.</span><span class="fu">append</span>(chart<span class="op">,</span> legend)</span>
+<span id="cb17-524"><a href="#cb17-524" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> container</span>
+<span id="cb17-525"><a href="#cb17-525" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="cell quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-17" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-18" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Arc length table">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Arc length table
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb18" data-startfrom="538" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 537;"><span id="cb18-538"><a href="#cb18-538" aria-hidden="true" tabindex="-1"></a><span class="co">// Arc length table — shows the entire run, not just the current n, with</span></span>
+<span id="cb18-539"><a href="#cb18-539" aria-hidden="true" tabindex="-1"></a><span class="co">// both arc lengths and both errors against the true arc length of f.</span></span>
+<span id="cb18-540"><a href="#cb18-540" aria-hidden="true" tabindex="-1"></a>arcLengthTable <span class="op">=</span> {</span>
+<span id="cb18-541"><a href="#cb18-541" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (result<span class="op">.</span><span class="at">rows</span><span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) {</span>
+<span id="cb18-542"><a href="#cb18-542" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Always return a Node so Quarto's OJS runtime never latches this</span></span>
+<span id="cb18-543"><a href="#cb18-543" aria-hidden="true" tabindex="-1"></a>    <span class="co">// declaration cell as hidden.</span></span>
+<span id="cb18-544"><a href="#cb18-544" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)</span>
+<span id="cb18-545"><a href="#cb18-545" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb18-546"><a href="#cb18-546" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-547"><a href="#cb18-547" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> formattedRows <span class="op">=</span> []</span>
+<span id="cb18-548"><a href="#cb18-548" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> row <span class="kw">of</span> result<span class="op">.</span><span class="at">rows</span>) {</span>
+<span id="cb18-549"><a href="#cb18-549" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> cubicCell <span class="op">=</span> <span class="st">"NaN"</span></span>
+<span id="cb18-550"><a href="#cb18-550" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(row<span class="op">.</span><span class="at">cubicLength</span>)) cubicCell <span class="op">=</span> row<span class="op">.</span><span class="at">cubicLength</span><span class="op">.</span><span class="fu">toPrecision</span>(<span class="dv">10</span>)</span>
+<span id="cb18-551"><a href="#cb18-551" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-552"><a href="#cb18-552" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> cubicErrorCell <span class="op">=</span> <span class="st">"NaN"</span></span>
+<span id="cb18-553"><a href="#cb18-553" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(row<span class="op">.</span><span class="at">cubicError</span>)) cubicErrorCell <span class="op">=</span> row<span class="op">.</span><span class="at">cubicError</span><span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">4</span>)</span>
+<span id="cb18-554"><a href="#cb18-554" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-555"><a href="#cb18-555" aria-hidden="true" tabindex="-1"></a>    formattedRows<span class="op">.</span><span class="fu">push</span>([</span>
+<span id="cb18-556"><a href="#cb18-556" aria-hidden="true" tabindex="-1"></a>      row<span class="op">.</span><span class="at">n</span><span class="op">,</span></span>
+<span id="cb18-557"><a href="#cb18-557" aria-hidden="true" tabindex="-1"></a>      row<span class="op">.</span><span class="at">linearLength</span><span class="op">.</span><span class="fu">toPrecision</span>(<span class="dv">10</span>)<span class="op">,</span></span>
+<span id="cb18-558"><a href="#cb18-558" aria-hidden="true" tabindex="-1"></a>      cubicCell<span class="op">,</span></span>
+<span id="cb18-559"><a href="#cb18-559" aria-hidden="true" tabindex="-1"></a>      row<span class="op">.</span><span class="at">trueArcLength</span><span class="op">.</span><span class="fu">toPrecision</span>(<span class="dv">10</span>)<span class="op">,</span></span>
+<span id="cb18-560"><a href="#cb18-560" aria-hidden="true" tabindex="-1"></a>      row<span class="op">.</span><span class="at">linearError</span><span class="op">.</span><span class="fu">toExponential</span>(<span class="dv">4</span>)<span class="op">,</span></span>
+<span id="cb18-561"><a href="#cb18-561" aria-hidden="true" tabindex="-1"></a>      cubicErrorCell</span>
+<span id="cb18-562"><a href="#cb18-562" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb18-563"><a href="#cb18-563" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb18-564"><a href="#cb18-564" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-565"><a href="#cb18-565" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> VM<span class="op">.</span><span class="fu">renderTable</span>({</span>
+<span id="cb18-566"><a href="#cb18-566" aria-hidden="true" tabindex="-1"></a>    html<span class="op">,</span></span>
+<span id="cb18-567"><a href="#cb18-567" aria-hidden="true" tabindex="-1"></a>    <span class="dt">headers</span><span class="op">:</span> [<span class="st">"n"</span><span class="op">,</span> <span class="fu">tex</span><span class="vs">`L_{</span><span class="sc">\t</span><span class="vs">ext{linear}}`</span><span class="op">,</span> <span class="fu">tex</span><span class="vs">`L_{</span><span class="sc">\t</span><span class="vs">ext{cubic}}`</span><span class="op">,</span> <span class="fu">tex</span><span class="vs">`L_{</span><span class="sc">\t</span><span class="vs">ext{true}}`</span><span class="op">,</span> <span class="fu">tex</span><span class="vs">`|L_{</span><span class="sc">\t</span><span class="vs">ext{linear}} - L_{</span><span class="sc">\t</span><span class="vs">ext{true}}|`</span><span class="op">,</span> <span class="fu">tex</span><span class="vs">`|L_{</span><span class="sc">\t</span><span class="vs">ext{cubic}} - L_{</span><span class="sc">\t</span><span class="vs">ext{true}}|`</span>]<span class="op">,</span></span>
+<span id="cb18-568"><a href="#cb18-568" aria-hidden="true" tabindex="-1"></a>    <span class="dt">csvHeaders</span><span class="op">:</span> [<span class="st">"n"</span><span class="op">,</span> <span class="st">"L_linear"</span><span class="op">,</span> <span class="st">"L_cubic"</span><span class="op">,</span> <span class="st">"L_true"</span><span class="op">,</span> <span class="st">"|L_linear - L_true|"</span><span class="op">,</span> <span class="st">"|L_cubic - L_true|"</span>]<span class="op">,</span></span>
+<span id="cb18-569"><a href="#cb18-569" aria-hidden="true" tabindex="-1"></a>    <span class="dt">filename</span><span class="op">:</span> <span class="st">"linear-cubic-arc-lengths.csv"</span><span class="op">,</span></span>
+<span id="cb18-570"><a href="#cb18-570" aria-hidden="true" tabindex="-1"></a>    <span class="dt">rows</span><span class="op">:</span> formattedRows</span>
+<span id="cb18-571"><a href="#cb18-571" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb18-572"><a href="#cb18-572" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-19" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6Ii8vIFZNIGlzIHRoZSBzaGFyZWQgdXRpbGl0eSBsaWJyYXJ5IGxvYWRlZCBmcm9tIGpzL21ha2UtZnVuY3Rpb24uanMsIGpzL21ha2UtZGVyaXZhdGl2ZS5qcywganMvcGFkZGVkLXJhbmdlLmpzLCBqcy9yZW5kZXItdGFibGUuanMsIGpzL2N1YmljLXNwbGluZS5qcy5cblZNID0gd2luZG93LlZNXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgZlRleHQgPSB7XG4gIGNvbnN0IHBhcmFtcyA9IG5ldyBVUkxTZWFyY2hQYXJhbXMod2luZG93LmxvY2F0aW9uLnNlYXJjaClcbiAgY29uc3QgZlRleHRJbnB1dCA9IElucHV0cy50ZXh0KHtsYWJlbDogXCJGdW5jdGlvbiBmKHgpXCIsIHZhbHVlOiBwYXJhbXMuZ2V0KFwiZlwiKSA/PyBcInNpbih4KVwiLCBwbGFjZWhvbGRlcjogXCJFeGFtcGxlOiBzaW4oeCksIHheMyAtIHgsIDEgLyAoMSArIHheMilcIn0pXG4gIGZUZXh0SW5wdXQuY2xhc3NMaXN0LmFkZChcIm9qcy1maWxsXCIpXG4gIHJldHVybiBmVGV4dElucHV0XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgYTAgPSB7XG4gIGNvbnN0IHBhcmFtcyA9IG5ldyBVUkxTZWFyY2hQYXJhbXMod2luZG93LmxvY2F0aW9uLnNlYXJjaClcbiAgY29uc3QgcmF3ID0gcGFyYW1zLmdldChcImFcIilcbiAgbGV0IHZhbHVlID0gMFxuICBpZiAocmF3ICE9PSBudWxsICYmIE51bWJlci5pc0Zpbml0ZShOdW1iZXIocmF3KSkpIHZhbHVlID0gTnVtYmVyKHJhdylcbiAgcmV0dXJuIElucHV0cy5udW1iZXIoe2xhYmVsOiBcIkxlZnQgZW5kcG9pbnQgYVwiLCB2YWx1ZX0pXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTQiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgYjAgPSB7XG4gIGNvbnN0IHBhcmFtcyA9IG5ldyBVUkxTZWFyY2hQYXJhbXMod2luZG93LmxvY2F0aW9uLnNlYXJjaClcbiAgY29uc3QgcmF3ID0gcGFyYW1zLmdldChcImJcIilcbiAgbGV0IHZhbHVlID0gNi4yODMxODUzMDcxNzk1ODZcbiAgaWYgKHJhdyAhPT0gbnVsbCAmJiBOdW1iZXIuaXNGaW5pdGUoTnVtYmVyKHJhdykpKSB2YWx1ZSA9IE51bWJlcihyYXcpXG4gIHJldHVybiBJbnB1dHMubnVtYmVyKHtsYWJlbDogXCJSaWdodCBlbmRwb2ludCBiXCIsIHZhbHVlfSlcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6Ii8vIFBsb3QgY29tbWl0cyB0aGUgY3VycmVudCBmdW5jdGlvbi9lbmRwb2ludCBmaWVsZHMg4oCUIGVkaXRzIGFib3ZlIGRvbid0XG4vLyB0YWtlIGVmZmVjdCB1bnRpbCB0aGlzIGlzIGNsaWNrZWQsIHNvIHJlc3VsdC9tYWluUGxvdCBkb24ndCByZWNvbXB1dGUgb25cbi8vIGV2ZXJ5IGtleXN0cm9rZS4gVGhlIG4gc2xpZGVyIGFuZCB0aGUgaW50ZXJwb2xhbnQgY2hlY2tib3hlcyBiZWxvdyBhcmVcbi8vIHVuYWZmZWN0ZWQgYW5kIHN0YXkgcmVhY3RpdmUuXG52aWV3b2YgcGxvdFRyaWdnZXIgPSB7XG4gIGNvbnN0IHBsb3RCdXR0b24gPSBJbnB1dHMuYnV0dG9uKFwiUGxvdFwiLCB7dmFsdWU6IDAsIHJlZHVjZTogdiA9PiB2ICsgMX0pXG4gIHBsb3RCdXR0b24uY2xhc3NMaXN0LmFkZChcIm9qcy1hdXRvXCIpXG4gIHJldHVybiBwbG90QnV0dG9uXG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTYiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgbkNvbnRyb2wgPSB7XG4gIGNvbnN0IG5TbGlkZXIgPSBJbnB1dHMucmFuZ2UoWzEsIG1heE5dLCB7c3RlcDogMSwgdmFsdWU6IE1hdGgubWluKDQsIG1heE4pLCBsYWJlbDogXCJuIChzdWJpbnRlcnZhbHMpXCJ9KVxuICBuU2xpZGVyLmNsYXNzTGlzdC5hZGQoXCJvanMtZmlsbFwiKVxuICByZXR1cm4gblNsaWRlclxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC03IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIG1heE4gPSB7XG4gIGNvbnN0IG1heE5JbnB1dCA9IElucHV0cy5udW1iZXIoe3ZhbHVlOiAyMCwgbWluOiAxLCBzdGVwOiAxLCBsYWJlbDogXCJNYXhcIn0pXG4gIG1heE5JbnB1dC5jbGFzc0xpc3QuYWRkKFwib2pzLWF1dG9cIilcbiAgcmV0dXJuIG1heE5JbnB1dFxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC04IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIGludGVycG9sYW50cyA9IHtcbiAgY29uc3Qgb3B0aW9ucyA9IFtcIkxpbmVhciBpbnRlcnBvbGFudFwiLCBcIkN1YmljIHNwbGluZSBpbnRlcnBvbGFudFwiXVxuICBjb25zdCBjaGVja2JveElucHV0ID0gSW5wdXRzLmNoZWNrYm94KG9wdGlvbnMsIHt2YWx1ZTogb3B0aW9uc30pXG4gIGNoZWNrYm94SW5wdXQuY2xhc3NMaXN0LmFkZChcIm9qcy1maWxsXCIpXG4gIHJldHVybiBjaGVja2JveElucHV0XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTkiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJzaG93TGluZWFyID0gaW50ZXJwb2xhbnRzLmluY2x1ZGVzKFwiTGluZWFyIGludGVycG9sYW50XCIpXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEwIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoic2hvd0N1YmljID0gaW50ZXJwb2xhbnRzLmluY2x1ZGVzKFwiQ3ViaWMgc3BsaW5lIGludGVycG9sYW50XCIpXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTExIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiLy8gUHJlc3NpbmcgRW50ZXIgaW4gdGhlIGZ1bmN0aW9uL2VuZHBvaW50IGZpZWxkcyBjbGlja3MgUGxvdCBpbnN0ZWFkIG9mXG4vLyBzdWJtaXR0aW5nIHRoZSBmaWVsZCdzIG93biAoaW52aXNpYmxlKSBmb3JtLiBEZXBlbmRzIG9ubHkgb24gdGhlIHN0YWJsZVxuLy8gdmlld3MsIHNvIHRoaXMgd2lyaW5nIHJ1bnMgb25jZSBhbmQgaXMgbmV2ZXIgcmUtYXR0YWNoZWQuXG5lbnRlclRvUGxvdCA9IHtcbiAgZm9yIChjb25zdCB2aWV3IG9mIFt2aWV3b2YgZlRleHQsIHZpZXdvZiBhMCwgdmlld29mIGIwXSkge1xuICAgIGNvbnN0IGlucHV0ID0gdmlldy5xdWVyeVNlbGVjdG9yKFwiaW5wdXRcIilcbiAgICBpZiAoIWlucHV0KSBjb250aW51ZVxuICAgIGlucHV0LmFkZEV2ZW50TGlzdGVuZXIoXCJrZXlkb3duXCIsIChlKSA9PiB7XG4gICAgICBpZiAoZS5rZXkgIT09IFwiRW50ZXJcIikgcmV0dXJuXG4gICAgICBlLnByZXZlbnREZWZhdWx0KClcbiAgICAgIHZpZXdvZiBwbG90VHJpZ2dlci5xdWVyeVNlbGVjdG9yKFwiYnV0dG9uXCIpLmNsaWNrKClcbiAgICB9KVxuICB9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEyIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiLy8gY29tbWl0dGVkIHNuYXBzaG90cyBmVGV4dC9hMC9iMCBvbmx5IHdoZW4gUGxvdCBpcyBjbGlja2VkLCBhbmQgd3JpdGVzIHRoZW1cbi8vIGJhY2sgaW50byB0aGUgVVJMIHNvIHRoZSBhZGRyZXNzIGJhciBzdGF5cyBhIHNoYXJlYWJsZSBsaW5rLiBJdCByZWFkc1xuLy8gYHZpZXdvZiBmVGV4dGAvYHZpZXdvZiBhMGAvYHZpZXdvZiBiMGAgKHRoZSBzdGFibGUgRE9NIHZpZXdzKSByYXRoZXIgdGhhblxuLy8gYGZUZXh0YC9gYTBgL2BiMGAgKHRoZSByZWFjdGl2ZSB2YWx1ZXMpLCBzbyBpdCBkb2VzIE5PVCByZXJ1biBvbiBldmVyeVxuLy8ga2V5c3Ryb2tlIOKAlCBvbmx5IHdoZW4gYHBsb3RUcmlnZ2VyYCBjaGFuZ2VzLiBJdCBzdGlsbCBydW5zIG9uY2Ugb25cbi8vIGluaXRpYWwgcGFnZSBsb2FkLCBzbyB0aGUgZmlyc3QgcmVuZGVyIHVzZXMgdGhlIFVSTC1wcm92aWRlZCAob3Jcbi8vIGRlZmF1bHQpIHZhbHVlcyB3aXRoIG5vIGNsaWNrLlxuY29tbWl0dGVkID0ge1xuICBwbG90VHJpZ2dlclxuICBjb25zdCBmVmFsID0gKHZpZXdvZiBmVGV4dCkudmFsdWVcbiAgY29uc3QgYVZhbCA9IE51bWJlcigodmlld29mIGEwKS52YWx1ZSlcbiAgY29uc3QgYlZhbCA9IE51bWJlcigodmlld29mIGIwKS52YWx1ZSlcblxuICBjb25zdCBwYXJhbXMgPSBuZXcgVVJMU2VhcmNoUGFyYW1zKHdpbmRvdy5sb2NhdGlvbi5zZWFyY2gpXG4gIHBhcmFtcy5zZXQoXCJmXCIsIGZWYWwpXG4gIHBhcmFtcy5zZXQoXCJhXCIsIFN0cmluZyhhVmFsKSlcbiAgcGFyYW1zLnNldChcImJcIiwgU3RyaW5nKGJWYWwpKVxuICBoaXN0b3J5LnJlcGxhY2VTdGF0ZShudWxsLCBcIlwiLCBgJHt3aW5kb3cubG9jYXRpb24ucGF0aG5hbWV9PyR7cGFyYW1zfWApXG5cbiAgcmV0dXJuIHtmVGV4dDogZlZhbCwgYTA6IGFWYWwsIGIwOiBiVmFsfVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6Ii8vIHJlc3VsdDogZm9yIHRoZSBjdXJyZW50IGNvbW1pdHRlZCBmdW5jdGlvbi9lbmRwb2ludHMsIGJ1aWxkcyB0aGUgYXJjLWxlbmd0aFxuLy8gaGlzdG9yeSB1c2VkIGJ5IHRoZSBjb252ZXJnZW5jZSBwbG90cyBhbmQgdGFibGVzLlxuLy8gICByb3dzIOKAlCBhcnJheSBvZiB7IG4sIGxpbmVhckxlbmd0aCwgY3ViaWNMZW5ndGgsIHRydWVBcmNMZW5ndGgsIGxpbmVhckVycm9yLCBjdWJpY0Vycm9yIH0sXG4vLyAgICAgb25lIGVudHJ5IHBlciBzdWJpbnRlcnZhbCBjb3VudCBuID0gMS4ubWF4TlxuLy8gICBmIOKAlCBwYXJzZWQgZnVuY3Rpb24sIHJldXNlZCBmb3IgY3VydmUgc2FtcGxpbmcgaW4gc2V0dXBcbi8vICAgdHJ1ZUFyY0xlbmd0aCDigJQgcmVmZXJlbmNlIGFyYyBsZW5ndGggb2YgZiBpdHNlbGYsIHNoYXJlZCBieSBldmVyeSByb3dcbnJlc3VsdCA9IHtcbiAgY29uc3QgbWF0aCA9IHdpbmRvdy5tYXRoXG5cbiAgY29uc3QgZiA9IFZNLm1ha2VGdW5jdGlvbihtYXRoLCBjb21taXR0ZWQuZlRleHQpXG4gIGNvbnN0IGZhbGxiYWNrID0geCA9PiBOYU5cblxuICBpZiAoIWYpIHJldHVybiB7cm93czogW10sIGY6IGZhbGxiYWNrLCB0cnVlQXJjTGVuZ3RoOiBOYU59XG5cbiAgY29uc3QgYSA9IE51bWJlcihjb21taXR0ZWQuYTApXG4gIGNvbnN0IGIgPSBOdW1iZXIoY29tbWl0dGVkLmIwKVxuICBpZiAoIU51bWJlci5pc0Zpbml0ZShhKSB8fCAhTnVtYmVyLmlzRmluaXRlKGIpIHx8IGEgPT09IGIpIHJldHVybiB7cm93czogW10sIGYsIHRydWVBcmNMZW5ndGg6IE5hTn1cblxuICBjb25zdCBsbyA9IE1hdGgubWluKGEsIGIpXG4gIGNvbnN0IGhpID0gTWF0aC5tYXgoYSwgYilcblxuICAvLyBSZWZlcmVuY2UgYXJjIGxlbmd0aCBvZiBmOiBjaG9yZC1sZW5ndGggc3VtIG92ZXIgYSB2ZXJ5IGZpbmUgdW5pZm9ybVxuICAvLyBncmlkLCBmYXIgZmluZXIgdGhhbiBhbnkgaW50ZXJwb2xhbnQgdGVzdGVkIGJlbG93LlxuICBjb25zdCByZWZDb3VudCA9IDQwMDBcbiAgbGV0IHRydWVBcmNMZW5ndGggPSAwXG4gIGxldCB4UHJldiA9IGxvXG4gIGxldCB5UHJldiA9IGYoeFByZXYpXG4gIGZvciAobGV0IGsgPSAxOyBrIDw9IHJlZkNvdW50OyBrKyspIHtcbiAgICBjb25zdCB4ID0gbG8gKyAoaGkgLSBsbykgKiBrIC8gcmVmQ291bnRcbiAgICBjb25zdCB5ID0gZih4KVxuICAgIGlmIChOdW1iZXIuaXNGaW5pdGUoeVByZXYpICYmIE51bWJlci5pc0Zpbml0ZSh5KSkge1xuICAgICAgY29uc3QgZHggPSB4IC0geFByZXZcbiAgICAgIGNvbnN0IGR5ID0geSAtIHlQcmV2XG4gICAgICB0cnVlQXJjTGVuZ3RoICs9IE1hdGguc3FydChkeCAqIGR4ICsgZHkgKiBkeSlcbiAgICB9XG4gICAgeFByZXYgPSB4XG4gICAgeVByZXYgPSB5XG4gIH1cblxuICBjb25zdCByb3dzID0gW11cbiAgbGV0IG4gPSAxXG4gIHdoaWxlIChuIDw9IG1heE4pIHtcbiAgICAvLyBuKzEgZXF1YWxseSBzcGFjZWQgaW50ZXJwb2xhdGlvbiBub2RlcyBvdmVyIFtsbywgaGldXG4gICAgY29uc3Qgbm9kZXNYID0gW11cbiAgICBjb25zdCBub2Rlc1kgPSBbXVxuICAgIGZvciAobGV0IGsgPSAwOyBrIDw9IG47IGsrKykge1xuICAgICAgY29uc3QgeCA9IGxvICsgKGhpIC0gbG8pICogayAvIG5cbiAgICAgIG5vZGVzWC5wdXNoKHgpXG4gICAgICBub2Rlc1kucHVzaChmKHgpKVxuICAgIH1cblxuICAgIC8vIExpbmVhciBpbnRlcnBvbGFudCBhcmMgbGVuZ3RoOiBleGFjdCBzdW0gb2Ygc2VnbWVudCBsZW5ndGhzLlxuICAgIGxldCBsaW5lYXJMZW5ndGggPSAwXG4gICAgZm9yIChsZXQgayA9IDA7IGsgPCBuOyBrKyspIHtcbiAgICAgIGNvbnN0IGR4ID0gbm9kZXNYW2sgKyAxXSAtIG5vZGVzWFtrXVxuICAgICAgY29uc3QgZHkgPSBub2Rlc1lbayArIDFdIC0gbm9kZXNZW2tdXG4gICAgICBpZiAoTnVtYmVyLmlzRmluaXRlKGR5KSkgbGluZWFyTGVuZ3RoICs9IE1hdGguc3FydChkeCAqIGR4ICsgZHkgKiBkeSlcbiAgICB9XG5cbiAgICAvLyBDdWJpYyBzcGxpbmUgYXJjIGxlbmd0aDogYXBwcm94aW1hdGVkIGJ5IHNhbXBsaW5nIHRoZSBzcGxpbmUgZGVuc2VseVxuICAgIC8vIGFuZCBzdW1taW5nIGNob3JkIGxlbmd0aHMgYWxvbmcgdGhlIHNhbXBsZWQgY3VydmUuXG4gICAgY29uc3Qgc3BsaW5lID0gVk0uY3ViaWNTcGxpbmUobm9kZXNYLCBub2Rlc1kpXG4gICAgbGV0IGN1YmljTGVuZ3RoID0gTmFOXG4gICAgaWYgKHNwbGluZSkge1xuICAgICAgY29uc3Qgc2FtcGxlQ291bnQgPSBuICogMjBcbiAgICAgIGxldCBzeFByZXYgPSBub2Rlc1hbMF1cbiAgICAgIGxldCBzeVByZXYgPSBzcGxpbmUoc3hQcmV2KVxuICAgICAgY3ViaWNMZW5ndGggPSAwXG4gICAgICBmb3IgKGxldCBrID0gMTsgayA8PSBzYW1wbGVDb3VudDsgaysrKSB7XG4gICAgICAgIGNvbnN0IHggPSBsbyArIChoaSAtIGxvKSAqIGsgLyBzYW1wbGVDb3VudFxuICAgICAgICBjb25zdCB5ID0gc3BsaW5lKHgpXG4gICAgICAgIGlmIChOdW1iZXIuaXNGaW5pdGUoc3lQcmV2KSAmJiBOdW1iZXIuaXNGaW5pdGUoeSkpIHtcbiAgICAgICAgICBjb25zdCBkeCA9IHggLSBzeFByZXZcbiAgICAgICAgICBjb25zdCBkeSA9IHkgLSBzeVByZXZcbiAgICAgICAgICBjdWJpY0xlbmd0aCArPSBNYXRoLnNxcnQoZHggKiBkeCArIGR5ICogZHkpXG4gICAgICAgIH1cbiAgICAgICAgc3hQcmV2ID0geFxuICAgICAgICBzeVByZXYgPSB5XG4gICAgICB9XG4gICAgfVxuXG4gICAgY29uc3QgbGluZWFyRXJyb3IgPSBNYXRoLmFicyhsaW5lYXJMZW5ndGggLSB0cnVlQXJjTGVuZ3RoKVxuICAgIGNvbnN0IGN1YmljRXJyb3IgPSBOdW1iZXIuaXNGaW5pdGUoY3ViaWNMZW5ndGgpID8gTWF0aC5hYnMoY3ViaWNMZW5ndGggLSB0cnVlQXJjTGVuZ3RoKSA6IE5hTlxuXG4gICAgcm93cy5wdXNoKHtuLCBsaW5lYXJMZW5ndGgsIGN1YmljTGVuZ3RoLCB0cnVlQXJjTGVuZ3RoLCBsaW5lYXJFcnJvciwgY3ViaWNFcnJvcn0pXG4gICAgbisrXG4gIH1cblxuICByZXR1cm4ge3Jvd3MsIGYsIHRydWVBcmNMZW5ndGh9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTE0IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiLy8gc2V0dXAgY29tcHV0ZXMgdGhlIGRhdGEgbmVlZGVkIGJ5IHRoZSBtYWluIGNoYXJ0IGF0IHRoZSBjdXJyZW50IG46IHRoZVxuLy8gaW50ZXJwb2xhdGlvbiBub2RlcywgdGhlIGxpbmVhciBwb2x5bGluZSwgYSBkZW5zZSBzYW1wbGUgb2YgdGhlIGN1YmljXG4vLyBzcGxpbmUsIGFuZCB0aGUgYXhpcyByYW5nZXMgLyBzbW9vdGggZih4KSBjdXJ2ZS5cbnNldHVwID0ge1xuICBpZiAocmVzdWx0LnJvd3MubGVuZ3RoID09PSAwKSB7XG4gICAgY29uc3QgZW1wdHkgPSB7bG86IC0zLCBoaTogM31cbiAgICByZXR1cm4ge246IDAsIG5vZGVzWDogW10sIG5vZGVzWTogW10sIGxpbmVhclg6IFtdLCBsaW5lYXJZOiBbXSwgY3ViaWNYOiBbXSwgY3ViaWNZOiBbXSwgc2FtcGxlWHM6IFtdLCBzYW1wbGVZczogW10sIHhSYW5nZTogZW1wdHksIHhCdWZmZXI6IGVtcHR5LCB5UmFuZ2U6IHtsbzogLTEsIGhpOiAxfX1cbiAgfVxuXG4gIGNvbnN0IG4gPSBNYXRoLm1pbihNYXRoLm1heChNYXRoLnJvdW5kKE51bWJlcihuQ29udHJvbCkpLCAxKSwgcmVzdWx0LnJvd3MubGVuZ3RoKVxuXG4gIGNvbnN0IGEgPSBOdW1iZXIoY29tbWl0dGVkLmEwKVxuICBjb25zdCBiID0gTnVtYmVyKGNvbW1pdHRlZC5iMClcbiAgY29uc3QgbG8gPSBNYXRoLm1pbihhLCBiKVxuICBjb25zdCBoaSA9IE1hdGgubWF4KGEsIGIpXG5cbiAgLy8gSW50ZXJwb2xhdGlvbiBub2RlcyBmb3IgdGhlIGN1cnJlbnQgbi5cbiAgY29uc3Qgbm9kZXNYID0gW11cbiAgY29uc3Qgbm9kZXNZID0gW11cbiAgZm9yIChsZXQgayA9IDA7IGsgPD0gbjsgaysrKSB7XG4gICAgY29uc3QgeCA9IGxvICsgKGhpIC0gbG8pICogayAvIG5cbiAgICBub2Rlc1gucHVzaCh4KVxuICAgIG5vZGVzWS5wdXNoKHJlc3VsdC5mKHgpKVxuICB9XG5cbiAgLy8gTGluZWFyIGludGVycG9sYW50IGlzIGp1c3QgdGhlIG5vZGUgcG9seWxpbmUuXG4gIGNvbnN0IGxpbmVhclggPSBub2Rlc1guc2xpY2UoKVxuICBjb25zdCBsaW5lYXJZID0gbm9kZXNZLnNsaWNlKClcblxuICAvLyBDdWJpYyBzcGxpbmU6IGRlbnNlIHNhbXBsZXMgZm9yIGEgc21vb3RoIGN1cnZlLlxuICBjb25zdCBzcGxpbmUgPSBWTS5jdWJpY1NwbGluZShub2Rlc1gsIG5vZGVzWSlcbiAgY29uc3QgY3ViaWNYID0gW11cbiAgY29uc3QgY3ViaWNZID0gW11cbiAgaWYgKHNwbGluZSkge1xuICAgIGNvbnN0IHNhbXBsZUNvdW50ID0gTWF0aC5tYXgoMjAwLCBuICogMjApXG4gICAgZm9yIChsZXQgayA9IDA7IGsgPD0gc2FtcGxlQ291bnQ7IGsrKykge1xuICAgICAgY29uc3QgeCA9IGxvICsgKGhpIC0gbG8pICogayAvIHNhbXBsZUNvdW50XG4gICAgICBjdWJpY1gucHVzaCh4KVxuICAgICAgY3ViaWNZLnB1c2goc3BsaW5lKHgpKVxuICAgIH1cbiAgfVxuXG4gIGNvbnN0IHhSYW5nZSA9IFZNLnBhZGRlZFJhbmdlKFtsbywgaGldLCB7ZW1wdHlSYW5nZTogWy0zLCAzXSwgcmVsYXRpdmVQYWRkaW5nOiAwLjEsIG1pblBhZGRpbmc6IDAuMjV9KVxuXG4gIC8vIEEgd2lkZXIgZG9tYWluIChkb3VibGUgdGhlIHBhZGRpbmcgb2YgeFJhbmdlKSBzbyB0aGUgY3VydmUgaXMgYWxyZWFkeVxuICAvLyBzYW1wbGVkIGJleW9uZCB0aGUgaW5pdGlhbCB2aWV3IOKAlCBwYW5uaW5nL3pvb21pbmcgb3V0IHJldmVhbHMgbW9yZSBvZlxuICAvLyB0aGUgY3VydmUgaW5zdGVhZCBvZiBibGFuayBjYW52YXMuIFRoZSBpbml0aWFsIHZpZXcgc3RheXMgeFJhbmdlLlxuICBjb25zdCB4QnVmZmVyID0gVk0ucGFkZGVkUmFuZ2UoW2xvLCBoaV0sIHtlbXB0eVJhbmdlOiBbLTYsIDZdLCByZWxhdGl2ZVBhZGRpbmc6IDAuMjUsIG1pblBhZGRpbmc6IDAuNX0pXG5cbiAgLy8gU2FtcGxlIGYgYWNyb3NzIHRoZSBidWZmZXIgcmFuZ2UgZm9yIHRoZSBzbW9vdGggY3VydmUgdHJhY2UuXG4gIGNvbnN0IHNhbXBsZUNvdW50ID0gNzAwXG4gIGNvbnN0IHNhbXBsZVhzID0gQXJyYXkuZnJvbSh7bGVuZ3RoOiBzYW1wbGVDb3VudH0sIChfLCBpKSA9PiB4QnVmZmVyLmxvICsgKHhCdWZmZXIuaGkgLSB4QnVmZmVyLmxvKSAqIGkgLyAoc2FtcGxlQ291bnQgLSAxKSlcbiAgY29uc3Qgc2FtcGxlWXMgPSBbXVxuICBmb3IgKGNvbnN0IHggb2Ygc2FtcGxlWHMpIHtcbiAgICBjb25zdCB5ID0gcmVzdWx0LmYoeClcbiAgICBpZiAoTnVtYmVyLmlzRmluaXRlKHkpICYmIE1hdGguYWJzKHkpIDwgMWU4KSB7XG4gICAgICBzYW1wbGVZcy5wdXNoKHkpXG4gICAgfSBlbHNlIHtcbiAgICAgIHNhbXBsZVlzLnB1c2gobnVsbClcbiAgICB9XG4gIH1cblxuICAvLyB5LXJhbmdlIGZyb20gZiBvdmVyIFtsbywgaGldIHBsdXMgbm9kZSBhbmQgY3ViaWMtc3BsaW5lIHZhbHVlcy5cbiAgY29uc3QgeVZhbHVlcyA9IFtdXG4gIGZvciAobGV0IGkgPSAwOyBpIDwgc2FtcGxlWHMubGVuZ3RoOyBpKyspIHtcbiAgICBjb25zdCB4ID0gc2FtcGxlWHNbaV1cbiAgICBpZiAoeCA+PSB4UmFuZ2UubG8gJiYgeCA8PSB4UmFuZ2UuaGkgJiYgc2FtcGxlWXNbaV0gIT09IG51bGwpIHlWYWx1ZXMucHVzaChzYW1wbGVZc1tpXSlcbiAgfVxuICBmb3IgKGNvbnN0IHkgb2Ygbm9kZXNZKSBpZiAoTnVtYmVyLmlzRmluaXRlKHkpKSB5VmFsdWVzLnB1c2goeSlcbiAgZm9yIChjb25zdCB5IG9mIGN1YmljWSkgaWYgKE51bWJlci5pc0Zpbml0ZSh5KSkgeVZhbHVlcy5wdXNoKHkpXG4gIGNvbnN0IHlSYW5nZSA9IFZNLnBhZGRlZFJhbmdlKHlWYWx1ZXMsIHtlbXB0eVJhbmdlOiBbLTEsIDFdLCByZWxhdGl2ZVBhZGRpbmc6IDAuMjUsIG1pblBhZGRpbmc6IDAuNX0pXG5cbiAgcmV0dXJuIHtuLCBub2Rlc1gsIG5vZGVzWSwgbGluZWFyWCwgbGluZWFyWSwgY3ViaWNYLCBjdWJpY1ksIHNhbXBsZVhzLCBzYW1wbGVZcywgeFJhbmdlLCB4QnVmZmVyLCB5UmFuZ2V9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTE1IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiLy8gbWFpblBsb3QgZHJhd3MgZih4KSBhbmQsIGRlcGVuZGluZyBvbiB0aGUgY2hlY2tib3hlcywgdGhlIGxpbmVhciBhbmQvb3Jcbi8vIGN1YmljIHNwbGluZSBpbnRlcnBvbGFudCB0aHJvdWdoIHRoZSBjdXJyZW50IG4ncyBub2Rlcy5cbi8vXG4vLyBfcGxvdERpdiBpcyBrZXB0IGluIGEgY2xvc3VyZSBzbyBQbG90bHkgcmV1c2VzIHRoZSBzYW1lIERPTSBub2RlIGFjcm9zc1xuLy8gcmVhY3RpdmUgdXBkYXRlcyDigJQgdGhpcyBwcmVzZXJ2ZXMgem9vbSBhbmQgcGFuIHdoZW4gbiBvciB0aGUgY2hlY2tib3hlc1xuLy8gY2hhbmdlLlxubWFpblBsb3QgPSB7XG4gIGNvbnN0IFBsb3RseSA9IHdpbmRvdy5QbG90bHlcbiAgbGV0IF9wbG90RGl2ID0gbnVsbFxuXG4gIHJldHVybiAoZGF0YSwgc2hvd0xpbmVhciwgc2hvd0N1YmljKSA9PiB7XG4gICAgY29uc3QgdHJhY2VzID0gW1xuICAgICAgLy8gVGhlIGZ1bmN0aW9uIGN1cnZlXG4gICAgICB7eDogZGF0YS5zYW1wbGVYcywgeTogZGF0YS5zYW1wbGVZcywgdHlwZTogXCJzY2F0dGVyXCIsIG1vZGU6IFwibGluZXNcIiwgbmFtZTogXCJmKHgpXCIsIHNob3dsZWdlbmQ6IHRydWUsIGxpbmU6IHtjb2xvcjogXCIjMjU2M2ViXCIsIHdpZHRoOiAzfX1cbiAgICBdXG5cbiAgICBpZiAoc2hvd0xpbmVhciAmJiBkYXRhLmxpbmVhclgubGVuZ3RoID4gMCkge1xuICAgICAgdHJhY2VzLnB1c2goe3g6IGRhdGEubGluZWFyWCwgeTogZGF0YS5saW5lYXJZLCB0eXBlOiBcInNjYXR0ZXJcIiwgbW9kZTogXCJsaW5lc1wiLCBuYW1lOiBcIkxpbmVhciBpbnRlcnBvbGFudFwiLCBzaG93bGVnZW5kOiB0cnVlLCBsaW5lOiB7Y29sb3I6IFwiI2RjMjYyNlwiLCB3aWR0aDogMi41fX0pXG4gICAgfVxuICAgIGlmIChzaG93Q3ViaWMgJiYgZGF0YS5jdWJpY1gubGVuZ3RoID4gMCkge1xuICAgICAgdHJhY2VzLnB1c2goe3g6IGRhdGEuY3ViaWNYLCB5OiBkYXRhLmN1YmljWSwgdHlwZTogXCJzY2F0dGVyXCIsIG1vZGU6IFwibGluZXNcIiwgbmFtZTogXCJDdWJpYyBzcGxpbmUgaW50ZXJwb2xhbnRcIiwgc2hvd2xlZ2VuZDogdHJ1ZSwgbGluZToge2NvbG9yOiBcIiMxNmEzNGFcIiwgd2lkdGg6IDIuNX19KVxuICAgIH1cbiAgICBpZiAoZGF0YS5ub2Rlc1gubGVuZ3RoID4gMCAmJiAoc2hvd0xpbmVhciB8fCBzaG93Q3ViaWMpKSB7XG4gICAgICB0cmFjZXMucHVzaCh7eDogZGF0YS5ub2Rlc1gsIHk6IGRhdGEubm9kZXNZLCB0eXBlOiBcInNjYXR0ZXJcIiwgbW9kZTogXCJtYXJrZXJzXCIsIG5hbWU6IFwiSW50ZXJwb2xhdGlvbiBub2Rlc1wiLCBzaG93bGVnZW5kOiB0cnVlLCBtYXJrZXI6IHtjb2xvcjogXCIjMTExODI3XCIsIHNpemU6IDgsIHN5bWJvbDogXCJjaXJjbGVcIiwgbGluZToge2NvbG9yOiBcIndoaXRlXCIsIHdpZHRoOiAxfX19KVxuICAgIH1cblxuICAgIGNvbnN0IGxheW91dCA9IHtcbiAgICAgIG1hcmdpbjoge2w6IDAsIHI6IDAsIHQ6IDAsIGI6IDB9LFxuICAgICAgeGF4aXM6IHt0aXRsZTogXCJ4XCIsIHJhbmdlOiBbZGF0YS54UmFuZ2UubG8sIGRhdGEueFJhbmdlLmhpXSwgemVyb2xpbmU6IHRydWV9LFxuICAgICAgeWF4aXM6IHt0aXRsZTogXCJ5XCIsIHJhbmdlOiBbZGF0YS55UmFuZ2UubG8sIGRhdGEueVJhbmdlLmhpXSwgemVyb2xpbmU6IHRydWV9LFxuICAgICAgbGVnZW5kOiB7b3JpZW50YXRpb246IFwiaFwiLCB5OiAtMC4wOH0sXG4gICAgICBob3Zlcm1vZGU6IFwiY2xvc2VzdFwiLFxuICAgICAgdWlyZXZpc2lvbjogXCJzdGF0aWNcIiwgIC8vIGtlZXBzIHpvb20vcGFuIHN0YXRlIGFjcm9zcyByZWFjdGl2ZSB1cGRhdGVzXG4gICAgICBhdXRvc2l6ZTogdHJ1ZVxuICAgIH1cbiAgICBjb25zdCBjb25maWcgPSB7cmVzcG9uc2l2ZTogdHJ1ZSwgZGlzcGxheWxvZ286IGZhbHNlfVxuXG4gICAgLy8gRmlyc3QgcmVuZGVyOiBjcmVhdGUgdGhlIGRpdi4gTGF0ZXIgcmVuZGVyczogdXBkYXRlIGluIHBsYWNlIChwcmVzZXJ2ZXMgem9vbSkuXG4gICAgaWYgKCFfcGxvdERpdikge1xuICAgICAgX3Bsb3REaXYgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gICAgICBfcGxvdERpdi5jbGFzc05hbWUgPSBcInBsb3RseS1ib3gtbGFyZ2VcIlxuICAgICAgUGxvdGx5Lm5ld1Bsb3QoX3Bsb3REaXYsIHRyYWNlcywgbGF5b3V0LCBjb25maWcpXG4gICAgICAvLyBuZXdQbG90IGZpcmVzIGJlZm9yZSB0aGUgZGl2IGlzIGluIHRoZSBET00sIHNvIFBsb3RseSBtZWFzdXJlcyAwIHdpZHRoLlxuICAgICAgLy8gQSBSZXNpemVPYnNlcnZlciBjYXRjaGVzIHRoZSByZWFsIHNpemUgb25jZSBpdCdzIGluc2VydGVkIGFuZCBsYWlkIG91dCxcbiAgICAgIC8vIGFuZCBrZWVwcyBjb3JyZWN0aW5nIGl0IG9uIGFueSBsYXRlciBsYXlvdXQvdmlld3BvcnQgY2hhbmdlLlxuICAgICAgbmV3IFJlc2l6ZU9ic2VydmVyKCgpID0+IFBsb3RseS5QbG90cy5yZXNpemUoX3Bsb3REaXYpKS5vYnNlcnZlKF9wbG90RGl2KVxuICAgIH0gZWxzZSB7XG4gICAgICBQbG90bHkucmVhY3QoX3Bsb3REaXYsIHRyYWNlcywgbGF5b3V0LCBjb25maWcpXG4gICAgfVxuICAgIHJldHVybiBfcGxvdERpdlxuICB9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTE2IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoibWFpblBsb3Qoc2V0dXAsIHNob3dMaW5lYXIsIHNob3dDdWJpYylcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiIvLyBpdGVyYXRlc1Bsb3QgZHJhd3MgdGhlIGxpbmVhciBhbmQgY3ViaWMgc3BsaW5lIGFyYyBsZW5ndGhzIHZzIG4gZm9yIHRoZVxuLy8gZW50aXJlIHJ1biwgYWdhaW5zdCBhIHJlZmVyZW5jZSBsaW5lIGF0IHRoZSB0cnVlIGFyYyBsZW5ndGggb2YgZiDigJQgaXRcbi8vIGRvZXNuJ3QgZGVwZW5kIG9uIHRoZSBjdXJyZW50IHN0ZXAsIHNvIGl0J3MganVzdCBwbG90dGVkIG9uY2UgcGVyIHJ1bi5cbml0ZXJhdGVzUGxvdCA9IHtcbiAgY29uc3QgbGluZWFyTmFtZSA9IFwiTGluZWFyIGludGVycG9sYW50XCJcbiAgY29uc3QgY3ViaWNOYW1lID0gXCJDdWJpYyBzcGxpbmUgaW50ZXJwb2xhbnRcIlxuICBjb25zdCB0cnVlTmFtZSA9IFwiVHJ1ZSBhcmMgbGVuZ3RoXCJcblxuICBjb25zdCBtYXJrcyA9IFtcbiAgICBQbG90LnJ1bGVZKFtyZXN1bHQudHJ1ZUFyY0xlbmd0aF0sIHtzdHJva2U6ICgpID0+IHRydWVOYW1lLCBzdHJva2VEYXNoYXJyYXk6IFwiNCwzXCJ9KSxcbiAgICBQbG90LmxpbmVZKHJlc3VsdC5yb3dzLCB7eDogXCJuXCIsIHk6IFwibGluZWFyTGVuZ3RoXCIsIHN0cm9rZTogKCkgPT4gbGluZWFyTmFtZX0pLFxuICAgIFBsb3QuZG90KHJlc3VsdC5yb3dzLCB7eDogXCJuXCIsIHk6IFwibGluZWFyTGVuZ3RoXCIsIGZpbGw6ICgpID0+IGxpbmVhck5hbWUsIHI6IDN9KSxcbiAgICBQbG90LmxpbmVZKHJlc3VsdC5yb3dzLCB7eDogXCJuXCIsIHk6IFwiY3ViaWNMZW5ndGhcIiwgc3Ryb2tlOiAoKSA9PiBjdWJpY05hbWV9KSxcbiAgICBQbG90LmRvdChyZXN1bHQucm93cywge3g6IFwiblwiLCB5OiBcImN1YmljTGVuZ3RoXCIsIGZpbGw6ICgpID0+IGN1YmljTmFtZSwgcjogM30pXG4gIF1cbiAgY29uc3QgY29sb3JEb21haW4gPSBbbGluZWFyTmFtZSwgY3ViaWNOYW1lLCB0cnVlTmFtZV1cbiAgY29uc3QgY29sb3JSYW5nZSA9IFtcIiNkYzI2MjZcIiwgXCIjMTZhMzRhXCIsIFwiIzExMTgyN1wiXVxuXG4gIGNvbnN0IGNoYXJ0ID0gUGxvdC5wbG90KHtcbiAgICB3aWR0aDogMzQwLCBoZWlnaHQ6IDMwMCwgbWFyZ2luTGVmdDogNDYsXG4gICAgeDoge2xhYmVsOiBcIm5cIn0sXG4gICAgeToge2xhYmVsOiBcImFyYyBsZW5ndGhcIn0sXG4gICAgY29sb3I6IHtkb21haW46IGNvbG9yRG9tYWluLCByYW5nZTogY29sb3JSYW5nZX0sXG4gICAgbWFya3NcbiAgfSlcbiAgY29uc3QgbGVnZW5kID0gUGxvdC5sZWdlbmQoe2NvbG9yOiB7ZG9tYWluOiBjb2xvckRvbWFpbiwgcmFuZ2U6IGNvbG9yUmFuZ2V9fSlcblxuICBjb25zdCBjb250YWluZXIgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIGNvbnRhaW5lci5hcHBlbmQoY2hhcnQsIGxlZ2VuZClcbiAgcmV0dXJuIGNvbnRhaW5lclxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xOCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6Ii8vIGNvbnZlcmdlbmNlUGxvdCBkcmF3cyBsb2figoHigoB8ZXJyb3J8IHZzIGxvZ+KCgeKCgCBuIGZvciBib3RoIGludGVycG9sYW50cywgd2l0aFxuLy8gYSBsaW5lYXIgcmVncmVzc2lvbiBsaW5lIGZvciBlYWNoLiBUaGUgc2xvcGUgb2YgZWFjaCBsaW5lIGVzdGltYXRlcyB0aGVcbi8vIG9yZGVyIG9mIGNvbnZlcmdlbmNlIG9mIHRoYXQgaW50ZXJwb2xhbnQncyBhcmMgbGVuZ3RoIChuZWdhdGVkLCBzaW5jZVxuLy8gZXJyb3Igc2hyaW5rcyBhcyBuIGdyb3dzKSDigJQgZm9yIHRoZSBlbnRpcmUgcnVuLCBzbyBpdCdzIGp1c3QgcGxvdHRlZCBvbmNlXG4vLyBwZXIgcnVuLlxuY29udmVyZ2VuY2VQbG90ID0ge1xuICBjb25zdCByZWdyZXNzaW9uID0gcG9pbnRzID0+IHtcbiAgICBpZiAocG9pbnRzLmxlbmd0aCA8IDIpIHJldHVybiBudWxsXG4gICAgY29uc3QgcG9pbnRDb3VudCA9IHBvaW50cy5sZW5ndGhcbiAgICBsZXQgc3ggPSAwLCBzeSA9IDAsIHN4eSA9IDAsIHN4eCA9IDBcbiAgICBmb3IgKGNvbnN0IHAgb2YgcG9pbnRzKSB7XG4gICAgICBzeCArPSBwLnhcbiAgICAgIHN5ICs9IHAueVxuICAgICAgc3h5ICs9IHAueCAqIHAueVxuICAgICAgc3h4ICs9IHAueCAqIHAueFxuICAgIH1cbiAgICBjb25zdCBkZW5vbSA9IHBvaW50Q291bnQgKiBzeHggLSBzeCAqIHN4XG4gICAgaWYgKGRlbm9tID09PSAwKSByZXR1cm4gbnVsbFxuICAgIGNvbnN0IHNsb3BlID0gKHBvaW50Q291bnQgKiBzeHkgLSBzeCAqIHN5KSAvIGRlbm9tXG4gICAgY29uc3QgaW50ZXJjZXB0ID0gKHN5IC0gc2xvcGUgKiBzeCkgLyBwb2ludENvdW50XG4gICAgcmV0dXJuIHtzbG9wZSwgaW50ZXJjZXB0LCB4bG86IHBvaW50c1swXS54LCB4aGk6IHBvaW50c1twb2ludENvdW50IC0gMV0ueH1cbiAgfVxuXG4gIGNvbnN0IGxpbmVhclB0cyA9IFtdXG4gIGNvbnN0IGN1YmljUHRzID0gW11cbiAgZm9yIChjb25zdCByb3cgb2YgcmVzdWx0LnJvd3MpIHtcbiAgICBpZiAoTnVtYmVyLmlzRmluaXRlKHJvdy5saW5lYXJFcnJvcikgJiYgcm93LmxpbmVhckVycm9yID4gMCkge1xuICAgICAgbGluZWFyUHRzLnB1c2goe3g6IE1hdGgubG9nMTAocm93Lm4pLCB5OiBNYXRoLmxvZzEwKHJvdy5saW5lYXJFcnJvcil9KVxuICAgIH1cbiAgICBpZiAoTnVtYmVyLmlzRmluaXRlKHJvdy5jdWJpY0Vycm9yKSAmJiByb3cuY3ViaWNFcnJvciA+IDApIHtcbiAgICAgIGN1YmljUHRzLnB1c2goe3g6IE1hdGgubG9nMTAocm93Lm4pLCB5OiBNYXRoLmxvZzEwKHJvdy5jdWJpY0Vycm9yKX0pXG4gICAgfVxuICB9XG5cbiAgY29uc3QgbGluZWFyTmFtZSA9IFwiTGluZWFyIGludGVycG9sYW50IGVycm9yXCJcbiAgY29uc3QgY3ViaWNOYW1lID0gXCJDdWJpYyBzcGxpbmUgZXJyb3JcIlxuICBjb25zdCBtYXJrcyA9IFtcbiAgICBQbG90LmRvdChsaW5lYXJQdHMsIHt4OiBcInhcIiwgeTogXCJ5XCIsIGZpbGw6ICgpID0+IGxpbmVhck5hbWUsIHI6IDR9KSxcbiAgICBQbG90LmRvdChjdWJpY1B0cywge3g6IFwieFwiLCB5OiBcInlcIiwgZmlsbDogKCkgPT4gY3ViaWNOYW1lLCByOiA0fSlcbiAgXVxuICBjb25zdCBjb2xvckRvbWFpbiA9IFtsaW5lYXJOYW1lLCBjdWJpY05hbWVdXG4gIGNvbnN0IGNvbG9yUmFuZ2UgPSBbXCIjZGMyNjI2XCIsIFwiIzE2YTM0YVwiXVxuICAvLyBsZWdlbmREb21haW4vbGVnZW5kUmFuZ2UgaG9sZCBvbmx5IHRoZSByZWdyZXNzaW9uIGxpbmVzIOKAlCB0aGUgbGVnZW5kXG4gIC8vIHNob3duIGJlbG93IHRoZSBjaGFydCBkaXNwbGF5cyBqdXN0IHRoZSBmaXR0ZWQgb3JkZXJzLCBub3QgdGhlIHJhd1xuICAvLyBwb2ludCBzZXJpZXMsIHRvIGtlZXAgaXQgdW5jbHV0dGVyZWQuXG4gIGNvbnN0IGxlZ2VuZERvbWFpbiA9IFtdLCBsZWdlbmRSYW5nZSA9IFtdXG5cbiAgY29uc3QgbGluZWFyRml0ID0gcmVncmVzc2lvbihsaW5lYXJQdHMpXG4gIGlmIChsaW5lYXJGaXQpIHtcbiAgICBjb25zdCBsaW5lTmFtZSA9IGBsaW5lYXIgb3JkZXIg4omIICR7KC1saW5lYXJGaXQuc2xvcGUpLnRvRml4ZWQoMil9YFxuICAgIG1hcmtzLnB1c2goUGxvdC5saW5lKFxuICAgICAgW3t4OiBsaW5lYXJGaXQueGxvLCB5OiBsaW5lYXJGaXQuc2xvcGUgKiBsaW5lYXJGaXQueGxvICsgbGluZWFyRml0LmludGVyY2VwdH0sIHt4OiBsaW5lYXJGaXQueGhpLCB5OiBsaW5lYXJGaXQuc2xvcGUgKiBsaW5lYXJGaXQueGhpICsgbGluZWFyRml0LmludGVyY2VwdH1dLFxuICAgICAge3g6IFwieFwiLCB5OiBcInlcIiwgc3Ryb2tlOiAoKSA9PiBsaW5lTmFtZSwgc3Ryb2tlRGFzaGFycmF5OiBcIjYsNFwifVxuICAgICkpXG4gICAgY29sb3JEb21haW4ucHVzaChsaW5lTmFtZSlcbiAgICBjb2xvclJhbmdlLnB1c2goXCIjZjg3MTcxXCIpXG4gICAgbGVnZW5kRG9tYWluLnB1c2gobGluZU5hbWUpXG4gICAgbGVnZW5kUmFuZ2UucHVzaChcIiNmODcxNzFcIilcbiAgfVxuXG4gIGNvbnN0IGN1YmljRml0ID0gcmVncmVzc2lvbihjdWJpY1B0cylcbiAgaWYgKGN1YmljRml0KSB7XG4gICAgY29uc3QgbGluZU5hbWUgPSBgY3ViaWMgb3JkZXIg4omIICR7KC1jdWJpY0ZpdC5zbG9wZSkudG9GaXhlZCgyKX1gXG4gICAgbWFya3MucHVzaChQbG90LmxpbmUoXG4gICAgICBbe3g6IGN1YmljRml0LnhsbywgeTogY3ViaWNGaXQuc2xvcGUgKiBjdWJpY0ZpdC54bG8gKyBjdWJpY0ZpdC5pbnRlcmNlcHR9LCB7eDogY3ViaWNGaXQueGhpLCB5OiBjdWJpY0ZpdC5zbG9wZSAqIGN1YmljRml0LnhoaSArIGN1YmljRml0LmludGVyY2VwdH1dLFxuICAgICAge3g6IFwieFwiLCB5OiBcInlcIiwgc3Ryb2tlOiAoKSA9PiBsaW5lTmFtZSwgc3Ryb2tlRGFzaGFycmF5OiBcIjYsNFwifVxuICAgICkpXG4gICAgY29sb3JEb21haW4ucHVzaChsaW5lTmFtZSlcbiAgICBjb2xvclJhbmdlLnB1c2goXCIjNGFkZTgwXCIpXG4gICAgbGVnZW5kRG9tYWluLnB1c2gobGluZU5hbWUpXG4gICAgbGVnZW5kUmFuZ2UucHVzaChcIiM0YWRlODBcIilcbiAgfVxuXG4gIGNvbnN0IGNoYXJ0ID0gUGxvdC5wbG90KHtcbiAgICB3aWR0aDogMzQwLCBoZWlnaHQ6IDMwMCwgbWFyZ2luTGVmdDogNDYsXG4gICAgeDoge2xhYmVsOiBcImxvZ+KCgeKCgCBuXCJ9LFxuICAgIHk6IHtsYWJlbDogXCJsb2figoHigoAgfGVycm9yfFwifSxcbiAgICBjb2xvcjoge2RvbWFpbjogY29sb3JEb21haW4sIHJhbmdlOiBjb2xvclJhbmdlfSxcbiAgICBtYXJrc1xuICB9KVxuICBjb25zdCBsZWdlbmQgPSBQbG90LmxlZ2VuZCh7Y29sb3I6IHtkb21haW46IGxlZ2VuZERvbWFpbiwgcmFuZ2U6IGxlZ2VuZFJhbmdlfX0pXG5cbiAgY29uc3QgY29udGFpbmVyID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICBjb250YWluZXIuYXBwZW5kKGNoYXJ0LCBsZWdlbmQpXG4gIHJldHVybiBjb250YWluZXJcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTkiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiIvLyBBcmMgbGVuZ3RoIHRhYmxlIOKAlCBzaG93cyB0aGUgZW50aXJlIHJ1biwgbm90IGp1c3QgdGhlIGN1cnJlbnQgbiwgd2l0aFxuLy8gYm90aCBhcmMgbGVuZ3RocyBhbmQgYm90aCBlcnJvcnMgYWdhaW5zdCB0aGUgdHJ1ZSBhcmMgbGVuZ3RoIG9mIGYuXG5hcmNMZW5ndGhUYWJsZSA9IHtcbiAgaWYgKHJlc3VsdC5yb3dzLmxlbmd0aCA9PT0gMCkge1xuICAgIC8vIEFsd2F5cyByZXR1cm4gYSBOb2RlIHNvIFF1YXJ0bydzIE9KUyBydW50aW1lIG5ldmVyIGxhdGNoZXMgdGhpc1xuICAgIC8vIGRlY2xhcmF0aW9uIGNlbGwgYXMgaGlkZGVuLlxuICAgIHJldHVybiBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIH1cblxuICBjb25zdCBmb3JtYXR0ZWRSb3dzID0gW11cbiAgZm9yIChjb25zdCByb3cgb2YgcmVzdWx0LnJvd3MpIHtcbiAgICBsZXQgY3ViaWNDZWxsID0gXCJOYU5cIlxuICAgIGlmIChOdW1iZXIuaXNGaW5pdGUocm93LmN1YmljTGVuZ3RoKSkgY3ViaWNDZWxsID0gcm93LmN1YmljTGVuZ3RoLnRvUHJlY2lzaW9uKDEwKVxuXG4gICAgbGV0IGN1YmljRXJyb3JDZWxsID0gXCJOYU5cIlxuICAgIGlmIChOdW1iZXIuaXNGaW5pdGUocm93LmN1YmljRXJyb3IpKSBjdWJpY0Vycm9yQ2VsbCA9IHJvdy5jdWJpY0Vycm9yLnRvRXhwb25lbnRpYWwoNClcblxuICAgIGZvcm1hdHRlZFJvd3MucHVzaChbXG4gICAgICByb3cubixcbiAgICAgIHJvdy5saW5lYXJMZW5ndGgudG9QcmVjaXNpb24oMTApLFxuICAgICAgY3ViaWNDZWxsLFxuICAgICAgcm93LnRydWVBcmNMZW5ndGgudG9QcmVjaXNpb24oMTApLFxuICAgICAgcm93LmxpbmVhckVycm9yLnRvRXhwb25lbnRpYWwoNCksXG4gICAgICBjdWJpY0Vycm9yQ2VsbFxuICAgIF0pXG4gIH1cblxuICByZXR1cm4gVk0ucmVuZGVyVGFibGUoe1xuICAgIGh0bWwsXG4gICAgaGVhZGVyczogW1wiblwiLCB0ZXhgTF97XFx0ZXh0e2xpbmVhcn19YCwgdGV4YExfe1xcdGV4dHtjdWJpY319YCwgdGV4YExfe1xcdGV4dHt0cnVlfX1gLCB0ZXhgfExfe1xcdGV4dHtsaW5lYXJ9fSAtIExfe1xcdGV4dHt0cnVlfX18YCwgdGV4YHxMX3tcXHRleHR7Y3ViaWN9fSAtIExfe1xcdGV4dHt0cnVlfX18YF0sXG4gICAgY3N2SGVhZGVyczogW1wiblwiLCBcIkxfbGluZWFyXCIsIFwiTF9jdWJpY1wiLCBcIkxfdHJ1ZVwiLCBcInxMX2xpbmVhciAtIExfdHJ1ZXxcIiwgXCJ8TF9jdWJpYyAtIExfdHJ1ZXxcIl0sXG4gICAgZmlsZW5hbWU6IFwibGluZWFyLWN1YmljLWFyYy1sZW5ndGhzLmNzdlwiLFxuICAgIHJvd3M6IGZvcm1hdHRlZFJvd3NcbiAgfSlcbn1cbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnZlRleHQnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnYTAnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnYjAnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncGxvdFRyaWdnZXInKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnbkNvbnRyb2wnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnbWF4TicpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdpbnRlcnBvbGFudHMnKSJ9XX0=
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../../piecewise-interpolation/linear-cubic";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "../..";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apurvanakade\.github\.io\/VisualMath");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../piecewise-interpolation/index.html" class="pagination-link" aria-label="Piecewise Interpolation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Piecewise Interpolation</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../piecewise-interpolation/integration/index.html" class="pagination-link" aria-label="Numerical Integration">
+        <span class="nav-page-text">Numerical Integration</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

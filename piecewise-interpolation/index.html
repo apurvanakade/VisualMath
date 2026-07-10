@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>VisualMath</title>
+<title>Piecewise Interpolation – VisualMath</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,27 +26,31 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-26d9cc88ab9604001aabd73cb1ea1d8f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-1cac052cedcf2979d227980a6e05382f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-26d9cc88ab9604001aabd73cb1ea1d8f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../piecewise-interpolation/linear-cubic/index.html" rel="next">
+<link href="../root-finding/secant-method/index.html" rel="prev">
+<script src="../site_libs/quarto-listing/list.min.js"></script>
+<script src="../site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-26d9cc88ab9604001aabd73cb1ea1d8f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-1cac052cedcf2979d227980a6e05382f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-26d9cc88ab9604001aabd73cb1ea1d8f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -74,12 +78,42 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-image','listing-title','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-title","listing-author","listing-image","listing-description","listing-categories"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjs@13.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/make-function.js"></script>
 <script src="../../js/make-derivative.js"></script>
 <script src="../../js/padded-range.js"></script>
 <script src="../../js/render-table.js"></script>
+<script src="../../js/cubic-spline.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -111,7 +145,7 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -283,7 +317,7 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">VisualMath</span>
     </a>
   </div>
@@ -298,21 +332,21 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">VisualMath</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../piecewise-interpolation/index.html">Piecewise Interpolation</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
   </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="./root-finding/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../root-finding/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Root Finding</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -321,20 +355,49 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./root-finding/bisection-method/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../root-finding/bisection-method/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Bisection Method</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./root-finding/fixed-point/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../root-finding/fixed-point/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Fixed Point Iteration</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./root-finding/newton/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../root-finding/newton-method/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Newton’s Method</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../root-finding/secant-method/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Secant Method</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../piecewise-interpolation/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Piecewise Interpolation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../piecewise-interpolation/linear-cubic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linear vs.&nbsp;Cubic Spline Interpolation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../piecewise-interpolation/integration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Numerical Integration</span></a>
   </div>
 </li>
       </ul>
@@ -344,21 +407,21 @@ window.Quarto = {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    </div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(2)</span></div><div class="category" data-category="QXJjJTIwbGVuZ3Ro">Arc length <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Q3ViaWMlMjBzcGxpbmVz">Cubic splines <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SW50ZWdyYXRpb24=">Integration <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SW50ZXJwb2xhdGlvbg==">Interpolation <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TGluZWFyJTIwaW50ZXJwb2xhdGlvbg==">Linear interpolation <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UmllbWFubiUyMHN1bXM=">Riemann sums <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U2ltcHNvbidzJTIwcnVsZQ==">Simpson's rule <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VHJhcGV6b2lkYWwlMjBydWxl">Trapezoidal rule <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
-<main class="content column-page-right" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">VisualMath</h1>
+<h1 class="title">Piecewise Interpolation</h1>
 </div>
 
 
 
-<div class="quarto-title-meta column-page-right">
+<div class="quarto-title-meta">
 
     
   
@@ -371,131 +434,70 @@ window.Quarto = {
 
 
 <!--
-Copyright (c) 2026 Dhruv Azad. All rights reserved.
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Dhruv Azad
+Authors: Apurva Nakade
 -->
-<div class="home-hero">
-<div class="home-hero-content">
-<p class="home-eyebrow">
-Interactive Computational Mathematics
-</p>
-<h1 class="home-title">
-VisualMath
-</h1>
-<p class="home-subtitle">
-Explore numerical methods through fast, interactive, browser-based visualizations. VisualMath turns abstract computational mathematics algorithms into dynamic, step-by-step apps.
-</p>
-<div class="home-hero-actions">
-<p><a class="home-primary-button" href="root-finding/">Start exploring</a> <a class="home-secondary-button" href="about.html">Learn more</a></p>
-</div>
-</div>
-<div class="home-hero-visual" aria-hidden="true">
-<div class="math-orbit orbit-one">
-
-</div>
-<div class="math-orbit orbit-two">
-
-</div>
-<div class="math-card floating-card card-one">
-<span class="math inline">\(f(x)=0\)</span>
-</div>
-<div class="math-card floating-card card-two">
-<span class="math inline">\({x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}}\)</span>
-</div>
-<div class="math-card floating-card card-three">
-<span class="math inline">\({m=\frac{a+b}{2}}\)</span>
-</div>
-</div>
-</div>
-<div class="home-section">
-<div class="home-section-header">
-<p class="home-eyebrow">
-Available Modules
-</p>
-<h2 class="anchored">
-Choose a topic
-</h2>
-<p>
-Each module contains interactive apps, visual explanations, and step-by-step numerical computations.
-</p>
-</div>
-<div class="topic-grid">
-<div class="topic-card">
-  <div class="topic-card-icon">√</div>
-  <h3 class="anchored"><a href="root-finding/">Root Finding</a></h3>
-  <p>
-    Explore interactive methods for solving equations of the form \(f(x)=0\),
-    including bisection, fixed point iteration, and Newton’s method.
-  </p>
-  <div class="topic-card-footer">
-    <span>Bisection</span>
-    <span>Fixed Point</span>
-    <span>Newton</span>
-  </div>
-</div>
-<div class="topic-card topic-card-muted">
-  <div class="topic-card-icon">∫</div>
-  <h3 class="anchored">Numerical Integration</h3>
-  <p>
-    Coming soon: visualize how numerical rules approximate areas and definite integrals.
-  </p>
-  <div class="topic-card-footer">
-    <span>Coming soon</span>
-  </div>
-</div>
-<div class="topic-card topic-card-muted">
-  <div class="topic-card-icon">Ax</div>
-  <h3 class="anchored">Linear Algebra</h3>
-  <p>
-    Coming soon: interactive visualizations for matrix operations, systems, and transformations.
-  </p>
-  <div class="topic-card-footer">
-    <span>Coming soon</span>
-  </div>
-</div>
-</div>
-</div>
-<div class="home-section home-feature-section">
-<div class="home-section-header">
-<p class="home-eyebrow">
-Why VisualMath?
-</p>
-<h2 class="anchored">
-Designed for exploration
-</h2>
-</div>
-<div class="feature-grid">
-<div class="feature-card">
-<h3 class="anchored">
-Step-by-step algorithms
-</h3>
-<p>
-Move through each iteration one step at a time and see how the method changes geometrically.
-</p>
-</div>
-<div class="feature-card">
-<h3 class="anchored">
-Fast browser apps
-</h3>
-<p>
-VisualMath uses Quarto, OJS, Plotly, and math.js, so apps run directly in the browser.
-</p>
-</div>
-<div class="feature-card">
-<h3 class="anchored">
-Visual intuition
-</h3>
-<p>
-Plots, tables, and explanations are combined to connect the computation with the underlying mathematics.
-</p>
-</div>
-</div>
-</div>
+<p>Piecewise interpolation methods approximate a function using simple pieces — straight line segments or low-degree polynomials — fit between a set of sample points. These methods are central to numerical analysis because they let us work with unknown or expensive-to-evaluate functions using only a handful of samples.</p>
 
 
 
-</main> <!-- /main -->
+
+<div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
+<div class="list grid quarto-listing-cols-3">
+<div class="g-col-1" data-index="0" data-categories="SW50ZWdyYXRpb24lMkNSaWVtYW5uJTIwc3VtcyUyQ1RyYXBlem9pZGFsJTIwcnVsZSUyQ1NpbXBzb24ncyUyMHJ1bGU=" data-listing-file-modified-sort="1783649324116" data-listing-reading-time-sort="22" data-listing-word-count-sort="4289">
+<a href="../piecewise-interpolation/integration/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Numerical Integration
+</h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('SW50ZWdyYXRpb24='); return false;">Integration</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UmllbWFubiUyMHN1bXM='); return false;">Riemann sums</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VHJhcGV6b2lkYWwlMjBydWxl'); return false;">Trapezoidal rule</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2ltcHNvbidzJTIwcnVsZQ=='); return false;">Simpson's rule</div>
+
+</div>
+<div class="card-text listing-description delink">
+The definite integral <span class="math inline">\(\int_a^b f(x)\, dx\)</span> can be approximated by replacing <span class="math inline">\(f\)</span> with a simple piecewise interpolant on <span class="math inline">\(n\)</span> equally spaced subintervals <span class="math inline">\([x_0, x_1]…</span>
+</div>
+</div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="1" data-categories="SW50ZXJwb2xhdGlvbiUyQ0xpbmVhciUyMGludGVycG9sYXRpb24lMkNDdWJpYyUyMHNwbGluZXMlMkNBcmMlMjBsZW5ndGg=" data-listing-file-modified-sort="1783649324113" data-listing-reading-time-sort="17" data-listing-word-count-sort="3338">
+<a href="../piecewise-interpolation/linear-cubic/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Linear vs.&nbsp;Cubic Spline Interpolation
+</h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('SW50ZXJwb2xhdGlvbg=='); return false;">Interpolation</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TGluZWFyJTIwaW50ZXJwb2xhdGlvbg=='); return false;">Linear interpolation</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Q3ViaWMlMjBzcGxpbmVz'); return false;">Cubic splines</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QXJjJTIwbGVuZ3Ro'); return false;">Arc length</div>
+
+</div>
+<div class="card-text listing-description delink">
+Given a function <span class="math inline">\(f\)</span> on <span class="math inline">\([a, b]\)</span>, sample it at <span class="math inline">\(n+1\)</span> equally spaced nodes <span class="math inline">\(x_0 &lt; x_1 &lt; \dots &lt; x_n\)</span> and connect the samples <span class="math inline">\((x_i, f(x_i))\)</span> with simple pieces. A <strong>li…</strong><strong></strong>
+</div>
+</div>
+</div></a>
+</div>
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
@@ -909,6 +911,18 @@ Plots, tables, and explanations are combined to connect the computation with the
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../root-finding/secant-method/index.html" class="pagination-link" aria-label="Secant Method">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Secant Method</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../piecewise-interpolation/linear-cubic/index.html" class="pagination-link" aria-label="Linear vs. Cubic Spline Interpolation">
+        <span class="nav-page-text">Linear vs.&nbsp;Cubic Spline Interpolation</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 
