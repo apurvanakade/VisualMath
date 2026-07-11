@@ -36,8 +36,10 @@ Each file is a small IIFE that extends `window.VM` with one function:
 
 - `js/make-function.js` → `VM.makeFunction(mathjs, expr)` — returns `(x) => number`, or `null` if the expression can't be parsed. Normalizes input (trim, replace `π` → `pi`), compiles via math.js, evaluates safely.
 - `js/make-derivative.js` → `VM.makeDerivative(mathjs, expr)` — like `makeFunction` but returns the symbolic derivative.
+- `js/make-ode-function.js` → `VM.makeFunction2(mathjs, expr)` — like `makeFunction` but returns `(t, y) => number`, for ODE right-hand sides `y' = f(t, y)`.
 - `js/padded-range.js` → `VM.paddedRange(values, opts)` — returns `{lo, hi}` with configurable padding for axis ranges.
 - `js/render-table.js` → `VM.renderTable({html, headers, rows})` — returns a DOM table node styled with `ojs-table` classes.
+- `js/cubic-spline.js` → `VM.cubicSpline(xs, ys)` — returns `(x) => number` evaluating the natural cubic spline through the given points, or `null` if fewer than two points.
 - `js/plotly-fullscreen-button.js` → patches `Plotly.newPlot`/`Plotly.react` to add a fullscreen-toggle button to every chart's modebar automatically — no per-page wiring needed, including on new method pages.
 
 ### Adding a new method page

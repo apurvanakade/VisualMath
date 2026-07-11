@@ -27,6 +27,8 @@ website:
           contents: "root-finding/*/index.qmd"
         - section: piecewise-interpolation/index.qmd
           contents: "piecewise-interpolation/*/index.qmd"
+        - section: differential-equations/index.qmd
+          contents: "differential-equations/*/index.qmd"
 
 format:
   html:
@@ -46,3 +48,4 @@ format:
           <script src="../../js/render-table.js"></script>
           <script src="../../js/cubic-spline.js"></script>
           <script src="../../js/plotly-fullscreen-button.js"></script>
+          <script src="../../js/make-ode-function.js"></script>
