@@ -46,10 +46,8 @@ viewof fText = {
 ```{ojs}
 viewof a0 = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("a")
-  let value = 0
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Left endpoint a", value})
+  const a0Input = Inputs.text({label: "Left endpoint a", value: params.get("a") ?? "0", placeholder: "Example: 0, -pi"})
+  return a0Input
 }
 ```
 
@@ -60,10 +58,8 @@ viewof a0 = {
 ```{ojs}
 viewof b0 = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("b")
-  let value = 6.283185307179586
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Right endpoint b", value})
+  const b0Input = Inputs.text({label: "Right endpoint b", value: params.get("b") ?? "2*pi", placeholder: "Example: 2*pi, 6.28"})
+  return b0Input
 }
 ```
 
@@ -93,10 +89,22 @@ viewof nControl = {
 ```
 
 ```{ojs}
-viewof maxN = {
-  const maxNInput = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
-  maxNInput.classList.add("ojs-auto")
-  return maxNInput
+viewof maxNInput = {
+  const input = Inputs.text({value: "20", label: "Max", placeholder: "Example: 20, 5*4"})
+  input.classList.add("ojs-auto")
+  return input
+}
+```
+
+```{ojs}
+//| output: false
+// maxN parses the Max field's expression, falling back to 20 for invalid
+// input so the n slider always gets a usable bound.
+maxN = {
+  const math = window.math
+  const parsed = VM.makeNumber(math, maxNInput)
+  if (parsed === null || !Number.isFinite(parsed)) return 20
+  return Math.max(1, Math.round(parsed))
 }
 ```
 
@@ -154,14 +162,17 @@ enterToPlot = {
 // default) values with no click.
 committed = {
   plotTrigger
+  const math = window.math
   const fVal = (viewof fText).value
-  const aVal = Number((viewof a0).value)
-  const bVal = Number((viewof b0).value)
+  const aText = (viewof a0).value
+  const bText = (viewof b0).value
+  const aVal = VM.makeNumber(math, aText)
+  const bVal = VM.makeNumber(math, bText)
 
   const params = new URLSearchParams(window.location.search)
   params.set("f", fVal)
-  params.set("a", String(aVal))
-  params.set("b", String(bVal))
+  params.set("a", aText)
+  params.set("b", bText)
   history.replaceState(null, "", `${window.location.pathname}?${params}`)
 
   return {fText: fVal, a0: aVal, b0: bVal}
@@ -184,8 +195,8 @@ result = {
 
   if (!f) return {rows: [], f: fallback, trueArcLength: NaN}
 
-  const a = Number(committed.a0)
-  const b = Number(committed.b0)
+  const a = committed.a0
+  const b = committed.b0
   if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return {rows: [], f, trueArcLength: NaN}
 
   const lo = Math.min(a, b)
@@ -275,8 +286,8 @@ setup = {
 
   const n = Math.min(Math.max(Math.round(Number(nControl)), 1), result.rows.length)
 
-  const a = Number(committed.a0)
-  const b = Number(committed.b0)
+  const a = committed.a0
+  const b = committed.b0
   const lo = Math.min(a, b)
   const hi = Math.max(a, b)
 

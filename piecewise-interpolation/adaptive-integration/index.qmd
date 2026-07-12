@@ -52,10 +52,8 @@ viewof fText = {
 ```{ojs}
 viewof a0 = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("a")
-  let value = 0
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Left endpoint a", value})
+  const a0Input = Inputs.text({label: "Left endpoint a", value: params.get("a") ?? "0", placeholder: "Example: 0, -pi"})
+  return a0Input
 }
 ```
 
@@ -66,10 +64,8 @@ viewof a0 = {
 ```{ojs}
 viewof b0 = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("b")
-  let value = 3.141592653589793
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Right endpoint b", value})
+  const b0Input = Inputs.text({label: "Right endpoint b", value: params.get("b") ?? "pi", placeholder: "Example: pi, 3.14"})
+  return b0Input
 }
 ```
 
@@ -99,10 +95,22 @@ viewof tolExponent = {
 ```
 
 ```{ojs}
-viewof maxDepth = {
-  const maxDepthInput = Inputs.number({value: 15, min: 1, step: 1, label: "Max depth"})
-  maxDepthInput.classList.add("ojs-auto")
-  return maxDepthInput
+viewof maxDepthInput = {
+  const input = Inputs.text({value: "15", label: "Max depth", placeholder: "Example: 15, 5*3"})
+  input.classList.add("ojs-auto")
+  return input
+}
+```
+
+```{ojs}
+//| output: false
+// maxDepth parses the Max depth field's expression, falling back to 15 for
+// invalid input so the recursion always gets a usable depth limit.
+maxDepth = {
+  const math = window.math
+  const parsed = VM.makeNumber(math, maxDepthInput)
+  if (parsed === null || !Number.isFinite(parsed)) return 15
+  return Math.max(1, Math.round(parsed))
 }
 ```
 
@@ -142,14 +150,17 @@ enterToPlot = {
 // default) values with no click.
 committed = {
   plotTrigger
+  const math = window.math
   const fVal = (viewof fText).value
-  const aVal = Number((viewof a0).value)
-  const bVal = Number((viewof b0).value)
+  const aText = (viewof a0).value
+  const bText = (viewof b0).value
+  const aVal = VM.makeNumber(math, aText)
+  const bVal = VM.makeNumber(math, bText)
 
   const params = new URLSearchParams(window.location.search)
   params.set("f", fVal)
-  params.set("a", String(aVal))
-  params.set("b", String(bVal))
+  params.set("a", aText)
+  params.set("b", bText)
   history.replaceState(null, "", `${window.location.pathname}?${params}`)
 
   return {fText: fVal, a0: aVal, b0: bVal}
@@ -205,8 +216,8 @@ result = {
 
   if (!f) return {leaves: [], calls: [], f: fallback, totalEstimate: NaN, totalErrorEstimate: NaN, trueIntegral: NaN, actualError: NaN}
 
-  const a = Number(committed.a0)
-  const b = Number(committed.b0)
+  const a = committed.a0
+  const b = committed.b0
   if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return {leaves: [], calls: [], f, totalEstimate: NaN, totalErrorEstimate: NaN, trueIntegral: NaN, actualError: NaN}
 
   const lo = Math.min(a, b)
@@ -216,7 +227,7 @@ result = {
   const fb = f(hi)
   if (!Number.isFinite(fa) || !Number.isFinite(fb)) return {leaves: [], calls: [], f, totalEstimate: NaN, totalErrorEstimate: NaN, trueIntegral: NaN, actualError: NaN}
 
-  const depthLimit = Math.max(1, Math.round(Number(maxDepth)))
+  const depthLimit = maxDepth
   // Safety valve: caps total leaves so a pathological (e.g. non-converging
   // or discontinuous) function can't hang the browser with an exponential
   // blow-up of subdivisions.

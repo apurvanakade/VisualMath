@@ -36,6 +36,7 @@ Each file is a small IIFE that extends `window.VM` with one function:
 
 - `js/make-function.js` → `VM.makeFunction(mathjs, expr)` — returns `(x) => number`, or `null` if the expression can't be parsed. Normalizes input (trim, replace `π` → `pi`), compiles via math.js, evaluates safely.
 - `js/make-derivative.js` → `VM.makeDerivative(mathjs, expr)` — like `makeFunction` but returns the symbolic derivative.
+- `js/make-number.js` → `VM.makeNumber(mathjs, expr)` — evaluates a constant expression (e.g. `1 + 2*3 + pi - e`) to a JS number, or `null` if it can't be parsed. Used by all numeric input fields (initial guesses, endpoints, max iterations, ...) so they accept expressions, not just literal numbers.
 - `js/make-ode-function.js` → `VM.makeFunction2(mathjs, expr)` — like `makeFunction` but returns `(t, y) => number`, for ODE right-hand sides `y' = f(t, y)`.
 - `js/padded-range.js` → `VM.paddedRange(values, opts)` — returns `{lo, hi}` with configurable padding for axis ranges.
 - `js/render-table.js` → `VM.renderTable({html, headers, rows})` — returns a DOM table node styled with `ojs-table` classes.

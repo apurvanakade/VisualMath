@@ -64,10 +64,8 @@ viewof fText = {
 ```{ojs}
 viewof y0 = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("y0")
-  let value = 0.5
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Initial condition y(0)", value})
+  const y0Input = Inputs.text({label: "Initial condition y(0)", value: params.get("y0") ?? "0.5", placeholder: "Example: 0.5, 1/2"})
+  return y0Input
 }
 ```
 
@@ -78,10 +76,8 @@ viewof y0 = {
 ```{ojs}
 viewof bEnd = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("b")
-  let value = 2
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Right endpoint b", value})
+  const bEndInput = Inputs.text({label: "Right endpoint b", value: params.get("b") ?? "2", placeholder: "Example: 2, pi"})
+  return bEndInput
 }
 ```
 
@@ -111,10 +107,22 @@ viewof nControl = {
 ```
 
 ```{ojs}
-viewof maxN = {
-  const maxNInput = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
-  maxNInput.classList.add("ojs-auto")
-  return maxNInput
+viewof maxNInput = {
+  const input = Inputs.text({value: "20", label: "Max", placeholder: "Example: 20, 5*4"})
+  input.classList.add("ojs-auto")
+  return input
+}
+```
+
+```{ojs}
+//| output: false
+// maxN parses the Max field's expression, falling back to 20 for invalid
+// input so the n slider always gets a usable bound.
+maxN = {
+  const math = window.math
+  const parsed = VM.makeNumber(math, maxNInput)
+  if (parsed === null || !Number.isFinite(parsed)) return 20
+  return Math.max(1, Math.round(parsed))
 }
 ```
 
@@ -178,14 +186,17 @@ enterToPlot = {
 // URL-provided (or default) values with no click.
 committed = {
   plotTrigger
+  const math = window.math
   const fVal = (viewof fText).value
-  const y0Val = Number((viewof y0).value)
-  const bVal = Number((viewof bEnd).value)
+  const y0Text = (viewof y0).value
+  const bText = (viewof bEnd).value
+  const y0Val = VM.makeNumber(math, y0Text)
+  const bVal = VM.makeNumber(math, bText)
 
   const params = new URLSearchParams(window.location.search)
   params.set("f", fVal)
-  params.set("y0", String(y0Val))
-  params.set("b", String(bVal))
+  params.set("y0", y0Text)
+  params.set("b", bText)
   history.replaceState(null, "", `${window.location.pathname}?${params}`)
 
   return {fText: fVal, y0: y0Val, bEnd: bVal}
@@ -280,8 +291,8 @@ result = {
   if (!f) return {rows: [], f: fallback, trueValue: NaN}
 
   const t0 = 0
-  const y0 = Number(committed.y0)
-  const b = Number(committed.bEnd)
+  const y0 = committed.y0
+  const b = committed.bEnd
   if (!Number.isFinite(y0) || !Number.isFinite(b) || b === t0) return {rows: [], f, trueValue: NaN}
 
   // Reference value: RK4 with a very fine step count, far finer than any n
@@ -322,8 +333,8 @@ setup = {
   const n = Math.min(Math.max(Math.round(Number(nControl)), 1), result.rows.length)
 
   const t0 = 0
-  const y0 = Number(committed.y0)
-  const b = Number(committed.bEnd)
+  const y0 = committed.y0
+  const b = committed.bEnd
 
   const euler = eulerSolve(result.f, t0, y0, b, n)
   const improvedEuler = improvedEulerSolve(result.f, t0, y0, b, n)

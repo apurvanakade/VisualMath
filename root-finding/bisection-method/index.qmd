@@ -47,10 +47,8 @@ viewof fText = {
 ```{ojs}
 viewof a0 = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("a")
-  let value = 1
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Left endpoint a", value})
+  const a0Input = Inputs.text({label: "Left endpoint a", value: params.get("a") ?? "1", placeholder: "Example: 1, -pi/2"})
+  return a0Input
 }
 ```
 
@@ -61,10 +59,8 @@ viewof a0 = {
 ```{ojs}
 viewof b0 = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("b")
-  let value = 2
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Right endpoint b", value})
+  const b0Input = Inputs.text({label: "Right endpoint b", value: params.get("b") ?? "2", placeholder: "Example: 2, pi"})
+  return b0Input
 }
 ```
 
@@ -93,10 +89,22 @@ viewof stepControl = {
 ```
 
 ```{ojs}
-viewof maxIterations = {
-  const maxIterationsInput = Inputs.number({value: 20, min: 1, step: 1, label: "Max"})
-  maxIterationsInput.classList.add("ojs-auto")
-  return maxIterationsInput
+viewof maxIterationsInput = {
+  const input = Inputs.text({value: "20", label: "Max", placeholder: "Example: 20, 5*4"})
+  input.classList.add("ojs-auto")
+  return input
+}
+```
+
+```{ojs}
+//| output: false
+// maxIterations parses the Max field's expression, falling back to 20 for
+// invalid input so the step slider and result loop always get a usable bound.
+maxIterations = {
+  const math = window.math
+  const parsed = VM.makeNumber(math, maxIterationsInput)
+  if (parsed === null || !Number.isFinite(parsed)) return 20
+  return Math.max(1, Math.round(parsed))
 }
 ```
 
@@ -131,14 +139,17 @@ enterToPlot = {
 // default) values with no click.
 committed = {
   plotTrigger
+  const math = window.math
   const fVal = (viewof fText).value
-  const aVal = Number((viewof a0).value)
-  const bVal = Number((viewof b0).value)
+  const aText = (viewof a0).value
+  const bText = (viewof b0).value
+  const aVal = VM.makeNumber(math, aText)
+  const bVal = VM.makeNumber(math, bText)
 
   const params = new URLSearchParams(window.location.search)
   params.set("f", fVal)
-  params.set("a", String(aVal))
-  params.set("b", String(bVal))
+  params.set("a", aText)
+  params.set("b", bText)
   history.replaceState(null, "", `${window.location.pathname}?${params}`)
 
   return {fText: fVal, a0: aVal, b0: bVal}
@@ -158,8 +169,8 @@ result = {
 
   if (!f) return {rows: [], f: fallback}
 
-  let a = Number(committed.a0)
-  let b = Number(committed.b0)
+  let a = committed.a0
+  let b = committed.b0
 
   if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return {rows: [], f}
   if (a > b) { const temp = a; a = b; b = temp }   // ensure a < b
@@ -203,7 +214,7 @@ setup = {
   const currentRow  = visibleRows.length === 0 ? null : visibleRows[visibleRows.length - 1]
 
   // Axis ranges from ALL rows so the axes stay fixed while stepping.
-  const xValues = [Number(committed.a0), Number(committed.b0)]
+  const xValues = [committed.a0, committed.b0]
   for (const row of result.rows) xValues.push(row.a, row.b, row.m)
   const xRange = VM.paddedRange(xValues, {emptyRange: [-5, 5], relativePadding: 0.25, minPadding: 0.5})
 

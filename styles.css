@@ -108,6 +108,11 @@
  * row to wrap. */
 .ojs-auto { width: auto !important; flex: none !important; }
 
+/* Short numeric-expression fields (e.g. "Max iterations") use Inputs.text
+ * so they accept expressions like "2*10", but should stay as compact as the
+ * plain number input they replaced rather than the default 28em text width. */
+.ojs-auto input[type="text"] { width: 6em; }
+
 /* ── Output area ─────────────────────────────────────────────────── */
 
 /* Let layout-ncol cells shrink below the Plotly chart's intrinsic width */

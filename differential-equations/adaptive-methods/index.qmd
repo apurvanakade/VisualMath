@@ -63,10 +63,8 @@ viewof fText = {
 ```{ojs}
 viewof y0 = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("y0")
-  let value = 0.5
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Initial condition y(0)", value})
+  const y0Input = Inputs.text({label: "Initial condition y(0)", value: params.get("y0") ?? "0.5", placeholder: "Example: 0.5, 1/2"})
+  return y0Input
 }
 ```
 
@@ -77,10 +75,8 @@ viewof y0 = {
 ```{ojs}
 viewof bEnd = {
   const params = new URLSearchParams(window.location.search)
-  const raw = params.get("b")
-  let value = 2
-  if (raw !== null && Number.isFinite(Number(raw))) value = Number(raw)
-  return Inputs.number({label: "Right endpoint b", value})
+  const bEndInput = Inputs.text({label: "Right endpoint b", value: params.get("b") ?? "2", placeholder: "Example: 2, pi"})
+  return bEndInput
 }
 ```
 
@@ -110,10 +106,22 @@ viewof tolExponent = {
 ```
 
 ```{ojs}
-viewof maxSteps = {
-  const maxStepsInput = Inputs.number({value: 2000, min: 1, step: 1, label: "Max steps"})
-  maxStepsInput.classList.add("ojs-auto")
-  return maxStepsInput
+viewof maxStepsInput = {
+  const input = Inputs.text({value: "2000", label: "Max steps", placeholder: "Example: 2000, 1000*2"})
+  input.classList.add("ojs-auto")
+  return input
+}
+```
+
+```{ojs}
+//| output: false
+// maxSteps parses the Max steps field's expression, falling back to 2000
+// for invalid input so the solver always gets a usable step limit.
+maxSteps = {
+  const math = window.math
+  const parsed = VM.makeNumber(math, maxStepsInput)
+  if (parsed === null || !Number.isFinite(parsed)) return 2000
+  return Math.max(1, Math.round(parsed))
 }
 ```
 
@@ -154,14 +162,17 @@ enterToPlot = {
 // URL-provided (or default) values with no click.
 committed = {
   plotTrigger
+  const math = window.math
   const fVal = (viewof fText).value
-  const y0Val = Number((viewof y0).value)
-  const bVal = Number((viewof bEnd).value)
+  const y0Text = (viewof y0).value
+  const bText = (viewof bEnd).value
+  const y0Val = VM.makeNumber(math, y0Text)
+  const bVal = VM.makeNumber(math, bText)
 
   const params = new URLSearchParams(window.location.search)
   params.set("f", fVal)
-  params.set("y0", String(y0Val))
-  params.set("b", String(bVal))
+  params.set("y0", y0Text)
+  params.set("b", bText)
   history.replaceState(null, "", `${window.location.pathname}?${params}`)
 
   return {fText: fVal, y0: y0Val, bEnd: bVal}
@@ -299,12 +310,11 @@ result = {
   if (!f) return {steps: [], ts: [], ys: [], f: fallback, acceptedCount: 0, rejectedCount: 0, finalValue: NaN, trueValue: NaN, actualError: NaN}
 
   const t0 = 0
-  const y0 = Number(committed.y0)
-  const b = Number(committed.bEnd)
+  const y0 = committed.y0
+  const b = committed.bEnd
   if (!Number.isFinite(y0) || !Number.isFinite(b) || b === t0) return {steps: [], ts: [], ys: [], f, acceptedCount: 0, rejectedCount: 0, finalValue: NaN, trueValue: NaN, actualError: NaN}
 
-  const maxStepsClamped = Math.max(1, Math.round(Number(maxSteps)))
-  const solved = rk45Solve(f, t0, y0, b, tolerance, maxStepsClamped)
+  const solved = rk45Solve(f, t0, y0, b, tolerance, maxSteps)
 
   if (solved.steps.length === 0) return {steps: [], ts: [], ys: [], f, acceptedCount: 0, rejectedCount: 0, finalValue: NaN, trueValue: NaN, actualError: NaN}
 
@@ -330,8 +340,8 @@ setup = {
   }
 
   const t0 = 0
-  const y0 = Number(committed.y0)
-  const b = Number(committed.bEnd)
+  const y0 = committed.y0
+  const b = committed.bEnd
 
   // A fine reference trajectory for the smooth "true" solution curve.
   const reference = rk4Reference(result.f, t0, y0, b, 500)
