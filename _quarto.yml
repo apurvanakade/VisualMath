@@ -45,6 +45,7 @@ format:
           <script src="../../js/make-function.js"></script>
           <script src="../../js/make-derivative.js"></script>
           <script src="../../js/make-number.js"></script>
+          <script src="../../js/make-rational.js"></script>
           <script src="../../js/padded-range.js"></script>
           <script src="../../js/render-table.js"></script>
           <script src="../../js/cubic-spline.js"></script>
