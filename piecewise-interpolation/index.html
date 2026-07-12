@@ -110,10 +110,13 @@ ul.task-list li input[type="checkbox"] {
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <script src="../../js/make-function.js"></script>
 <script src="../../js/make-derivative.js"></script>
+<script src="../../js/make-number.js"></script>
+<script src="../../js/make-rational.js"></script>
 <script src="../../js/padded-range.js"></script>
 <script src="../../js/render-table.js"></script>
 <script src="../../js/cubic-spline.js"></script>
 <script src="../../js/plotly-fullscreen-button.js"></script>
+<script src="../../js/make-ode-function.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -408,6 +411,41 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../differential-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Differential Equations</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../differential-equations/explicit-methods/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Explicit Methods for ODEs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../differential-equations/implicit-methods/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Implicit Methods for ODEs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../differential-equations/adaptive-methods/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Adaptive Methods for ODEs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../differential-equations/butcher-tableau/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Butcher Tableau Explorer</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -450,7 +488,7 @@ Authors: Apurva Nakade
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="SW50ZWdyYXRpb24lMkNBZGFwdGl2ZSUyMHF1YWRyYXR1cmUlMkNTaW1wc29uJ3MlMjBydWxlJTJDRXJyb3IlMjBlc3RpbWF0aW9u" data-listing-file-modified-sort="1783697623152" data-listing-reading-time-sort="19" data-listing-word-count-sort="3780">
+<div class="g-col-1" data-index="0" data-categories="SW50ZWdyYXRpb24lMkNBZGFwdGl2ZSUyMHF1YWRyYXR1cmUlMkNTaW1wc29uJ3MlMjBydWxlJTJDRXJyb3IlMjBlc3RpbWF0aW9u" data-listing-file-modified-sort="1783738290745" data-listing-reading-time-sort="20" data-listing-word-count-sort="3831">
 <a href="../piecewise-interpolation/adaptive-integration/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -475,7 +513,7 @@ A fixed grid of <span class="math inline">\(n\)</span> equally spaced subinterva
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="SW50ZWdyYXRpb24lMkNSaWVtYW5uJTIwc3VtcyUyQ1RyYXBlem9pZGFsJTIwcnVsZSUyQ1NpbXBzb24ncyUyMHJ1bGU=" data-listing-file-modified-sort="1783696844388" data-listing-reading-time-sort="22" data-listing-word-count-sort="4289">
+<div class="g-col-1" data-index="1" data-categories="SW50ZWdyYXRpb24lMkNSaWVtYW5uJTIwc3VtcyUyQ1RyYXBlem9pZGFsJTIwcnVsZSUyQ1NpbXBzb24ncyUyMHJ1bGU=" data-listing-file-modified-sort="1783738290746" data-listing-reading-time-sort="22" data-listing-word-count-sort="4340">
 <a href="../piecewise-interpolation/integration/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -500,7 +538,7 @@ The definite integral <span class="math inline">\(\int_a^b f(x)\, dx\)</span> ca
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="SW50ZXJwb2xhdGlvbiUyQ0xpbmVhciUyMGludGVycG9sYXRpb24lMkNDdWJpYyUyMHNwbGluZXMlMkNBcmMlMjBsZW5ndGg=" data-listing-file-modified-sort="1783696844384" data-listing-reading-time-sort="17" data-listing-word-count-sort="3338">
+<div class="g-col-1" data-index="2" data-categories="SW50ZXJwb2xhdGlvbiUyQ0xpbmVhciUyMGludGVycG9sYXRpb24lMkNDdWJpYyUyMHNwbGluZXMlMkNBcmMlMjBsZW5ndGg=" data-listing-file-modified-sort="1783738290746" data-listing-reading-time-sort="17" data-listing-word-count-sort="3389">
 <a href="../piecewise-interpolation/linear-cubic/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>

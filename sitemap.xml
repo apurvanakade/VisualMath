@@ -1,47 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/CONTRIBUTING.html</loc>
-    <lastmod>2026-07-05T15:13:23.997Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/adaptive-methods/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.743Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/index.html</loc>
-    <lastmod>2026-07-09T23:49:31.003Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/implicit-methods/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.745Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/linear-cubic/index.html</loc>
-    <lastmod>2026-07-10T15:20:44.384Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/butcher-tableau/index.html</loc>
+    <lastmod>2026-07-12T12:15:23.118Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/newton-method/index.html</loc>
-    <lastmod>2026-07-10T15:20:44.375Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/adaptive-integration/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.745Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/fixed-point/index.html</loc>
-    <lastmod>2026-07-10T15:20:44.370Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/integration/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.746Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/secant-method/index.html</loc>
-    <lastmod>2026-07-10T15:20:44.380Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/index.html</loc>
+    <lastmod>2026-07-11T01:03:00.074Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/root-finding/bisection-method/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.747Z</lastmod>
   </url>
   <url>
     <loc>https://apurvanakade.github.io/VisualMath/root-finding/index.html</loc>
     <lastmod>2026-07-09T20:00:37.397Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/bisection-method/index.html</loc>
-    <lastmod>2026-07-10T15:20:44.364Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/root-finding/secant-method/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.748Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/index.html</loc>
-    <lastmod>2026-07-09T23:49:35.840Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/root-finding/fixed-point/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.748Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/integration/index.html</loc>
-    <lastmod>2026-07-10T15:20:44.388Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/root-finding/newton-method/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.748Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/adaptive-integration/index.html</loc>
-    <lastmod>2026-07-10T15:33:43.152Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/linear-cubic/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.746Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/index.html</loc>
+    <lastmod>2026-07-09T23:49:31.003Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/CONTRIBUTING.html</loc>
+    <lastmod>2026-07-05T15:13:23.997Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/explicit-methods/index.html</loc>
+    <lastmod>2026-07-11T02:51:30.744Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/index.html</loc>
+    <lastmod>2026-07-11T01:02:51.085Z</lastmod>
   </url>
 </urlset>

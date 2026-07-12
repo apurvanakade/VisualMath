@@ -1,10 +1,18 @@
 [
   {
-    "listing": "/piecewise-interpolation/index.html",
+    "listing": "/index.html",
     "items": [
+      "/root-finding/bisection-method/index.html",
+      "/root-finding/fixed-point/index.html",
+      "/root-finding/newton-method/index.html",
+      "/root-finding/secant-method/index.html",
       "/piecewise-interpolation/adaptive-integration/index.html",
       "/piecewise-interpolation/integration/index.html",
-      "/piecewise-interpolation/linear-cubic/index.html"
+      "/piecewise-interpolation/linear-cubic/index.html",
+      "/differential-equations/adaptive-methods/index.html",
+      "/differential-equations/butcher-tableau/index.html",
+      "/differential-equations/explicit-methods/index.html",
+      "/differential-equations/implicit-methods/index.html"
     ]
   },
   {
@@ -17,15 +25,20 @@
     ]
   },
   {
-    "listing": "/index.html",
+    "listing": "/piecewise-interpolation/index.html",
     "items": [
-      "/root-finding/bisection-method/index.html",
-      "/root-finding/fixed-point/index.html",
-      "/root-finding/newton-method/index.html",
-      "/root-finding/secant-method/index.html",
       "/piecewise-interpolation/adaptive-integration/index.html",
       "/piecewise-interpolation/integration/index.html",
       "/piecewise-interpolation/linear-cubic/index.html"
+    ]
+  },
+  {
+    "listing": "/differential-equations/index.html",
+    "items": [
+      "/differential-equations/adaptive-methods/index.html",
+      "/differential-equations/butcher-tableau/index.html",
+      "/differential-equations/explicit-methods/index.html",
+      "/differential-equations/implicit-methods/index.html"
     ]
   }
 ]

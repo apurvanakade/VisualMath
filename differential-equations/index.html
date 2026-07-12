@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Root Finding – VisualMath</title>
+<title>Differential Equations – VisualMath</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,7 +33,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../root-finding/bisection-method/index.html" rel="next">
+<link href="../differential-equations/explicit-methods/index.html" rel="next">
+<link href="../piecewise-interpolation/adaptive-integration/index.html" rel="prev">
 <script src="../site_libs/quarto-listing/list.min.js"></script>
 <script src="../site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
@@ -334,7 +335,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../root-finding/index.html">Root Finding</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../differential-equations/index.html">Differential Equations</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -348,7 +349,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../root-finding/index.html" class="sidebar-item-text sidebar-link active">
+            <a href="../root-finding/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Root Finding</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -412,7 +413,7 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../differential-equations/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../differential-equations/index.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Differential Equations</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -451,14 +452,14 @@ window.Quarto = {
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="QnJhY2tldGluZw==">Bracketing <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGVyaXZhdGl2ZXM=">Derivatives <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RmFzdCUyMGNvbnZlcmdlbmNl">Fast convergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Rml4ZWQlMjBwb2ludHM=">Fixed points <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R3VhcmFudGVlZCUyMGNvbnZlcmdlbmNl">Guaranteed convergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TGluZWFyJTIwY29udmVyZ2VuY2U=">Linear convergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Tm8lMjBkZXJpdmF0aXZlcw==">No derivatives <span class="quarto-category-count">(3)</span></div><div class="category" data-category="UXVhZHJhdGljJTIwY29udmVyZ2VuY2U=">Quadratic convergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Um9vdCUyMGZpbmRpbmc=">Root finding <span class="quarto-category-count">(3)</span></div><div class="category" data-category="U2xvdyUyMGNvbnZlcmdlbmNl">Slow convergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U3VwZXJsaW5lYXIlMjBjb252ZXJnZW5jZQ==">Superlinear convergence <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="QWRhcHRpdmUlMjBzdGVwJTIwc2l6ZQ==">Adaptive step size <span class="quarto-category-count">(1)</span></div><div class="category" data-category="QnV0Y2hlciUyMHRhYmxlYXU=">Butcher tableau <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z">Differential equations <span class="quarto-category-count">(4)</span></div><div class="category" data-category="RXVsZXIncyUyMG1ldGhvZA==">Euler's method <span class="quarto-category-count">(2)</span></div><div class="category" data-category="SW1wbGljaXQlMjBtZXRob2Rz">Implicit methods <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SW5pdGlhbCUyMHZhbHVlJTIwcHJvYmxlbXM=">Initial value problems <span class="quarto-category-count">(3)</span></div><div class="category" data-category="UnVuZ2UtS3V0dGElMjBtZXRob2Rz">Runge-Kutta methods <span class="quarto-category-count">(3)</span></div><div class="category" data-category="VGF5bG9yJTIwc2VyaWVz">Taylor series <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Root Finding</h1>
+<h1 class="title">Differential Equations</h1>
 </div>
 
 
@@ -476,119 +477,113 @@ window.Quarto = {
 
 
 <!--
-Copyright (c) 2026 Dhruv Azad. All rights reserved.
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Dhruv Azad
+Authors: Apurva Nakade
 -->
-<p>Root finding methods are numerical techniques for solving equations of the form <span class="math inline">\(f(x)=0\)</span>. These methods are central in computational mathematics because many problems cannot be solved exactly with algebra alone.</p>
+<p>Numerical methods for ordinary differential equations approximate the solution of an initial value problem <span class="math inline">\(y' = f(t, y)\)</span>, <span class="math inline">\(y(t_0) = y_0\)</span> by stepping forward in time, using only information already known at or before each step.</p>
 
 
 
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="QnJhY2tldGluZyUyQ05vJTIwZGVyaXZhdGl2ZXMlMkNHdWFyYW50ZWVkJTIwY29udmVyZ2VuY2UlMkNSb290JTIwZmluZGluZw==" data-listing-file-modified-sort="1783738290747" data-listing-reading-time-sort="15" data-listing-word-count-sort="2989">
-<a href="../root-finding/bisection-method/index.html" class="quarto-grid-link">
+<div class="g-col-1" data-index="0" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDUnVuZ2UtS3V0dGElMjBtZXRob2RzJTJDQWRhcHRpdmUlMjBzdGVwJTIwc2l6ZSUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-file-modified-sort="1783738290743" data-listing-reading-time-sort="20" data-listing-word-count-sort="3911">
+<a href="../differential-equations/adaptive-methods/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img loading="lazy" src="../root-finding/bisection-method/bisection.png" class="thumbnail-image card-img" style="height: 150px;">
-</p>
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-Bisection Method
+Adaptive Methods for ODEs
 </h5>
 <div class="listing-categories">
 
-<div class="listing-category" onclick="window.quartoListingCategory('QnJhY2tldGluZw=='); return false;">Bracketing</div>
+<div class="listing-category" onclick="window.quartoListingCategory('RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z'); return false;">Differential equations</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('Tm8lMjBkZXJpdmF0aXZlcw=='); return false;">No derivatives</div>
+<div class="listing-category" onclick="window.quartoListingCategory('UnVuZ2UtS3V0dGElMjBtZXRob2Rz'); return false;">Runge-Kutta methods</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('R3VhcmFudGVlZCUyMGNvbnZlcmdlbmNl'); return false;">Guaranteed convergence</div>
+<div class="listing-category" onclick="window.quartoListingCategory('QWRhcHRpdmUlMjBzdGVwJTIwc2l6ZQ=='); return false;">Adaptive step size</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('Um9vdCUyMGZpbmRpbmc='); return false;">Root finding</div>
+<div class="listing-category" onclick="window.quartoListingCategory('SW5pdGlhbCUyMHZhbHVlJTIwcHJvYmxlbXM='); return false;">Initial value problems</div>
 
 </div>
 <div class="card-text listing-description delink">
-The bisection method finds a root by repeatedly halving an interval <span class="math inline">\([a, b]\)</span> where <span class="math inline">\(f\)</span> changes sign, guaranteeing that each half still contains a root. At each step, the…
+The classical RK4 method in Explicit Methods advances with a fixed step size <span class="math inline">\(h = b/n\)</span> everywhere — spending the same effort even where the solution is nearly linear. <strong>RKF45</strong>…<span class="math inline"></span><span class="math inline"></span>
 </div>
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="Tm8lMjBkZXJpdmF0aXZlcyUyQ0ZpeGVkJTIwcG9pbnRzJTJDTGluZWFyJTIwY29udmVyZ2VuY2UlMkNTbG93JTIwY29udmVyZ2VuY2U=" data-listing-file-modified-sort="1783738290748" data-listing-reading-time-sort="13" data-listing-word-count-sort="2453">
-<a href="../root-finding/fixed-point/index.html" class="quarto-grid-link">
+<div class="g-col-1" data-index="1" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDUnVuZ2UtS3V0dGElMjBtZXRob2RzJTJDQnV0Y2hlciUyMHRhYmxlYXUlMkNUYXlsb3IlMjBzZXJpZXM=" data-listing-file-modified-sort="1783858523118" data-listing-reading-time-sort="21" data-listing-word-count-sort="4125">
+<a href="../differential-equations/butcher-tableau/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img loading="lazy" src="../root-finding/fixed-point/fixed-point.png" class="thumbnail-image card-img" style="height: 150px;">
-</p>
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-Fixed Point Iteration
+Butcher Tableau Explorer
 </h5>
 <div class="listing-categories">
 
-<div class="listing-category" onclick="window.quartoListingCategory('Tm8lMjBkZXJpdmF0aXZlcw=='); return false;">No derivatives</div>
+<div class="listing-category" onclick="window.quartoListingCategory('RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z'); return false;">Differential equations</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('Rml4ZWQlMjBwb2ludHM='); return false;">Fixed points</div>
+<div class="listing-category" onclick="window.quartoListingCategory('UnVuZ2UtS3V0dGElMjBtZXRob2Rz'); return false;">Runge-Kutta methods</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('TGluZWFyJTIwY29udmVyZ2VuY2U='); return false;">Linear convergence</div>
+<div class="listing-category" onclick="window.quartoListingCategory('QnV0Y2hlciUyMHRhYmxlYXU='); return false;">Butcher tableau</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('U2xvdyUyMGNvbnZlcmdlbmNl'); return false;">Slow convergence</div>
+<div class="listing-category" onclick="window.quartoListingCategory('VGF5bG9yJTIwc2VyaWVz'); return false;">Taylor series</div>
 
 </div>
 <div class="card-text listing-description delink">
-Fixed point iteration is a way to solve an equation after rewriting it in the form
+An <span class="math inline">\(s\)</span>-stage single-step Runge-Kutta method is specified by its <strong>Butcher tableau</strong>: nodes <span class="math inline">\(c_i\)</span>, coefficients <span class="math inline">\(a_{ij}\)</span> (<span class="math inline">\(1 \le i, j \le s\)</span>), and weights <span class="math inline">\(b_i\)</span>…
 </div>
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="RGVyaXZhdGl2ZXMlMkNGYXN0JTIwY29udmVyZ2VuY2UlMkNRdWFkcmF0aWMlMjBjb252ZXJnZW5jZSUyQ1Jvb3QlMjBmaW5kaW5n" data-listing-file-modified-sort="1783738290748" data-listing-reading-time-sort="17" data-listing-word-count-sort="3302">
-<a href="../root-finding/newton-method/index.html" class="quarto-grid-link">
+<div class="g-col-1" data-index="2" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDRXVsZXIncyUyMG1ldGhvZCUyQ1J1bmdlLUt1dHRhJTIwbWV0aG9kcyUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-file-modified-sort="1783738290744" data-listing-reading-time-sort="18" data-listing-word-count-sort="3470">
+<a href="../differential-equations/explicit-methods/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img loading="lazy" src="../root-finding/newton-method/newton-method.png" class="thumbnail-image card-img" style="height: 150px;">
-</p>
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-Newton’s Method
+Explicit Methods for ODEs
 </h5>
 <div class="listing-categories">
 
-<div class="listing-category" onclick="window.quartoListingCategory('RGVyaXZhdGl2ZXM='); return false;">Derivatives</div>
+<div class="listing-category" onclick="window.quartoListingCategory('RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z'); return false;">Differential equations</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('RmFzdCUyMGNvbnZlcmdlbmNl'); return false;">Fast convergence</div>
+<div class="listing-category" onclick="window.quartoListingCategory('RXVsZXIncyUyMG1ldGhvZA=='); return false;">Euler's method</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('UXVhZHJhdGljJTIwY29udmVyZ2VuY2U='); return false;">Quadratic convergence</div>
+<div class="listing-category" onclick="window.quartoListingCategory('UnVuZ2UtS3V0dGElMjBtZXRob2Rz'); return false;">Runge-Kutta methods</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('Um9vdCUyMGZpbmRpbmc='); return false;">Root finding</div>
+<div class="listing-category" onclick="window.quartoListingCategory('SW5pdGlhbCUyMHZhbHVlJTIwcHJvYmxlbXM='); return false;">Initial value problems</div>
 
 </div>
 <div class="card-text listing-description delink">
-Newton’s method is one of the most common methods for solving equations of the form Newton’s method finds roots of <span class="math inline">\(f(x) = 0\)</span> by repeatedly linearizing the function…<span class="math inline"></span><span class="math inline"></span><span class="math inline"></span>
+Given an initial value problem <span class="math inline">\(y' = f(t, y)\)</span>, <span class="math inline">\(y(0) = y_0\)</span>, an <strong>explicit</strong> method advances the solution step by step: each new value <span class="math inline">\(y_{i+1} \approx y(t_{i+1})\)</span> is…
 </div>
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="3" data-categories="Tm8lMjBkZXJpdmF0aXZlcyUyQ1N1cGVybGluZWFyJTIwY29udmVyZ2VuY2UlMkNSb290JTIwZmluZGluZw==" data-listing-file-modified-sort="1783738290748" data-listing-reading-time-sort="18" data-listing-word-count-sort="3553">
-<a href="../root-finding/secant-method/index.html" class="quarto-grid-link">
+<div class="g-col-1" data-index="3" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDRXVsZXIncyUyMG1ldGhvZCUyQ0ltcGxpY2l0JTIwbWV0aG9kcyUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-file-modified-sort="1783738290745" data-listing-reading-time-sort="18" data-listing-word-count-sort="3408">
+<a href="../differential-equations/implicit-methods/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img loading="lazy" src="../root-finding/secant-method/secant-method.png" class="thumbnail-image card-img" style="height: 150px;">
-</p>
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-Secant Method
+Implicit Methods for ODEs
 </h5>
 <div class="listing-categories">
 
-<div class="listing-category" onclick="window.quartoListingCategory('Tm8lMjBkZXJpdmF0aXZlcw=='); return false;">No derivatives</div>
+<div class="listing-category" onclick="window.quartoListingCategory('RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z'); return false;">Differential equations</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('U3VwZXJsaW5lYXIlMjBjb252ZXJnZW5jZQ=='); return false;">Superlinear convergence</div>
+<div class="listing-category" onclick="window.quartoListingCategory('RXVsZXIncyUyMG1ldGhvZA=='); return false;">Euler's method</div>
 
-<div class="listing-category" onclick="window.quartoListingCategory('Um9vdCUyMGZpbmRpbmc='); return false;">Root finding</div>
+<div class="listing-category" onclick="window.quartoListingCategory('SW1wbGljaXQlMjBtZXRob2Rz'); return false;">Implicit methods</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SW5pdGlhbCUyMHZhbHVlJTIwcHJvYmxlbXM='); return false;">Initial value problems</div>
 
 </div>
 <div class="card-text listing-description delink">
-The secant method finds roots of <span class="math inline">\(f(x) = 0\)</span> the way Newton’s method does — by repeatedly intersecting a line with the <span class="math inline">\(x\)</span>-axis — but it replaces the tangent line with a…
+Given an initial value problem <span class="math inline">\(y' = f(t, y)\)</span>, <span class="math inline">\(y(0) = y_0\)</span>, <strong>Euler’s method</strong> (forward/explicit Euler) uses the slope at the <em>start</em> of the step:
 </div>
 </div>
 </div></a>
@@ -1011,10 +1006,13 @@ The secant method finds roots of <span class="math inline">\(f(x) = 0\)</span> t
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="../piecewise-interpolation/adaptive-integration/index.html" class="pagination-link" aria-label="Adaptive Integration">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Adaptive Integration</span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../root-finding/bisection-method/index.html" class="pagination-link" aria-label="Bisection Method">
-        <span class="nav-page-text">Bisection Method</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../differential-equations/explicit-methods/index.html" class="pagination-link" aria-label="Explicit Methods for ODEs">
+        <span class="nav-page-text">Explicit Methods for ODEs</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
