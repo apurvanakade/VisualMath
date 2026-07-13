@@ -1,0 +1,17 @@
+---
+title: "Sperner's Lemma"
+listing:
+  contents: "*/index.qmd"
+  type: grid
+  sort: "date desc"
+  fields: [image, title, description, categories]
+  categories: true
+---
+
+<!--
+Copyright (c) 2025 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Sperner's lemma is a combinatorial statement about colorings of triangulated triangles, with two very different classic proofs — one combinatorial, one geometric.

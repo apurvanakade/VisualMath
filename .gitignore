@@ -2,3 +2,4 @@
 **/*.quarto_ipynb
 .DS_Store
 docs/
+node_modules/
