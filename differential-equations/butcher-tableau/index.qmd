@@ -16,7 +16,7 @@ Authors: Apurva Nakade
 
 ```{ojs}
 //| output: false
-// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/make-number.js, js/make-rational.js, js/padded-range.js, js/render-table.js, js/cubic-spline.js, js/make-ode-function.js.
+// VM is the shared utility library, loaded globally via _includes/head-scripts.html (js/**). This page uses VM.makeNumber, VM.makeRational.
 VM = window.VM
 ```
 

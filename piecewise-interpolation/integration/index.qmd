@@ -16,7 +16,7 @@ Authors: Apurva Nakade
 
 ```{ojs}
 //| output: false
-// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/padded-range.js, js/render-table.js, js/cubic-spline.js.
+// VM is the shared utility library, loaded globally via _includes/head-scripts.html (js/**). This page uses VM.lagrangeQuadratic, VM.linearRegression, VM.makeFunction, VM.makeNumber, VM.paddedRange, VM.renderTable, VM.simpsonEstimate.
 VM = window.VM
 ```
 
@@ -207,31 +207,6 @@ committed = {
 
 ```{ojs}
 //| output: false
-// simpsonEstimate(f, lo, hi, n) approximates ∫_lo^hi f(x) dx with composite
-// Simpson's rule using n subintervals. n must be even.
-simpsonEstimate = (f, lo, hi, n) => {
-  const h = (hi - lo) / n
-  let sum = 0
-  const y0 = f(lo)
-  const yn = f(hi)
-  if (Number.isFinite(y0)) sum += y0
-  if (Number.isFinite(yn)) sum += yn
-  for (let i = 1; i < n; i++) {
-    const x = lo + i * h
-    const y = f(x)
-    if (!Number.isFinite(y)) continue
-    if (i % 2 === 1) {
-      sum += 4 * y
-    } else {
-      sum += 2 * y
-    }
-  }
-  return sum * h / 3
-}
-```
-
-```{ojs}
-//| output: false
 // result: for the current committed function/endpoints, builds the
 // quadrature history used by the convergence plots and table.
 //   rows — array of { n, leftArea, midpointArea, trapezoidalArea, simpsonArea,
@@ -257,7 +232,7 @@ result = {
 
   // Reference integral: composite Simpson's rule with a very fine even
   // subinterval count, far finer than any n tested below.
-  const trueIntegral = simpsonEstimate(f, lo, hi, 4000)
+  const trueIntegral = VM.simpsonEstimate(f, lo, hi, 4000)
 
   const rows = []
   let n = 1
@@ -297,7 +272,7 @@ result = {
 
     // Simpson's rule needs an even number of subintervals.
     let simpsonArea = NaN
-    if (n % 2 === 0) simpsonArea = simpsonEstimate(f, lo, hi, n)
+    if (n % 2 === 0) simpsonArea = VM.simpsonEstimate(f, lo, hi, n)
 
     const leftError = Math.abs(leftArea - trueIntegral)
     const midpointError = Math.abs(midpointArea - trueIntegral)
@@ -366,17 +341,9 @@ setup = {
   if (n % 2 === 0) {
     const samplesPerPair = 40
     for (let i = 0; i < n; i += 2) {
-      const x0 = nodesX[i],     y0 = nodesY[i]
-      const x1 = nodesX[i + 1], y1 = nodesY[i + 1]
-      const x2 = nodesX[i + 2], y2 = nodesY[i + 2]
-      for (let k = 0; k <= samplesPerPair; k++) {
-        const x = x0 + (x2 - x0) * k / samplesPerPair
-        const l0 = ((x - x1) * (x - x2)) / ((x0 - x1) * (x0 - x2))
-        const l1 = ((x - x0) * (x - x2)) / ((x1 - x0) * (x1 - x2))
-        const l2 = ((x - x0) * (x - x1)) / ((x2 - x0) * (x2 - x1))
-        simpsonX.push(x)
-        simpsonY.push(y0 * l0 + y1 * l1 + y2 * l2)
-      }
+      const panel = VM.lagrangeQuadratic(nodesX[i], nodesY[i], nodesX[i + 1], nodesY[i + 1], nodesX[i + 2], nodesY[i + 2], samplesPerPair)
+      for (const x of panel.xs) simpsonX.push(x)
+      for (const y of panel.ys) simpsonY.push(y)
     }
   }
 
@@ -554,23 +521,6 @@ iteratesPlot = {
 // order of convergence of that method (negated, since error shrinks as n
 // grows) — for the entire run, so it's just plotted once per run.
 convergencePlot = {
-  const regression = points => {
-    if (points.length < 2) return null
-    const pointCount = points.length
-    let sx = 0, sy = 0, sxy = 0, sxx = 0
-    for (const p of points) {
-      sx += p.x
-      sy += p.y
-      sxy += p.x * p.y
-      sxx += p.x * p.x
-    }
-    const denom = pointCount * sxx - sx * sx
-    if (denom === 0) return null
-    const slope = (pointCount * sxy - sx * sy) / denom
-    const intercept = (sy - slope * sx) / pointCount
-    return {slope, intercept, xlo: points[0].x, xhi: points[pointCount - 1].x}
-  }
-
   const leftPts = []
   const midpointPts = []
   const trapezoidalPts = []
@@ -607,7 +557,7 @@ convergencePlot = {
   // point series, to keep it uncluttered.
   const legendDomain = [], legendRange = []
 
-  const leftFit = regression(leftPts)
+  const leftFit = VM.linearRegression(leftPts)
   if (leftFit) {
     const lineName = `left order ≈ ${(-leftFit.slope).toFixed(2)}`
     marks.push(Plot.line(
@@ -620,7 +570,7 @@ convergencePlot = {
     legendRange.push("#a78bfa")
   }
 
-  const midpointFit = regression(midpointPts)
+  const midpointFit = VM.linearRegression(midpointPts)
   if (midpointFit) {
     const lineName = `midpoint order ≈ ${(-midpointFit.slope).toFixed(2)}`
     marks.push(Plot.line(
@@ -633,7 +583,7 @@ convergencePlot = {
     legendRange.push("#fbbf24")
   }
 
-  const trapezoidalFit = regression(trapezoidalPts)
+  const trapezoidalFit = VM.linearRegression(trapezoidalPts)
   if (trapezoidalFit) {
     const lineName = `trapezoidal order ≈ ${(-trapezoidalFit.slope).toFixed(2)}`
     marks.push(Plot.line(
@@ -646,7 +596,7 @@ convergencePlot = {
     legendRange.push("#f87171")
   }
 
-  const simpsonFit = regression(simpsonPts)
+  const simpsonFit = VM.linearRegression(simpsonPts)
   if (simpsonFit) {
     const lineName = `simpson order ≈ ${(-simpsonFit.slope).toFixed(2)}`
     marks.push(Plot.line(

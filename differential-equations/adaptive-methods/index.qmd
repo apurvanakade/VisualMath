@@ -16,7 +16,7 @@ Authors: Apurva Nakade
 
 ```{ojs}
 //| output: false
-// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/padded-range.js, js/render-table.js, js/cubic-spline.js, js/make-ode-function.js.
+// VM is the shared utility library, loaded globally via _includes/head-scripts.html (js/**). This page uses VM.makeFunction2, VM.makeNumber, VM.paddedRange, VM.renderTable, VM.rk4Solve.
 VM = window.VM
 ```
 
@@ -181,30 +181,6 @@ committed = {
 
 ```{ojs}
 //| output: false
-// rk4Reference(f, t0, y0, tEnd, n) advances y' = f(t, y), y(t0) = y0 with n
-// fixed steps of the classical fourth-order Runge-Kutta method — used only
-// to build a fine reference solution to compare the adaptive run against.
-rk4Reference = (f, t0, y0, tEnd, n) => {
-  const h = (tEnd - t0) / n
-  const ts = [t0]
-  const ys = [y0]
-  let t = t0, y = y0
-  for (let i = 0; i < n; i++) {
-    const k1 = f(t, y)
-    const k2 = f(t + h / 2, y + (h / 2) * k1)
-    const k3 = f(t + h / 2, y + (h / 2) * k2)
-    const k4 = f(t + h, y + h * k3)
-    y = y + (h / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
-    t = t0 + (i + 1) * h
-    ts.push(t)
-    ys.push(y)
-  }
-  return {ts, ys}
-}
-```
-
-```{ojs}
-//| output: false
 // rk45Solve(f, t0, y0, tEnd, tol, maxSteps) advances y' = f(t, y), y(t0) = y0
 // from t0 to tEnd using the embedded Runge-Kutta-Fehlberg 4(5) pair,
 // accepting a step only when its local error estimate is within tol and
@@ -319,7 +295,7 @@ result = {
   if (solved.steps.length === 0) return {steps: [], ts: [], ys: [], f, acceptedCount: 0, rejectedCount: 0, finalValue: NaN, trueValue: NaN, actualError: NaN}
 
   const refSteps = 2000
-  const trueValue = rk4Reference(f, t0, y0, b, refSteps).ys[refSteps]
+  const trueValue = VM.rk4Solve(f, t0, y0, b, refSteps).ys[refSteps]
   const finalValue = solved.ys[solved.ys.length - 1]
   const actualError = Math.abs(finalValue - trueValue)
 
@@ -344,7 +320,7 @@ setup = {
   const b = committed.bEnd
 
   // A fine reference trajectory for the smooth "true" solution curve.
-  const reference = rk4Reference(result.f, t0, y0, b, 500)
+  const reference = VM.rk4Solve(result.f, t0, y0, b, 500)
 
   const tRange = VM.paddedRange([t0, b], {emptyRange: [-3, 3], relativePadding: 0.1, minPadding: 0.25})
 

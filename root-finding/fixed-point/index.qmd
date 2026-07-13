@@ -18,7 +18,7 @@ Authors: Dhruv Azad, Apurva Nakade
 
 ```{ojs}
 //| output: false
-// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/padded-range.js, js/render-table.js.
+// VM is the shared utility library, loaded globally via _includes/head-scripts.html (js/**). This page uses VM.linearRegression, VM.makeFunction, VM.makeNumber, VM.paddedRange, VM.renderTable.
 VM = window.VM
 ```
 
@@ -360,30 +360,19 @@ convergencePlot = {
   // point series, to keep it uncluttered.
   const legendDomain = [], legendRange = []
 
-  if (logRows.length >= 2) {
-    const pointCount = logRows.length
-    let sx = 0, sy = 0, sxy = 0, sxx = 0
-    for (const row of logRows) {
-      sx += row.n
-      sy += row.y
-      sxy += row.n * row.y
-      sxx += row.n * row.n
-    }
-    const denom = pointCount * sxx - sx * sx
-    if (denom !== 0) {
-      const slope     = (pointCount * sxy - sx * sy) / denom
-      const intercept = (sy - slope * sx) / pointCount
-      const [xlo, xhi] = [logRows[0].n, logRows[pointCount - 1].n]
-      const lineName   = `slope ≈ ${slope.toFixed(2)}`
-      marks.push(Plot.line(
-        [{n: xlo, y: slope * xlo + intercept}, {n: xhi, y: slope * xhi + intercept}],
-        {x: "n", y: "y", stroke: () => lineName, strokeDasharray: "6,4"}
-      ))
-      colorDomain.push(lineName)
-      colorRange.push("#9333ea")
-      legendDomain.push(lineName)
-      legendRange.push("#9333ea")
-    }
+  const regressionPoints = []
+  for (const row of logRows) regressionPoints.push({x: row.n, y: row.y})
+  const fit = VM.linearRegression(regressionPoints)
+  if (fit) {
+    const lineName = `slope ≈ ${fit.slope.toFixed(2)}`
+    marks.push(Plot.line(
+      [{n: fit.xlo, y: fit.slope * fit.xlo + fit.intercept}, {n: fit.xhi, y: fit.slope * fit.xhi + fit.intercept}],
+      {x: "n", y: "y", stroke: () => lineName, strokeDasharray: "6,4"}
+    ))
+    colorDomain.push(lineName)
+    colorRange.push("#9333ea")
+    legendDomain.push(lineName)
+    legendRange.push("#9333ea")
   }
 
   const chart = Plot.plot({

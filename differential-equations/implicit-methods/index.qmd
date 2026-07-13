@@ -16,7 +16,7 @@ Authors: Apurva Nakade
 
 ```{ojs}
 //| output: false
-// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/padded-range.js, js/render-table.js, js/cubic-spline.js, js/make-ode-function.js.
+// VM is the shared utility library, loaded globally via _includes/head-scripts.html (js/**). This page uses VM.eulerSolve, VM.linearRegression, VM.makeFunction2, VM.makeNumber, VM.paddedRange, VM.renderTable, VM.rk4Solve.
 VM = window.VM
 ```
 
@@ -188,25 +188,6 @@ committed = {
 
 ```{ojs}
 //| output: false
-// eulerSolve(f, t0, y0, tEnd, n) advances y' = f(t, y), y(t0) = y0 with n
-// steps of Euler's method and returns the full trajectory {ts, ys}.
-eulerSolve = (f, t0, y0, tEnd, n) => {
-  const h = (tEnd - t0) / n
-  const ts = [t0]
-  const ys = [y0]
-  let t = t0, y = y0
-  for (let i = 0; i < n; i++) {
-    y = y + h * f(t, y)
-    t = t0 + (i + 1) * h
-    ts.push(t)
-    ys.push(y)
-  }
-  return {ts, ys}
-}
-```
-
-```{ojs}
-//| output: false
 // partialY(f, t, y) numerically estimates ∂f/∂y(t, y) via a central
 // difference, used by the Newton solve inside implicitEulerSolve.
 partialY = (f, t, y) => {
@@ -256,31 +237,6 @@ implicitEulerSolve = (f, t0, y0, tEnd, n) => {
 
 ```{ojs}
 //| output: false
-// rk4Solve(f, t0, y0, tEnd, n) advances y' = f(t, y), y(t0) = y0 with n
-// steps of the classical fourth-order Runge-Kutta method. Returns the full
-// trajectory {ts, ys}. Used only as the high-accuracy reference below —
-// RK4 is not one of the checkboxes on this page.
-rk4Solve = (f, t0, y0, tEnd, n) => {
-  const h = (tEnd - t0) / n
-  const ts = [t0]
-  const ys = [y0]
-  let t = t0, y = y0
-  for (let i = 0; i < n; i++) {
-    const k1 = f(t, y)
-    const k2 = f(t + h / 2, y + (h / 2) * k1)
-    const k3 = f(t + h / 2, y + (h / 2) * k2)
-    const k4 = f(t + h, y + h * k3)
-    y = y + (h / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
-    t = t0 + (i + 1) * h
-    ts.push(t)
-    ys.push(y)
-  }
-  return {ts, ys}
-}
-```
-
-```{ojs}
-//| output: false
 // result: for the current committed function/initial condition/endpoint,
 // builds the endpoint-value history used by the convergence plots and
 // table.
@@ -306,12 +262,12 @@ result = {
   // Reference value: RK4 with a very fine step count, far finer than any n
   // tested below.
   const refSteps = 2000
-  const trueValue = rk4Solve(f, t0, y0, b, refSteps).ys[refSteps]
+  const trueValue = VM.rk4Solve(f, t0, y0, b, refSteps).ys[refSteps]
 
   const rows = []
   let n = 1
   while (n <= maxN) {
-    const eulerValue = eulerSolve(f, t0, y0, b, n).ys[n]
+    const eulerValue = VM.eulerSolve(f, t0, y0, b, n).ys[n]
     const implicitEulerValue = implicitEulerSolve(f, t0, y0, b, n).ys[n]
 
     const eulerError = Math.abs(eulerValue - trueValue)
@@ -342,11 +298,11 @@ setup = {
   const y0 = committed.y0
   const b = committed.bEnd
 
-  const euler = eulerSolve(result.f, t0, y0, b, n)
+  const euler = VM.eulerSolve(result.f, t0, y0, b, n)
   const implicitEuler = implicitEulerSolve(result.f, t0, y0, b, n)
 
   // A fine reference trajectory for the smooth "true" solution curve.
-  const reference = rk4Solve(result.f, t0, y0, b, 500)
+  const reference = VM.rk4Solve(result.f, t0, y0, b, 500)
 
   const tRange = VM.paddedRange([t0, b], {emptyRange: [-3, 3], relativePadding: 0.1, minPadding: 0.25})
 
@@ -478,22 +434,6 @@ iteratesPlot = {
 // order of convergence of that method (negated, since error shrinks as n
 // grows) — for the entire run, so it's just plotted once per run.
 convergencePlot = {
-  const regression = points => {
-    if (points.length < 2) return null
-    const pointCount = points.length
-    let sx = 0, sy = 0, sxy = 0, sxx = 0
-    for (const p of points) {
-      sx += p.x
-      sy += p.y
-      sxy += p.x * p.y
-      sxx += p.x * p.x
-    }
-    const denom = pointCount * sxx - sx * sx
-    if (denom === 0) return null
-    const slope = (pointCount * sxy - sx * sy) / denom
-    const intercept = (sy - slope * sx) / pointCount
-    return {slope, intercept, xlo: points[0].x, xhi: points[pointCount - 1].x}
-  }
 
   const eulerPts = []
   const implicitEulerPts = []
@@ -519,7 +459,7 @@ convergencePlot = {
   // point series, to keep it uncluttered.
   const legendDomain = [], legendRange = []
 
-  const eulerFit = regression(eulerPts)
+  const eulerFit = VM.linearRegression(eulerPts)
   if (eulerFit) {
     const lineName = `Euler order ≈ ${(-eulerFit.slope).toFixed(2)}`
     marks.push(Plot.line(
@@ -532,7 +472,7 @@ convergencePlot = {
     legendRange.push("#f87171")
   }
 
-  const implicitEulerFit = regression(implicitEulerPts)
+  const implicitEulerFit = VM.linearRegression(implicitEulerPts)
   if (implicitEulerFit) {
     const lineName = `Implicit Euler order ≈ ${(-implicitEulerFit.slope).toFixed(2)}`
     marks.push(Plot.line(

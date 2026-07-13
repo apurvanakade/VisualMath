@@ -16,7 +16,7 @@ Authors: Apurva Nakade
 
 ```{ojs}
 //| output: false
-// VM is the shared utility library loaded from js/make-function.js, js/make-derivative.js, js/padded-range.js, js/render-table.js, js/cubic-spline.js.
+// VM is the shared utility library, loaded globally via _includes/head-scripts.html (js/**). This page uses VM.lagrangeQuadratic, VM.makeFunction, VM.makeNumber, VM.paddedRange, VM.renderTable, VM.simpsonEstimate.
 VM = window.VM
 ```
 
@@ -169,32 +169,6 @@ committed = {
 
 ```{ojs}
 //| output: false
-// simpsonEstimate(f, lo, hi, n) approximates ∫_lo^hi f(x) dx with composite
-// Simpson's rule using n subintervals (n must be even) — used only to build
-// a fine reference integral to compare the adaptive estimate against.
-simpsonEstimate = (f, lo, hi, n) => {
-  const h = (hi - lo) / n
-  let sum = 0
-  const y0 = f(lo)
-  const yn = f(hi)
-  if (Number.isFinite(y0)) sum += y0
-  if (Number.isFinite(yn)) sum += yn
-  for (let i = 1; i < n; i++) {
-    const x = lo + i * h
-    const y = f(x)
-    if (!Number.isFinite(y)) continue
-    if (i % 2 === 1) {
-      sum += 4 * y
-    } else {
-      sum += 2 * y
-    }
-  }
-  return sum * h / 3
-}
-```
-
-```{ojs}
-//| output: false
 // result: runs adaptive Simpson quadrature on [a, b] at the current
 // tolerance ε (recursing until each leaf's local error estimate is within
 // its share of ε, or maxDepth is reached).
@@ -283,7 +257,7 @@ result = {
     totalErrorEstimate += leaf.errorEstimate
   }
 
-  const trueIntegral = simpsonEstimate(f, lo, hi, 4000)
+  const trueIntegral = VM.simpsonEstimate(f, lo, hi, 4000)
   const actualError = Math.abs(totalEstimate - trueIntegral)
 
   return {leaves, calls, f, totalEstimate, totalErrorEstimate, trueIntegral, actualError}
@@ -312,19 +286,8 @@ setup = {
   const samplesPerLeaf = 16
   const panels = []
   for (const leaf of result.leaves) {
-    const x0 = leaf.a,   y0 = leaf.fa
-    const x1 = leaf.mid, y1 = leaf.fmid
-    const x2 = leaf.b,   y2 = leaf.fb
-    const xs = [], ys = []
-    for (let k = 0; k <= samplesPerLeaf; k++) {
-      const x = x0 + (x2 - x0) * k / samplesPerLeaf
-      const l0 = ((x - x1) * (x - x2)) / ((x0 - x1) * (x0 - x2))
-      const l1 = ((x - x0) * (x - x2)) / ((x1 - x0) * (x1 - x2))
-      const l2 = ((x - x0) * (x - x1)) / ((x2 - x0) * (x2 - x1))
-      xs.push(x)
-      ys.push(y0 * l0 + y1 * l1 + y2 * l2)
-    }
-    panels.push({xs, ys, depth: leaf.depth})
+    const sample = VM.lagrangeQuadratic(leaf.a, leaf.fa, leaf.mid, leaf.fmid, leaf.b, leaf.fb, samplesPerLeaf)
+    panels.push({xs: sample.xs, ys: sample.ys, depth: leaf.depth})
   }
 
   // Partition boundary points — every leaf's left edge, plus the final
