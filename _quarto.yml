@@ -23,12 +23,14 @@ website:
   sidebar:
     - style: floating
       contents:
-        - section: root-finding/index.qmd
-          contents: "root-finding/*/index.qmd"
-        - section: piecewise-interpolation/index.qmd
-          contents: "piecewise-interpolation/*/index.qmd"
-        - section: differential-equations/index.qmd
-          contents: "differential-equations/*/index.qmd"
+        - section: computational-math/root-finding/index.qmd
+          contents: "computational-math/root-finding/*/index.qmd"
+        - section: computational-math/piecewise-interpolation/index.qmd
+          contents: "computational-math/piecewise-interpolation/*/index.qmd"
+        - section: computational-math/differential-equations/index.qmd
+          contents: "computational-math/differential-equations/*/index.qmd"
+        - section: discrete-math/sperners-lemma/index.qmd
+          contents: "discrete-math/sperners-lemma/*/index.qmd"
 
 format:
   html:

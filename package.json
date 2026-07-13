@@ -1,0 +1,14 @@
+{
+  "name": "visualmath",
+  "private": true,
+  "description": "Dev-only tooling for VisualMath (Quarto site). Nothing here ships to docs/ or affects site runtime.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "verify": "quarto render && node scripts/verify-pages.mjs"
+  },
+  "devDependencies": {
+    "mathjs": "^15.2.0",
+    "playwright": "^1.61.1"
+  }
+}
