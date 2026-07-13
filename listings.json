@@ -1,44 +1,57 @@
 [
   {
+    "listing": "/computational-math/root-finding/index.html",
+    "items": [
+      "/computational-math/root-finding/bisection-method/index.html",
+      "/computational-math/root-finding/fixed-point/index.html",
+      "/computational-math/root-finding/newton-method/index.html",
+      "/computational-math/root-finding/secant-method/index.html"
+    ]
+  },
+  {
+    "listing": "/computational-math/piecewise-interpolation/index.html",
+    "items": [
+      "/computational-math/piecewise-interpolation/adaptive-integration/index.html",
+      "/computational-math/piecewise-interpolation/integration/index.html",
+      "/computational-math/piecewise-interpolation/linear-cubic/index.html"
+    ]
+  },
+  {
     "listing": "/index.html",
     "items": [
-      "/root-finding/bisection-method/index.html",
-      "/root-finding/fixed-point/index.html",
-      "/root-finding/newton-method/index.html",
-      "/root-finding/secant-method/index.html",
-      "/piecewise-interpolation/adaptive-integration/index.html",
-      "/piecewise-interpolation/integration/index.html",
-      "/piecewise-interpolation/linear-cubic/index.html",
-      "/differential-equations/adaptive-methods/index.html",
-      "/differential-equations/butcher-tableau/index.html",
-      "/differential-equations/explicit-methods/index.html",
-      "/differential-equations/implicit-methods/index.html"
+      "/computational-math/root-finding/bisection-method/index.html",
+      "/computational-math/root-finding/fixed-point/index.html",
+      "/computational-math/root-finding/newton-method/index.html",
+      "/computational-math/root-finding/secant-method/index.html",
+      "/computational-math/piecewise-interpolation/adaptive-integration/index.html",
+      "/computational-math/piecewise-interpolation/integration/index.html",
+      "/computational-math/piecewise-interpolation/linear-cubic/index.html",
+      "/computational-math/differential-equations/adaptive-methods/index.html",
+      "/computational-math/differential-equations/butcher-tableau/index.html",
+      "/computational-math/differential-equations/explicit-methods/index.html",
+      "/computational-math/differential-equations/implicit-methods/index.html",
+      "/discrete-math/sperners-lemma/geometric-proof/index.html",
+      "/discrete-math/sperners-lemma/combinatorial-proof/index.html",
+      "/discrete-math/sperners-lemma/statement/index.html",
+      "/discrete-math/sperners-lemma/barycentric-coordinates/index.html"
     ]
   },
   {
-    "listing": "/root-finding/index.html",
+    "listing": "/discrete-math/sperners-lemma/index.html",
     "items": [
-      "/root-finding/bisection-method/index.html",
-      "/root-finding/fixed-point/index.html",
-      "/root-finding/newton-method/index.html",
-      "/root-finding/secant-method/index.html"
+      "/discrete-math/sperners-lemma/geometric-proof/index.html",
+      "/discrete-math/sperners-lemma/combinatorial-proof/index.html",
+      "/discrete-math/sperners-lemma/statement/index.html",
+      "/discrete-math/sperners-lemma/barycentric-coordinates/index.html"
     ]
   },
   {
-    "listing": "/piecewise-interpolation/index.html",
+    "listing": "/computational-math/differential-equations/index.html",
     "items": [
-      "/piecewise-interpolation/adaptive-integration/index.html",
-      "/piecewise-interpolation/integration/index.html",
-      "/piecewise-interpolation/linear-cubic/index.html"
-    ]
-  },
-  {
-    "listing": "/differential-equations/index.html",
-    "items": [
-      "/differential-equations/adaptive-methods/index.html",
-      "/differential-equations/butcher-tableau/index.html",
-      "/differential-equations/explicit-methods/index.html",
-      "/differential-equations/implicit-methods/index.html"
+      "/computational-math/differential-equations/adaptive-methods/index.html",
+      "/computational-math/differential-equations/butcher-tableau/index.html",
+      "/computational-math/differential-equations/explicit-methods/index.html",
+      "/computational-math/differential-equations/implicit-methods/index.html"
     ]
   }
 ]

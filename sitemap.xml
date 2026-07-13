@@ -1,67 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/adaptive-methods/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.743Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/differential-equations/adaptive-methods/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.639Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/implicit-methods/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.745Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/differential-equations/explicit-methods/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.639Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/butcher-tableau/index.html</loc>
-    <lastmod>2026-07-12T12:15:23.118Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/differential-equations/butcher-tableau/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.639Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/adaptive-integration/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.745Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/root-finding/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.641Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/integration/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.746Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/root-finding/bisection-method/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.640Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/piecewise-interpolation/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.639Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/piecewise-interpolation/integration/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.639Z</lastmod>
   </url>
   <url>
     <loc>https://apurvanakade.github.io/VisualMath/index.html</loc>
-    <lastmod>2026-07-11T01:03:00.074Z</lastmod>
+    <lastmod>2026-07-13T18:06:44.642Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/bisection-method/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.747Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/discrete-math/sperners-lemma/geometric-proof/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.642Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/index.html</loc>
-    <lastmod>2026-07-09T20:00:37.397Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/discrete-math/sperners-lemma/statement/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.642Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/secant-method/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.748Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/discrete-math/sperners-lemma/combinatorial-proof/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.642Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/fixed-point/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.748Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/discrete-math/sperners-lemma/barycentric-coordinates/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.642Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/newton-method/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.748Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/linear-cubic/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.746Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/index.html</loc>
-    <lastmod>2026-07-09T23:49:31.003Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/discrete-math/sperners-lemma/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.642Z</lastmod>
   </url>
   <url>
     <loc>https://apurvanakade.github.io/VisualMath/CONTRIBUTING.html</loc>
-    <lastmod>2026-07-05T15:13:23.997Z</lastmod>
+    <lastmod>2026-07-13T18:06:44.638Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/explicit-methods/index.html</loc>
-    <lastmod>2026-07-11T02:51:30.744Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/piecewise-interpolation/linear-cubic/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.640Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/index.html</loc>
-    <lastmod>2026-07-11T01:02:51.085Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/piecewise-interpolation/adaptive-integration/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.639Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/root-finding/secant-method/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.641Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/root-finding/newton-method/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.641Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/root-finding/fixed-point/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.641Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/differential-equations/implicit-methods/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.639Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/computational-math/differential-equations/index.html</loc>
+    <lastmod>2026-07-13T18:06:44.639Z</lastmod>
   </url>
 </urlset>

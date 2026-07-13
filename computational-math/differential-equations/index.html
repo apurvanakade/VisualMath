@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>contributing – VisualMath</title>
+<title>Differential Equations – VisualMath</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,65 +23,34 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-8a7168b59ae9a1f3c679c617d7b30f94.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-5192351f574dae2ffa28e235cf19e6a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-8a7168b59ae9a1f3c679c617d7b30f94.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../computational-math/differential-equations/explicit-methods/index.html" rel="next">
+<link href="../../computational-math/piecewise-interpolation/adaptive-integration/index.html" rel="prev">
+<script src="../../site_libs/quarto-listing/list.min.js"></script>
+<script src="../../site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-8a7168b59ae9a1f3c679c617d7b30f94.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-5192351f574dae2ffa28e235cf19e6a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-8a7168b59ae9a1f3c679c617d7b30f94.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -108,6 +77,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-image','listing-title','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-title","listing-author","listing-image","listing-description","listing-categories"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
 <!--
 Copyright (c) 2026 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -116,32 +114,61 @@ Authors: Apurva Nakade
 
 <script src="https://cdn.jsdelivr.net/npm/mathjs@15.2.0/lib/browser/math.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="./js/expressions/make-function.js"></script>
-<script src="./js/expressions/make-derivative.js"></script>
-<script src="./js/expressions/make-number.js"></script>
-<script src="./js/expressions/make-rational.js"></script>
-<script src="./js/expressions/make-ode-function.js"></script>
-<script src="./js/plotting/padded-range.js"></script>
-<script src="./js/plotting/plotly-fullscreen-button.js"></script>
-<script src="./js/numerical/linear-regression.js"></script>
-<script src="./js/numerical/euler-solve.js"></script>
-<script src="./js/numerical/rk4-solve.js"></script>
-<script src="./js/numerical/simpson-estimate.js"></script>
-<script src="./js/numerical/lagrange-quadratic.js"></script>
-<script src="./js/ui/render-table.js"></script>
-<script src="./js/discrete-math/barycentric-triples.js"></script>
-<script src="./js/discrete-math/sub-triangles.js"></script>
-<script src="./js/discrete-math/triangulation-edges.js"></script>
-<script src="./js/discrete-math/sperner-color.js"></script>
-<script src="./js/discrete-math/random-color.js"></script>
-<script src="./js/discrete-math/mixed-pair-color.js"></script>
-<script src="./js/discrete-math/triangle-fill-color.js"></script>
+<script src="../../js/expressions/make-function.js"></script>
+<script src="../../js/expressions/make-derivative.js"></script>
+<script src="../../js/expressions/make-number.js"></script>
+<script src="../../js/expressions/make-rational.js"></script>
+<script src="../../js/expressions/make-ode-function.js"></script>
+<script src="../../js/plotting/padded-range.js"></script>
+<script src="../../js/plotting/plotly-fullscreen-button.js"></script>
+<script src="../../js/numerical/linear-regression.js"></script>
+<script src="../../js/numerical/euler-solve.js"></script>
+<script src="../../js/numerical/rk4-solve.js"></script>
+<script src="../../js/numerical/simpson-estimate.js"></script>
+<script src="../../js/numerical/lagrange-quadratic.js"></script>
+<script src="../../js/ui/render-table.js"></script>
+<script src="../../js/discrete-math/barycentric-triples.js"></script>
+<script src="../../js/discrete-math/sub-triangles.js"></script>
+<script src="../../js/discrete-math/triangulation-edges.js"></script>
+<script src="../../js/discrete-math/sperner-color.js"></script>
+<script src="../../js/discrete-math/random-color.js"></script>
+<script src="../../js/discrete-math/mixed-pair-color.js"></script>
+<script src="../../js/discrete-math/triangle-fill-color.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<link rel="stylesheet" href="styles.css">
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="nav-sidebar floating nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -310,7 +337,7 @@ Authors: Apurva Nakade
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">VisualMath</span>
     </a>
   </div>
@@ -325,7 +352,7 @@ Authors: Apurva Nakade
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../computational-math/differential-equations/index.html">Differential Equations</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -339,7 +366,7 @@ Authors: Apurva Nakade
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="./computational-math/root-finding/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../computational-math/root-finding/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Root Finding</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -348,25 +375,25 @@ Authors: Apurva Nakade
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/root-finding/bisection-method/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/root-finding/bisection-method/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Bisection Method</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/root-finding/fixed-point/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/root-finding/fixed-point/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Fixed Point Iteration</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/root-finding/newton-method/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/root-finding/newton-method/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Newton’s Method</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/root-finding/secant-method/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/root-finding/secant-method/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Secant Method</span></a>
   </div>
 </li>
@@ -374,7 +401,7 @@ Authors: Apurva Nakade
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="./computational-math/piecewise-interpolation/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../computational-math/piecewise-interpolation/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Piecewise Interpolation</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -383,19 +410,19 @@ Authors: Apurva Nakade
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/piecewise-interpolation/linear-cubic/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/piecewise-interpolation/linear-cubic/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Linear vs.&nbsp;Cubic Spline Interpolation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/piecewise-interpolation/integration/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/piecewise-interpolation/integration/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Numerical Integration</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/piecewise-interpolation/adaptive-integration/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/piecewise-interpolation/adaptive-integration/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Adaptive Integration</span></a>
   </div>
 </li>
@@ -403,7 +430,7 @@ Authors: Apurva Nakade
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="./computational-math/differential-equations/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../computational-math/differential-equations/index.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Differential Equations</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -412,25 +439,25 @@ Authors: Apurva Nakade
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/differential-equations/explicit-methods/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/differential-equations/explicit-methods/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Explicit Methods for ODEs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/differential-equations/implicit-methods/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/differential-equations/implicit-methods/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Implicit Methods for ODEs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/differential-equations/adaptive-methods/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/differential-equations/adaptive-methods/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Adaptive Methods for ODEs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./computational-math/differential-equations/butcher-tableau/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../computational-math/differential-equations/butcher-tableau/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Butcher Tableau Explorer</span></a>
   </div>
 </li>
@@ -438,7 +465,7 @@ Authors: Apurva Nakade
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="./discrete-math/sperners-lemma/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../discrete-math/sperners-lemma/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Sperner's Lemma</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -447,25 +474,25 @@ Authors: Apurva Nakade
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./discrete-math/sperners-lemma/statement/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../discrete-math/sperners-lemma/statement/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Sperner’s Lemma - Statement</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./discrete-math/sperners-lemma/barycentric-coordinates/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../discrete-math/sperners-lemma/barycentric-coordinates/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Barycentric Coordinates</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./discrete-math/sperners-lemma/combinatorial-proof/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../discrete-math/sperners-lemma/combinatorial-proof/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Sperner’s Lemma - Combinatorial Proof</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./discrete-math/sperners-lemma/geometric-proof/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../../discrete-math/sperners-lemma/geometric-proof/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Sperner’s Lemma - Geometric Proof</span></a>
   </div>
 </li>
@@ -476,81 +503,146 @@ Authors: Apurva Nakade
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="QWRhcHRpdmUlMjBzdGVwJTIwc2l6ZQ==">Adaptive step size <span class="quarto-category-count">(1)</span></div><div class="category" data-category="QnV0Y2hlciUyMHRhYmxlYXU=">Butcher tableau <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z">Differential equations <span class="quarto-category-count">(4)</span></div><div class="category" data-category="RXVsZXIncyUyMG1ldGhvZA==">Euler's method <span class="quarto-category-count">(2)</span></div><div class="category" data-category="SW1wbGljaXQlMjBtZXRob2Rz">Implicit methods <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SW5pdGlhbCUyMHZhbHVlJTIwcHJvYmxlbXM=">Initial value problems <span class="quarto-category-count">(3)</span></div><div class="category" data-category="UnVuZ2UtS3V0dGElMjBtZXRob2Rz">Runge-Kutta methods <span class="quarto-category-count">(3)</span></div><div class="category" data-category="VGF5bG9yJTIwc2VyaWVz">Taylor series <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Differential Equations</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+<p>Numerical methods for ordinary differential equations approximate the solution of an initial value problem <span class="math inline">\(y' = f(t, y)\)</span>, <span class="math inline">\(y(t_0) = y_0\)</span> by stepping forward in time, using only information already known at or before each step.</p>
 
 
 
 
+<div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
+<div class="list grid quarto-listing-cols-3">
+<div class="g-col-1" data-index="0" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDUnVuZ2UtS3V0dGElMjBtZXRob2RzJTJDQWRhcHRpdmUlMjBzdGVwJTIwc2l6ZSUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-file-modified-sort="1783966004639" data-listing-reading-time-sort="19" data-listing-word-count-sort="3724">
+<a href="../../computational-math/differential-equations/adaptive-methods/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Adaptive Methods for ODEs
+</h5>
+<div class="listing-categories">
 
-<section id="contributing-to-visualmath" class="level1">
-<h1>Contributing to VisualMath</h1>
-<p>Thank you for your interest in contributing to <code>VisualMath</code>! We welcome contributions from everyone, whether you are developing interactive JavaScript visualizations, structuring HTML pages, creating Quarto documents, or writing Python notebooks.</p>
-<section id="licensing-policy" class="level2">
-<h2 class="anchored" data-anchor-id="licensing-policy">Licensing Policy</h2>
-<p>By contributing to this repository, you agree that your contributions will be licensed under the project’s <a href="LICENSE">Apache License 2.0</a>.</p>
-<p>Because copyright in this project is distributed, you retain ownership of your code, but you grant the community a perpetual, royalty-free license to use, modify, and distribute it under the Apache 2.0 terms.</p>
-<hr>
-</section>
-<section id="file-header-templates" class="level2">
-<h2 class="anchored" data-anchor-id="file-header-templates">File Header Templates</h2>
-<p>To maintain consistency and ensure everyone receives proper academic and legal credit, <strong>every new code or content file added to this repository must include a copyright header at the very top.</strong></p>
-<p>Please copy, paste, and update the template matching your file’s language:</p>
-<section id="quarto-documents-.qmd-and-markdown-files-.md" class="level3">
-<h3 class="anchored" data-anchor-id="quarto-documents-.qmd-and-markdown-files-.md">1. Quarto Documents (<code>.qmd</code>) and Markdown Files (<code>.md</code>)</h3>
-<p>For Markdown and Quarto files, wrap the header in standard HTML comment tags at the very beginning of the document:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!--</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">Copyright (c) [Year] [Your Name]. All rights reserved.</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">Released under Apache 2.0 license as described in the file LICENSE.</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">Authors: [Your Name]</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">--&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="jupyter-notebooks-.ipynb" class="level3">
-<h3 class="anchored" data-anchor-id="jupyter-notebooks-.ipynb">2. Jupyter Notebooks (<code>.ipynb</code>)</h3>
-<p>For Jupyter Notebooks, create a <strong>Markdown cell</strong> at the very top of your notebook and paste the following:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **Copyright (c) [Year] [Your Name]. All rights reserved.**</span>  </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; *Released under Apache 2.0 license as described in the file LICENSE.*</span>  </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **Authors:** </span><span class="co">[</span><span class="ot">Your Name</span><span class="co">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="javascript-typescript-css-files-.js-.ts-.css" class="level3">
-<h3 class="anchored" data-anchor-id="javascript-typescript-css-files-.js-.ts-.css">3. JavaScript / TypeScript / CSS Files (<code>.js</code>, <code>.ts</code>, <code>.css</code>)</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * Copyright (c) [Year] [Your Name]. All rights reserved.</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"> * Released under Apache 2.0 license as described in the file LICENSE.</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"> * Authors: [Your Name]</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="python-r-configuration-files-.py-.r-.yml" class="level3">
-<h3 class="anchored" data-anchor-id="python-r-configuration-files-.py-.r-.yml">4. Python / R / Configuration Files (<code>.py</code>, <code>.R</code>, <code>.yml</code>)</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Copyright (c) [Year] [Your Name]. All rights reserved.</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Released under Apache 2.0 license as described in the file LICENSE.</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Authors: [Your Name]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="html-files-.html" class="level3">
-<h3 class="anchored" data-anchor-id="html-files-.html">5. HTML Files (<code>.html</code>)</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!--</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">Copyright (c) [Year] [Your Name]. All rights reserved.</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">Released under Apache 2.0 license as described in the file LICENSE.</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">Authors: [Your Name]</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">--&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<hr>
-</section>
-</section>
-<section id="managing-headers-on-existing-files" class="level2">
-<h2 class="anchored" data-anchor-id="managing-headers-on-existing-files">Managing Headers on Existing Files</h2>
-<ul>
-<li><strong>Minor edits:</strong> If you are fixing a bug, adjusting layout spacing, or correcting a typo in an existing file, you do not need to alter the header.</li>
-<li><strong>Significant additions:</strong> If you contribute a substantial new feature, script, or section to an existing file, please add your name to the <code>Authors</code> line of that file:</li>
-</ul>
-<pre class="text"><code>Authors: Apurva Nakade, [Your Name]
-</code></pre>
+<div class="listing-category" onclick="window.quartoListingCategory('RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z'); return false;">Differential equations</div>
 
+<div class="listing-category" onclick="window.quartoListingCategory('UnVuZ2UtS3V0dGElMjBtZXRob2Rz'); return false;">Runge-Kutta methods</div>
 
-</section>
-</section>
+<div class="listing-category" onclick="window.quartoListingCategory('QWRhcHRpdmUlMjBzdGVwJTIwc2l6ZQ=='); return false;">Adaptive step size</div>
 
-</main> <!-- /main -->
+<div class="listing-category" onclick="window.quartoListingCategory('SW5pdGlhbCUyMHZhbHVlJTIwcHJvYmxlbXM='); return false;">Initial value problems</div>
+
+</div>
+<div class="card-text listing-description delink">
+The classical RK4 method in Explicit Methods advances with a fixed step size <span class="math inline">\(h = b/n\)</span> everywhere — spending the same effort even where the solution is nearly linear. <strong>RKF45</strong>…<span class="math inline"></span><span class="math inline"></span>
+</div>
+</div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="1" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDUnVuZ2UtS3V0dGElMjBtZXRob2RzJTJDQnV0Y2hlciUyMHRhYmxlYXUlMkNUYXlsb3IlMjBzZXJpZXM=" data-listing-file-modified-sort="1783966004639" data-listing-reading-time-sort="21" data-listing-word-count-sort="4125">
+<a href="../../computational-math/differential-equations/butcher-tableau/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Butcher Tableau Explorer
+</h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z'); return false;">Differential equations</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UnVuZ2UtS3V0dGElMjBtZXRob2Rz'); return false;">Runge-Kutta methods</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QnV0Y2hlciUyMHRhYmxlYXU='); return false;">Butcher tableau</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VGF5bG9yJTIwc2VyaWVz'); return false;">Taylor series</div>
+
+</div>
+<div class="card-text listing-description delink">
+An <span class="math inline">\(s\)</span>-stage single-step Runge-Kutta method is specified by its <strong>Butcher tableau</strong>: nodes <span class="math inline">\(c_i\)</span>, coefficients <span class="math inline">\(a_{ij}\)</span> (<span class="math inline">\(1 \le i, j \le s\)</span>), and weights <span class="math inline">\(b_i\)</span>…
+</div>
+</div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="2" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDRXVsZXIncyUyMG1ldGhvZCUyQ1J1bmdlLUt1dHRhJTIwbWV0aG9kcyUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-file-modified-sort="1783966004639" data-listing-reading-time-sort="16" data-listing-word-count-sort="3032">
+<a href="../../computational-math/differential-equations/explicit-methods/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Explicit Methods for ODEs
+</h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z'); return false;">Differential equations</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RXVsZXIncyUyMG1ldGhvZA=='); return false;">Euler's method</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UnVuZ2UtS3V0dGElMjBtZXRob2Rz'); return false;">Runge-Kutta methods</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SW5pdGlhbCUyMHZhbHVlJTIwcHJvYmxlbXM='); return false;">Initial value problems</div>
+
+</div>
+<div class="card-text listing-description delink">
+Given an initial value problem <span class="math inline">\(y' = f(t, y)\)</span>, <span class="math inline">\(y(0) = y_0\)</span>, an <strong>explicit</strong> method advances the solution step by step: each new value <span class="math inline">\(y_{i+1} \approx y(t_{i+1})\)</span> is…
+</div>
+</div>
+</div></a>
+</div>
+<div class="g-col-1" data-index="3" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDRXVsZXIncyUyMG1ldGhvZCUyQ0ltcGxpY2l0JTIwbWV0aG9kcyUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-file-modified-sort="1783966004639" data-listing-reading-time-sort="15" data-listing-word-count-sort="2952">
+<a href="../../computational-math/differential-equations/implicit-methods/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Implicit Methods for ODEs
+</h5>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGlmZmVyZW50aWFsJTIwZXF1YXRpb25z'); return false;">Differential equations</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RXVsZXIncyUyMG1ldGhvZA=='); return false;">Euler's method</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SW1wbGljaXQlMjBtZXRob2Rz'); return false;">Implicit methods</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SW5pdGlhbCUyMHZhbHVlJTIwcHJvYmxlbXM='); return false;">Initial value problems</div>
+
+</div>
+<div class="card-text listing-description delink">
+Given an initial value problem <span class="math inline">\(y' = f(t, y)\)</span>, <span class="math inline">\(y(0) = y_0\)</span>, <strong>Euler’s method</strong> (forward/explicit Euler) uses the slope at the <em>start</em> of the step:
+</div>
+</div>
+</div></a>
+</div>
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
@@ -964,6 +1056,18 @@ Authors: Apurva Nakade
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../computational-math/piecewise-interpolation/adaptive-integration/index.html" class="pagination-link" aria-label="Adaptive Integration">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Adaptive Integration</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../computational-math/differential-equations/explicit-methods/index.html" class="pagination-link" aria-label="Explicit Methods for ODEs">
+        <span class="nav-page-text">Explicit Methods for ODEs</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 
