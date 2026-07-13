@@ -108,6 +108,11 @@
  * row to wrap. */
 .ojs-auto { width: auto !important; flex: none !important; }
 
+/* Short numeric-expression fields (e.g. "Max iterations") use Inputs.text
+ * so they accept expressions like "2*10", but should stay as compact as the
+ * plain number input they replaced rather than the default 28em text width. */
+.ojs-auto input[type="text"] { width: 6em; }
+
 /* ── Output area ─────────────────────────────────────────────────── */
 
 /* Let layout-ncol cells shrink below the Plotly chart's intrinsic width */
@@ -119,6 +124,22 @@
   width: 100%;
   height: 78vh;
   min-height: 500px;
+}
+
+/* Plotly's own 78vh/100% sizing above would otherwise cap the plot well
+ * short of the screen while fullscreen (js/plotly-fullscreen-button.js). */
+.plotly-box-large:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  background: var(--bs-body-bg, #fff);
+}
+
+/* ── Navbar search ───────────────────────────────────────────────── */
+
+/* Quarto's default inline (type: textbox) navbar search is 180px; widen it. */
+#quarto-search.type-textbox .aa-Autocomplete .aa-Form {
+  width: 320px;
+  max-width: 100%;
 }
 
 /* ── Listing cards ───────────────────────────────────────────────── */
