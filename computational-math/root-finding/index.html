@@ -6,6 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Dhruv Azad">
+<meta name="dcterms.date" content="2026-06-25">
 
 <title>Root Finding – VisualMath</title>
 <style>
@@ -34,6 +36,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
 <link href="../../computational-math/root-finding/bisection-method/index.html" rel="next">
+<link href="../../computational-math/index.html" rel="prev">
 <script src="../../site_libs/quarto-listing/list.min.js"></script>
 <script src="../../site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
@@ -88,7 +91,7 @@ ul.task-list li input[type="checkbox"] {
     const options = {
       valueNames: ['listing-image','listing-title','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-title","listing-author","listing-image","listing-description","listing-categories"],
+      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -351,7 +354,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../computational-math/root-finding/index.html">Root Finding</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../computational-math/index.html">Computational Math</a></li><li class="breadcrumb-item"><a href="../../computational-math/root-finding/index.html">Root Finding</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -365,13 +368,22 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../../computational-math/root-finding/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Root Finding</span></a>
+            <a href="../../computational-math/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Math</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../computational-math/root-finding/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Root Finding</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../computational-math/root-finding/bisection-method/index.html" class="sidebar-item-text sidebar-link">
@@ -398,15 +410,15 @@ window.Quarto = {
 </li>
       </ul>
   </li>
-        <li class="sidebar-item sidebar-item-section">
+          <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a href="../../computational-math/piecewise-interpolation/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Piecewise Interpolation</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../computational-math/piecewise-interpolation/linear-cubic/index.html" class="sidebar-item-text sidebar-link">
@@ -427,15 +439,15 @@ window.Quarto = {
 </li>
       </ul>
   </li>
-        <li class="sidebar-item sidebar-item-section">
+          <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a href="../../computational-math/differential-equations/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Differential Equations</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../computational-math/differential-equations/explicit-methods/index.html" class="sidebar-item-text sidebar-link">
@@ -462,25 +474,36 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+      </ul>
+  </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../../discrete-math/sperners-lemma/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Sperner's Lemma</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <a href="../../discrete-math/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Discrete Math</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../discrete-math/sperners-lemma/statement/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Sperner’s Lemma - Statement</span></a>
-  </div>
-</li>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../discrete-math/sperners-lemma/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sperner's Lemma</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../discrete-math/sperners-lemma/barycentric-coordinates/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Barycentric Coordinates</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../discrete-math/sperners-lemma/statement/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sperner’s Lemma - Statement</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -497,6 +520,8 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -508,7 +533,7 @@ window.Quarto = {
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../computational-math/index.html">Computational Math</a></li><li class="breadcrumb-item"><a href="../../computational-math/root-finding/index.html">Root Finding</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Root Finding</h1>
 </div>
@@ -517,7 +542,19 @@ window.Quarto = {
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Dhruv Azad </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 25, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -539,7 +576,7 @@ Authors: Dhruv Azad
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="QnJhY2tldGluZyUyQ05vJTIwZGVyaXZhdGl2ZXMlMkNHdWFyYW50ZWVkJTIwY29udmVyZ2VuY2UlMkNSb290JTIwZmluZGluZw==" data-listing-file-modified-sort="1783966468051" data-listing-reading-time-sort="15" data-listing-word-count-sort="2848">
+<div class="g-col-1" data-index="0" data-categories="QnJhY2tldGluZyUyQ05vJTIwZGVyaXZhdGl2ZXMlMkNHdWFyYW50ZWVkJTIwY29udmVyZ2VuY2UlMkNSb290JTIwZmluZGluZw==" data-listing-date-sort="1782345600000" data-listing-file-modified-sort="1784052502320" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15" data-listing-word-count-sort="2848">
 <a href="../../computational-math/root-finding/bisection-method/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -566,7 +603,7 @@ The bisection method finds a root by repeatedly halving an interval <span class=
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="Tm8lMjBkZXJpdmF0aXZlcyUyQ0ZpeGVkJTIwcG9pbnRzJTJDTGluZWFyJTIwY29udmVyZ2VuY2UlMkNTbG93JTIwY29udmVyZ2VuY2U=" data-listing-file-modified-sort="1783966468052" data-listing-reading-time-sort="12" data-listing-word-count-sort="2312">
+<div class="g-col-1" data-index="1" data-categories="Tm8lMjBkZXJpdmF0aXZlcyUyQ0ZpeGVkJTIwcG9pbnRzJTJDTGluZWFyJTIwY29udmVyZ2VuY2UlMkNTbG93JTIwY29udmVyZ2VuY2U=" data-listing-date-sort="1782345600000" data-listing-file-modified-sort="1784052502321" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2312">
 <a href="../../computational-math/root-finding/fixed-point/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -593,7 +630,7 @@ Fixed point iteration is a way to solve an equation after rewriting it in the fo
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="RGVyaXZhdGl2ZXMlMkNGYXN0JTIwY29udmVyZ2VuY2UlMkNRdWFkcmF0aWMlMjBjb252ZXJnZW5jZSUyQ1Jvb3QlMjBmaW5kaW5n" data-listing-file-modified-sort="1783966468052" data-listing-reading-time-sort="16" data-listing-word-count-sort="3141">
+<div class="g-col-1" data-index="2" data-categories="RGVyaXZhdGl2ZXMlMkNGYXN0JTIwY29udmVyZ2VuY2UlMkNRdWFkcmF0aWMlMjBjb252ZXJnZW5jZSUyQ1Jvb3QlMjBmaW5kaW5n" data-listing-date-sort="1782345600000" data-listing-file-modified-sort="1784052502321" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3141">
 <a href="../../computational-math/root-finding/newton-method/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -620,7 +657,7 @@ Newton’s method is one of the most common methods for solving equations of the
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="3" data-categories="Tm8lMjBkZXJpdmF0aXZlcyUyQ1N1cGVybGluZWFyJTIwY29udmVyZ2VuY2UlMkNSb290JTIwZmluZGluZw==" data-listing-file-modified-sort="1783966468053" data-listing-reading-time-sort="17" data-listing-word-count-sort="3391">
+<div class="g-col-1" data-index="3" data-categories="Tm8lMjBkZXJpdmF0aXZlcyUyQ1N1cGVybGluZWFyJTIwY29udmVyZ2VuY2UlMkNSb290JTIwZmluZGluZw==" data-listing-date-sort="1782345600000" data-listing-file-modified-sort="1784052502321" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17" data-listing-word-count-sort="3391">
 <a href="../../computational-math/root-finding/secant-method/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1063,6 +1100,9 @@ The secant method finds roots of <span class="math inline">\(f(x) = 0\)</span> t
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="../../computational-math/index.html" class="pagination-link" aria-label="Computational Math">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Computational Math</span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../../computational-math/root-finding/bisection-method/index.html" class="pagination-link" aria-label="Bisection Method">

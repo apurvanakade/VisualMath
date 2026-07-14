@@ -1,39 +1,19 @@
 [
   {
-    "listing": "/computational-math/root-finding/index.html",
+    "listing": "/computational-math/index.html",
     "items": [
-      "/computational-math/root-finding/bisection-method/index.html",
-      "/computational-math/root-finding/fixed-point/index.html",
-      "/computational-math/root-finding/newton-method/index.html",
-      "/computational-math/root-finding/secant-method/index.html"
+      "/computational-math/differential-equations/index.html",
+      "/computational-math/piecewise-interpolation/index.html",
+      "/computational-math/root-finding/index.html"
     ]
   },
   {
-    "listing": "/computational-math/piecewise-interpolation/index.html",
+    "listing": "/computational-math/differential-equations/index.html",
     "items": [
-      "/computational-math/piecewise-interpolation/adaptive-integration/index.html",
-      "/computational-math/piecewise-interpolation/integration/index.html",
-      "/computational-math/piecewise-interpolation/linear-cubic/index.html"
-    ]
-  },
-  {
-    "listing": "/index.html",
-    "items": [
-      "/computational-math/root-finding/bisection-method/index.html",
-      "/computational-math/root-finding/fixed-point/index.html",
-      "/computational-math/root-finding/newton-method/index.html",
-      "/computational-math/root-finding/secant-method/index.html",
-      "/computational-math/piecewise-interpolation/adaptive-integration/index.html",
-      "/computational-math/piecewise-interpolation/integration/index.html",
-      "/computational-math/piecewise-interpolation/linear-cubic/index.html",
       "/computational-math/differential-equations/adaptive-methods/index.html",
       "/computational-math/differential-equations/butcher-tableau/index.html",
       "/computational-math/differential-equations/explicit-methods/index.html",
-      "/computational-math/differential-equations/implicit-methods/index.html",
-      "/discrete-math/sperners-lemma/geometric-proof/index.html",
-      "/discrete-math/sperners-lemma/combinatorial-proof/index.html",
-      "/discrete-math/sperners-lemma/statement/index.html",
-      "/discrete-math/sperners-lemma/barycentric-coordinates/index.html"
+      "/computational-math/differential-equations/implicit-methods/index.html"
     ]
   },
   {
@@ -46,12 +26,33 @@
     ]
   },
   {
-    "listing": "/computational-math/differential-equations/index.html",
+    "listing": "/discrete-math/index.html",
     "items": [
-      "/computational-math/differential-equations/adaptive-methods/index.html",
-      "/computational-math/differential-equations/butcher-tableau/index.html",
-      "/computational-math/differential-equations/explicit-methods/index.html",
-      "/computational-math/differential-equations/implicit-methods/index.html"
+      "/discrete-math/sperners-lemma/index.html"
+    ]
+  },
+  {
+    "listing": "/index.html",
+    "items": [
+      "/computational-math/index.html",
+      "/discrete-math/index.html"
+    ]
+  },
+  {
+    "listing": "/computational-math/piecewise-interpolation/index.html",
+    "items": [
+      "/computational-math/piecewise-interpolation/adaptive-integration/index.html",
+      "/computational-math/piecewise-interpolation/integration/index.html",
+      "/computational-math/piecewise-interpolation/linear-cubic/index.html"
+    ]
+  },
+  {
+    "listing": "/computational-math/root-finding/index.html",
+    "items": [
+      "/computational-math/root-finding/bisection-method/index.html",
+      "/computational-math/root-finding/fixed-point/index.html",
+      "/computational-math/root-finding/newton-method/index.html",
+      "/computational-math/root-finding/secant-method/index.html"
     ]
   }
 ]

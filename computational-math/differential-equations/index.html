@@ -6,6 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Apurva Nakade">
+<meta name="dcterms.date" content="2026-07-13">
 
 <title>Differential Equations – VisualMath</title>
 <style>
@@ -89,7 +91,7 @@ ul.task-list li input[type="checkbox"] {
     const options = {
       valueNames: ['listing-image','listing-title','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-title","listing-author","listing-image","listing-description","listing-categories"],
+      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -352,7 +354,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../computational-math/differential-equations/index.html">Differential Equations</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../computational-math/index.html">Computational Math</a></li><li class="breadcrumb-item"><a href="../../computational-math/differential-equations/index.html">Differential Equations</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -366,13 +368,22 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../../computational-math/root-finding/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Root Finding</span></a>
+            <a href="../../computational-math/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Math</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../computational-math/root-finding/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Root Finding</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../computational-math/root-finding/bisection-method/index.html" class="sidebar-item-text sidebar-link">
@@ -399,15 +410,15 @@ window.Quarto = {
 </li>
       </ul>
   </li>
-        <li class="sidebar-item sidebar-item-section">
+          <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a href="../../computational-math/piecewise-interpolation/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Piecewise Interpolation</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../computational-math/piecewise-interpolation/linear-cubic/index.html" class="sidebar-item-text sidebar-link">
@@ -428,15 +439,15 @@ window.Quarto = {
 </li>
       </ul>
   </li>
-        <li class="sidebar-item sidebar-item-section">
+          <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a href="../../computational-math/differential-equations/index.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Differential Equations</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../computational-math/differential-equations/explicit-methods/index.html" class="sidebar-item-text sidebar-link">
@@ -463,25 +474,36 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+      </ul>
+  </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../../discrete-math/sperners-lemma/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Sperner's Lemma</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <a href="../../discrete-math/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Discrete Math</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../discrete-math/sperners-lemma/statement/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Sperner’s Lemma - Statement</span></a>
-  </div>
-</li>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../discrete-math/sperners-lemma/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sperner's Lemma</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../discrete-math/sperners-lemma/barycentric-coordinates/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Barycentric Coordinates</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../discrete-math/sperners-lemma/statement/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sperner’s Lemma - Statement</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -498,6 +520,8 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -509,7 +533,7 @@ window.Quarto = {
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../computational-math/index.html">Computational Math</a></li><li class="breadcrumb-item"><a href="../../computational-math/differential-equations/index.html">Differential Equations</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Differential Equations</h1>
 </div>
@@ -518,7 +542,19 @@ window.Quarto = {
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Apurva Nakade </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 13, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -540,7 +576,7 @@ Authors: Apurva Nakade
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDUnVuZ2UtS3V0dGElMjBtZXRob2RzJTJDQWRhcHRpdmUlMjBzdGVwJTIwc2l6ZSUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-file-modified-sort="1783966468049" data-listing-reading-time-sort="19" data-listing-word-count-sort="3724">
+<div class="g-col-1" data-index="0" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDUnVuZ2UtS3V0dGElMjBtZXRob2RzJTJDQWRhcHRpdmUlMjBzdGVwJTIwc2l6ZSUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-date-sort="1783900800000" data-listing-file-modified-sort="1784052502319" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="19" data-listing-word-count-sort="3724">
 <a href="../../computational-math/differential-equations/adaptive-methods/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -565,7 +601,7 @@ The classical RK4 method in Explicit Methods advances with a fixed step size <sp
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDUnVuZ2UtS3V0dGElMjBtZXRob2RzJTJDQnV0Y2hlciUyMHRhYmxlYXUlMkNUYXlsb3IlMjBzZXJpZXM=" data-listing-file-modified-sort="1783966468049" data-listing-reading-time-sort="21" data-listing-word-count-sort="4125">
+<div class="g-col-1" data-index="1" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDUnVuZ2UtS3V0dGElMjBtZXRob2RzJTJDQnV0Y2hlciUyMHRhYmxlYXUlMkNUYXlsb3IlMjBzZXJpZXM=" data-listing-date-sort="1783900800000" data-listing-file-modified-sort="1784052502319" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="21" data-listing-word-count-sort="4125">
 <a href="../../computational-math/differential-equations/butcher-tableau/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -590,7 +626,7 @@ An <span class="math inline">\(s\)</span>-stage single-step Runge-Kutta method i
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDRXVsZXIncyUyMG1ldGhvZCUyQ1J1bmdlLUt1dHRhJTIwbWV0aG9kcyUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-file-modified-sort="1783966468049" data-listing-reading-time-sort="16" data-listing-word-count-sort="3032">
+<div class="g-col-1" data-index="2" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDRXVsZXIncyUyMG1ldGhvZCUyQ1J1bmdlLUt1dHRhJTIwbWV0aG9kcyUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-date-sort="1783900800000" data-listing-file-modified-sort="1784052502319" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3032">
 <a href="../../computational-math/differential-equations/explicit-methods/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -615,7 +651,7 @@ Given an initial value problem <span class="math inline">\(y' = f(t, y)\)</span>
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="3" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDRXVsZXIncyUyMG1ldGhvZCUyQ0ltcGxpY2l0JTIwbWV0aG9kcyUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-file-modified-sort="1783966468049" data-listing-reading-time-sort="15" data-listing-word-count-sort="2952">
+<div class="g-col-1" data-index="3" data-categories="RGlmZmVyZW50aWFsJTIwZXF1YXRpb25zJTJDRXVsZXIncyUyMG1ldGhvZCUyQ0ltcGxpY2l0JTIwbWV0aG9kcyUyQ0luaXRpYWwlMjB2YWx1ZSUyMHByb2JsZW1z" data-listing-date-sort="1783900800000" data-listing-file-modified-sort="1784052502319" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15" data-listing-word-count-sort="2952">
 <a href="../../computational-math/differential-equations/implicit-methods/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
