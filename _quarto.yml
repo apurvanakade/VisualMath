@@ -7,6 +7,17 @@ execute:
   warning: false
   message: false
 
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: cyborg
+    css: styles.css
+    toc: false
+    html-math-method: mathjax
+    include-in-header:
+      - _includes/head-scripts.html
+
 website:
   title: "VisualMath"
   site-url: https://apurvanakade.github.io/VisualMath
@@ -23,22 +34,17 @@ website:
   sidebar:
     - style: floating
       contents:
-        - section: computational-math/root-finding/index.qmd
-          contents: "computational-math/root-finding/*/index.qmd"
-        - section: computational-math/piecewise-interpolation/index.qmd
-          contents: "computational-math/piecewise-interpolation/*/index.qmd"
-        - section: computational-math/differential-equations/index.qmd
-          contents: "computational-math/differential-equations/*/index.qmd"
-        - section: discrete-math/sperners-lemma/index.qmd
-          contents: "discrete-math/sperners-lemma/*/index.qmd"
-
-format:
-  html:
-    theme:
-      light: cosmo
-      dark: cyborg
-    css: styles.css
-    toc: false
-    html-math-method: mathjax
-    include-in-header:
-      - _includes/head-scripts.html
+        - section: "Computational Math"
+          href: computational-math/index.qmd
+          contents: 
+          - section: computational-math/root-finding/index.qmd
+            contents: "computational-math/root-finding/*/index.qmd"
+          - section: computational-math/piecewise-interpolation/index.qmd
+            contents: "computational-math/piecewise-interpolation/*/index.qmd"
+          - section: computational-math/differential-equations/index.qmd
+            contents: "computational-math/differential-equations/*/index.qmd"
+        - section: "Discrete Math"
+          href: discrete-math/index.qmd
+          contents: 
+          - section: discrete-math/sperners-lemma/index.qmd
+            contents: "discrete-math/sperners-lemma/*/index.qmd"

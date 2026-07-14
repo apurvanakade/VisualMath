@@ -1,10 +1,20 @@
 ---
 title: "VisualMath"
 subtitle: "Interactive, browser-based visualizations of numerical methods."
+author: Apurva Nakade
+date: 2026-06-25
 listing:
-  contents: ["computational-math/root-finding/*/index.qmd", "computational-math/piecewise-interpolation/*/index.qmd", "computational-math/differential-equations/*/index.qmd", "discrete-math/sperners-lemma/*/index.qmd"]
+  contents: "/*/index.qmd"
   type: grid
   sort: "date desc"
   fields: [image, title, description, categories]
   categories: true
 ---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+VisualMath collects interactive, browser-based visualizations for exploring numerical methods and discrete mathematics. Each page pairs short exposition with a live app — adjust an input and watch the method respond immediately, rather than reading about its behavior in the abstract.

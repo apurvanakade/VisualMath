@@ -2,8 +2,9 @@
 title: "Barycentric Coordinates"
 date: 2025-05-11
 author: Apurva Nakade
-order: 2
-categories: [triangles, interactive, visualization]
+order: 1
+categories: [triangles, barycentric coordinates]
+toc: false
 ---
 
 <!--
@@ -11,6 +12,16 @@ Copyright (c) 2025 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
+
+**Barycentric coordinates** are a coordinate system for describing points inside a triangle.  
+
+For a triangle with vertices $A$, $B$, and $C$, any point $P$ inside the triangle can be expressed as a weighted sum of the vertices:
+$$
+P = iA + jB + kC
+$$
+where $i$, $j$, and $k$ are the barycentric coordinates, satisfying $i + j + k = 1$ and $i, j, k \geq 0$. The barycentric coordinates can be interpreted as the relative areas of the sub-triangles formed with the point $P$ and the vertices of the triangle.
+
+Move the blue point around the triangle below and watch how the barycentric coordinates change. You can also move the vertices of the red triangle and observe how the coordinates adapt.
 
 ```{ojs}
 // === Class Definitions ===
@@ -218,7 +229,7 @@ class Canvas {
 
 // === Observable viewof canvas ===
 viewof canvas = {
-  const width = 800, height = 400;
+  const width = 800, height = 300;
   const scale = 200, offset = [50, 250];
   const canvasInstance = new Canvas(width, height, scale, offset);
   const canvas = canvasInstance.getCanvas();
@@ -308,19 +319,9 @@ viewof canvas = {
   requestAnimationFrame(animate);
   return canvas;
 }
-
-
 ```
 
-**Barycentric coordinates** are a coordinate system for describing points inside a triangle.  
-
-For a triangle with vertices $A$, $B$, and $C$, any point $P$ inside the triangle can be expressed as a weighted sum of the vertices:
-$$
-P = iA + jB + kC
-$$
-where $i$, $j$, and $k$ are the barycentric coordinates, satisfying $i + j + k = 1$ and $i, j, k \geq 0$. The barycentric coordinates can be interpreted as the relative areas of the sub-triangles formed with the point $P$ and the vertices of the triangle.
-
-There are many ways to see why this representation is valid. Here's one visual interpretation: first, consider the triangle with vertices $(0, 0)$, $(1, 0)$, and $(0, 1)$. A point $(x, y)$ lies inside this triangle exactly when:
+Consider the triangle with vertices $(0, 0)$, $(1, 0)$, and $(0, 1)$. A point $(x, y)$ lies inside this triangle exactly when:
 $$
 0 \le x, \quad 0 \le y, \quad \text{and} \quad x + y \le 1
 $$
@@ -334,12 +335,21 @@ y \begin{bmatrix} 0 \\ 1 \end{bmatrix}
 $$
 So the barycentric coordinates of $(x, y)$ are $(1 - x - y, x, y)$, all of which are non-negative and sum to 1. 
 
-Now all you need to do is map $(0, 0)$, $(1, 0)$, and $(0, 1)$ to the vertices $A$, $B$, and $C$, respectively, via an affine transformation. The barycentric coordinates of a point $P$ inside the triangle with vertices $A$, $B$, and $C$ are given by the same formula as above, with the standard triangle's vertices replaced by $A$, $B$, and $C$.
-
-Why does this work? Write $T$ for the affine map sending $(0,0) \mapsto A$, $(1,0) \mapsto B$, $(0,1) \mapsto C$. Being affine, $T$ preserves weighted combinations whose coefficients sum to 1:
+Now all you need to do is map $(0, 0)$, $(1, 0)$, and $(0, 1)$ to the vertices $A$, $B$, and $C$, respectively, via an **affine transformation**. Write $T$ for the affine map sending 
+$$ 
+\begin{aligned}
+(0,0) &\mapsto A, \\
+(1,0) &\mapsto B, \\
+(0,1) &\mapsto C.
+\end{aligned}
 $$
-T\big((1-x-y)(0,0) + x(1,0) + y(0,1)\big) = (1-x-y)\,T(0,0) + x\,T(1,0) + y\,T(0,1) = (1-x-y)A + xB + yC.
+Being affine, $T$ preserves weighted combinations whose coefficients sum to 1:
+$$
+\begin{aligned}
+&T\big((1-x-y)(0,0) + x(1,0) + y(0,1)\big) \\
+&= (1-x-y)\,T(0,0) + x\,T(1,0) + y\,T(0,1) \\
+&= (1-x-y)A + xB + yC.
+\end{aligned}
 $$
 The left-hand side is just $T(x, y)$, so the barycentric coordinates of $T(x,y)$ with respect to $A, B, C$ are exactly $(1-x-y, x, y)$ — the same triple as the barycentric coordinates of $(x,y)$ with respect to the standard triangle. This is why the formula transfers unchanged to any triangle.
 
-In the app above, you can see this in action: move the blue point around the triangle and watch how the barycentric coordinates change. You can also move the vertices of the red triangle and observe how the coordinates adapt.

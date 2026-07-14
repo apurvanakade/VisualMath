@@ -1,5 +1,9 @@
 ---
 title: "Newton's Method"
+author:
+  - Dhruv Azad
+  - Apurva Nakade
+date: 2026-06-25
 order: 3
 image: newton-method.png
 categories:

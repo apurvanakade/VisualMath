@@ -2,8 +2,9 @@
 title: Sperner's Lemma - Statement
 author: Apurva Nakade
 date: 2025-05-14
-order: 1
-categories: [combinatorics, triangles, coloring, visualization, interactive]
+order: 2
+categories: [combinatorics, triangles, coloring]
+toc: false
 ---
 
 <!--
@@ -11,6 +12,21 @@ Copyright (c) 2025 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
+
+Consider a triangulation of a triangle. (Below, we show a regular triangulation of an equilateral triangle, but the theorem applies to *any* triangulation of a triangle.) We color the vertices of the triangle with three colors—say, <span style="color:white; background-color:red">red</span>, <span style="color:white; background-color:green">green</span>, and <span style="color:white; background-color:blue">blue</span>—with the following conditions:
+
+1. The vertices of the triangle are colored with the three colors: <span style="color:white; background-color:red">red</span>, <span style="color:white; background-color:green">green</span>, and <span style="color:white; background-color:blue">blue</span>.
+2. The vertices that lie on the edges of the triangle are colored with one of the colors of the endpoints of that edge—*this is crucial*.
+3. The vertices that lie in the interior of the triangle may be colored with any of the three colors.
+
+Conditions 1 and 2 are often referred to as the **Sperner condition**.
+
+::: {#sperner-lemma .callout-note title="Theorem: Sperner's lemma"}
+Any triangulation of a triangle satisfying Sperner's condition has at least one "rainbow" triangle whose vertices are colored with all three colors: <span style="color:white; background-color:red">red</span>, <span style="color:white; background-color:green">green</span>, and <span style="color:white; background-color:blue">blue</span>.
+:::
+
+In fact, you always have an odd number of such triangles.
+
 
 ```{ojs}
 //| output: false
@@ -184,29 +200,9 @@ numRGBTriangles = subTriangles.filter(triangle => triangle.vertex_colors.size ==
 html`<b>Number of RGB triangles: ${numRGBTriangles}</b>`
 ```
 
-&nbsp;
-
-Only the rainbow (`RGB`) triangles are shaded, in a vivid indigo — everything else is left unfilled so they stay the visual focus. Edges between differently-colored vertices are still highlighted (<span style="background-color:rgba(255, 215, 0, 0.7)">gold</span> / <span style="background-color:rgba(0, 150, 136, 0.7)">teal</span> / <span style="background-color:rgba(186, 85, 211, 0.7)">orchid</span> for red+green / green+blue / red+blue), a convention shared across all three Sperner's lemma pages.
-
-**Sperner's lemma** is one of the first "non-trivial" theorems I remember hearing about at a high school summer camp.
-It goes like this: consider a triangulation of a triangle. (Above, we show a regular triangulation of an equilateral triangle, but the theorem applies to *any* triangulation of a triangle.) We color the vertices of the triangle with three colors—say, <span style="color:white; background-color:red">red</span>, <span style="color:white; background-color:green">green</span>, and <span style="color:white; background-color:blue">blue</span>—with the following conditions:
-
-1. The vertices of the triangle are colored with the three colors: <span style="color:white; background-color:red">red</span>, <span style="color:white; background-color:green">green</span>, and <span style="color:white; background-color:blue">blue</span>.
-2. The vertices that lie on the edges of the triangle are colored with one of the colors of the endpoints of that edge—*this is crucial*.
-3. The vertices that lie in the interior of the triangle may be colored with any of the three colors.
-
-Conditions 1 and 2 are often referred to as the **Sperner condition**.
-
-::: {#thm-sperner}
-
-Any triangulation of a triangle satisfying Sperner's condition has at least one "rainbow" triangle whose vertices are colored with all three colors: <span style="color:white; background-color:red">red</span>, <span style="color:white; background-color:green">green</span>, and <span style="color:white; background-color:blue">blue</span>.
-
-:::
-
-In fact, you always have an odd number of such triangles.
 
 ## Questions
 
-What patterns can you see? Why are there so many RGB triangles? **What is the expected number of such triangles?** What about the other colored triangles? Click **Regenerate colors** a few times at a fixed subdivision count and watch the count above — does it move around a lot, or does it seem to settle near a typical value?
+- What is the expected number of such triangles? What about the other colored triangles? Click **Regenerate colors** a few times at a fixed subdivision count and watch the count above — does it move around a lot, or does it seem to settle near a typical value?
 
-Here's a curious thing I discovered while drawing these colorful plots. How do you loop over all the sub-triangles in the triangulation? (See [`VM.discreteMath.subTriangleTriples`](/js/discrete-math/sub-triangles.js) for one answer — you need two loops, one for the "upward-facing" triangles and one for the "downward-facing" ones.)
+- How to generate a truly random triangulation of a triangle? What is the space of all triangulations of a triangle? How to sample uniformly from this space? How does the number of RGB triangles vary with different triangulations?

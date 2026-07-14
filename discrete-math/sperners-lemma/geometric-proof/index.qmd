@@ -3,7 +3,7 @@ title: Sperner's Lemma - Geometric Proof
 author: Apurva Nakade
 date: 2025-05-25
 order: 4
-categories: [triangles, coloring, visualization, interactive, determinant]
+categories: [triangles, coloring, determinant, volume]
 ---
 
 <!--
@@ -241,163 +241,6 @@ function plotTriangles(triangles, morphedPoints, N) {
 }
 ```
 
-<div class="ojs-panel ojs-row">
-
-```{ojs}
-viewof teaserN = {
-  const slider = Inputs.range([2, 15], {step: 1, value: 10, label: "Number of subdivisions"})
-  slider.classList.add("ojs-fill")
-  return slider
-}
-```
-
-```{ojs}
-viewof teaserT = {
-  const slider = Inputs.range([0, 1], {step: 0.01, value: 0.15, label: "Time"})
-  slider.classList.add("ojs-fill")
-  return slider
-}
-```
-
-```{ojs}
-// Referenced (but otherwise unused) inside teaserColorMap below so that
-// clicking the button re-runs the random color assignment without moving
-// either slider.
-viewof teaserRegenerate = {
-  const button = Inputs.button("Regenerate colors", {value: 0, reduce: v => v + 1})
-  button.classList.add("ojs-auto")
-  return button
-}
-```
-
-</div>
-
-```{ojs}
-teaserMorpher = createTriangleMorpher(teaserN, vertices, VM.discreteMath.spernerColor)
-
-teaserColorMap = {
-  teaserRegenerate;
-  return teaserMorpher.buildColorMap();
-}
-
-teaserMorphed = teaserMorpher.interpolatePoints(teaserT, teaserColorMap)
-teaserTriangles = teaserMorpher.generateSubTriangles(teaserMorphed.morphedMap)
-teaserPlot = plotTriangles(teaserTriangles, teaserMorphed, teaserN)
-```
-
-Let $v^R$, $v^G$, and $v^B$ be the vertices of the original triangle, colored
-<span style="background-color:red">red</span>,
-<span style="background-color:green">green</span>, and
-<span style="background-color:blue">blue</span>, respectively.
-
-Consider a triangulation $\Delta$ of the triangle $(v^R, v^G, v^B)$.   We’ll use the variable $\delta$ to refer to the smaller triangles within this triangulation $\Delta$. Assume each $\delta$ is oriented counterclockwise, consistent with the orientation of $(v^R, v^G, v^B)$. This orientation will be important when we define [signed areas](#signed-areas).
-
-## Time
-
-We'll now describe how this triangulation evolves over time.
-
-Let $t$ be a real number in $[0, 1]$. Let $v$ be a vertex in the subdivision, and let $c(v)$ denote the color of $v$. Define:
-\begin{align*}
-v_t = (1 - t) \cdot v + t \cdot v^{c(v)}
-\end{align*}
-so that $v_0 = v$ and $v_1 = v^{c(v)}$. For each triangle $\delta = (v^1, v^2, v^3) \in \Delta$, define:
-\begin{align*}
-\delta_t = (v^1_t, v^2_t, v^3_t)
-\end{align*}
-and let:
-\begin{align*}
-\Delta_t = \{ \delta_t : \delta \in \Delta \}.
-\end{align*}
-Note that $\Delta_0 = \Delta$. However, $\Delta_t$ is simply a collection of triangles — it is not necessarily a triangulation of any shape. In fact, the triangles may overlap, and the union of $\Delta_t$ may not form a proper region. (The "Time" slider above is exactly this $t$ — moving it slowly from $0$ shows you $\Delta_t$ for small $t$, which is the regime @thm-sperner-local below is about.)
-
-Our goal is to understand how $\Delta_t$ behaves as $t$ changes.
-
-## (Signed) Areas
-
-A key observation: if a triangle $\delta$ is **not** an `RGB` triangle, then $\delta_1$ becomes degenerate — it has zero area. Assume, for simplicity, that the area of the original triangle $(v^R, v^G, v^B)$ is **1**. This allows us to use area as a tool to identify `RGB` triangles.
-
-::: {#thm-area}
-A triangle $\delta$ is `RGB` if and only if $\text{area}(\delta_1) = 1$.
-:::
-
-We can rephrase Sperner's Lemma in terms of area:
-
-::: {#cnj-sperner-area}
-\begin{align*}
-\text{area}(\Delta_1) > 0,
-\end{align*}
-where
-\begin{align*}
-\text{area}(\Delta_t) = \sum_{\delta \in \Delta} \text{area}(\delta_t).
-\end{align*}
-:::
-
-In fact, we will prove the following stronger statement:
-
-::: {#cnj-signed-area}
-\begin{align*}
-|\Delta_1| = 1,
-\end{align*}
-where
-\begin{align*}
-|\Delta_t| = \sum_{\delta \in \Delta} |\delta_t|,
-\end{align*}
-and $|\delta_t|$ denotes the **signed** area of the triangle $\delta_t$.
-:::
-
-One way to define the signed area of a counterclockwise-oriented triangle $\delta = (v^1, v^2, v^3)$ is as:
-\begin{align*}
-|\delta| = \det \begin{bmatrix} v^2 - v^1 & v^3 - v^1 \end{bmatrix}
-\end{align*}
-This is the determinant of a $2 \times 2$ matrix, and therefore the signed area of $\delta_t$ is a **quadratic** function of $t$.
-
-::: {#thm-quadratic}
-The signed area $|\Delta_t|$ is a quadratic function of $t$.
-:::
-
-## Sperner's Condition
-
-At time $t = 0$, $\Delta_0$ is a triangulation of $(v^R, v^G, v^B)$, so:
-\begin{align*}
-|\Delta_0| = 1.
-\end{align*}
-
-If the triangulation satisfies **Sperner’s condition**, then for small values of $t > 0$, $\Delta_t$ continues to form a triangulation of the original triangle. This is the only step in the proof where we use Sperner’s condition!
-
-::: {#thm-sperner-local}
-If the coloring satisfies Sperner's condition, then there exists $\varepsilon > 0$ such that
-\begin{align*}
-|\Delta_t| = 1 \quad \text{for all } t \in [0, \varepsilon].
-\end{align*}
-:::
-
-But since $|\Delta_t|$ is a quadratic function and is constant on an interval, it must be constant everywhere.
-This gives us the full strength of Sperner’s Lemma:
-
-::: {#thm-sperner-constant}
-If the coloring satisfies Sperner’s condition, then $|\Delta_t|$ is constant in $t$.
-In particular,
-\begin{align*}
-|\Delta_1| = |\Delta_0| = 1.
-\end{align*}
-:::
-
-By @thm-area, every non-`RGB` triangle contributes $0$ to $|\Delta_1| = \sum_\delta |\delta_1|$, so only `RGB` triangles matter. For an `RGB` triangle $\delta$, the vertices of $\delta_1$ are exactly $v^R, v^G, v^B$ in some order, so $|\delta_1| = \pm 1$: the sign is $+1$ if $\delta$'s vertices, read in its own (counterclockwise) order, visit the colors in the cyclic order $R \to G \to B$ — the same cyclic order as $(v^R, v^G, v^B)$ itself — and $-1$ if they visit them in the reverse cyclic order $R \to B \to G$. (This is exactly the light-vs-dark hatching in the app above: light ⟋-hatched triangles are the $+1$'s, dark ⟍-hatched triangles are the $-1$'s.) Summing over all triangles,
-\begin{align*}
-|\Delta_1| = |\{\text{counterclockwise `RGB`}\}| - |\{\text{clockwise `RGB`}\}|.
-\end{align*}
-Combined with $|\Delta_1| = 1$ from @thm-sperner-constant, this gives us the following strengthening:
-
-::: {#cor-sperner}
-If the coloring satisfies Sperner’s condition, then
-\begin{align*}
-|\{ \text{counterclockwise oriented RGB triangles} \}|
-=
-|\{ \text{clockwise oriented RGB triangles} \}| + 1.
-\end{align*}
-:::
-
-Sperner’s condition is crucial in asserting that $|\Delta_t|$ is constant. If the condition is violated, $\Delta_t$ is no longer a triangulation of the original triangle — even for small $t > 0$ — and thus we cannot conclude that $|\Delta_t|$ remains constant. You can see this in the app below: the left panel keeps Sperner's condition, the right panel deliberately breaks it.
 
 <div class="ojs-panel ojs-row">
 
@@ -460,6 +303,121 @@ html`<div style="display: flex; gap: 1rem;">
   <div><p><b>Sperner's condition violated</b></p>${plotInvalid}</div>
 </div>`
 ```
+
+
+Let $v^R$, $v^G$, and $v^B$ be the vertices of the original triangle, colored
+<span style="background-color:red">red</span>,
+<span style="background-color:green">green</span>, and
+<span style="background-color:blue">blue</span>, respectively.
+
+Consider a triangulation $\Delta$ of the triangle $(v^R, v^G, v^B)$.   We’ll use the variable $\delta$ to refer to the smaller triangles within this triangulation $\Delta$. Assume each $\delta$ is oriented counterclockwise, consistent with the orientation of $(v^R, v^G, v^B)$. This orientation will be important when we define [signed areas](#signed-areas).
+
+## Time
+
+We'll now describe how this triangulation evolves over time.
+
+Let $t$ be a real number in $[0, 1]$. Let $v$ be a vertex in the subdivision, and let $c(v)$ denote the color of $v$. Define:
+\begin{align*}
+v_t = (1 - t) \cdot v + t \cdot v^{c(v)}
+\end{align*}
+so that $v_0 = v$ and $v_1 = v^{c(v)}$. For each triangle $\delta = (v^1, v^2, v^3) \in \Delta$, define:
+\begin{align*}
+\delta_t = (v^1_t, v^2_t, v^3_t)
+\end{align*}
+and let:
+\begin{align*}
+\Delta_t = \{ \delta_t : \delta \in \Delta \}.
+\end{align*}
+Note that $\Delta_0 = \Delta$. However, $\Delta_t$ is simply a collection of triangles — it is not necessarily a triangulation of any shape. In fact, the triangles may overlap, and the union of $\Delta_t$ may not form a proper region. (The "Time" slider above is exactly this $t$ — moving it slowly from $0$ shows you $\Delta_t$ for small $t$, which is the regime the [theorem below](#sperner-local-theorem) is about.)
+
+Our goal is to understand how $\Delta_t$ behaves as $t$ changes.
+
+## (Signed) Areas
+
+A key observation: if a triangle $\delta$ is **not** an `RGB` triangle, then $\delta_1$ becomes degenerate — it has zero area. Assume, for simplicity, that the area of the original triangle $(v^R, v^G, v^B)$ is **1**. This allows us to use area as a tool to identify `RGB` triangles.
+
+::: {#area-theorem .callout-note title="Theorem: RGB triangles via area"}
+A triangle $\delta$ is `RGB` if and only if $\text{area}(\delta_1) = 1$.
+:::
+
+We can rephrase Sperner's Lemma in terms of area:
+
+::: {#sperner-area-conjecture .callout-note title="Conjecture: Sperner's lemma, restated in terms of area"}
+\begin{align*}
+\text{area}(\Delta_1) > 0,
+\end{align*}
+where
+\begin{align*}
+\text{area}(\Delta_t) = \sum_{\delta \in \Delta} \text{area}(\delta_t).
+\end{align*}
+:::
+
+In fact, we will prove the following stronger statement:
+
+::: {#signed-area-conjecture .callout-note title="Conjecture: Signed area at $t = 1$"}
+\begin{align*}
+|\Delta_1| = 1,
+\end{align*}
+where
+\begin{align*}
+|\Delta_t| = \sum_{\delta \in \Delta} |\delta_t|,
+\end{align*}
+and $|\delta_t|$ denotes the **signed** area of the triangle $\delta_t$.
+:::
+
+One way to define the signed area of a counterclockwise-oriented triangle $\delta = (v^1, v^2, v^3)$ is as:
+\begin{align*}
+|\delta| = \det \begin{bmatrix} v^2 - v^1 & v^3 - v^1 \end{bmatrix}
+\end{align*}
+This is the determinant of a $2 \times 2$ matrix, and therefore the signed area of $\delta_t$ is a **quadratic** function of $t$.
+
+::: {#quadratic-theorem .callout-note title="Theorem: Signed area is quadratic in $t$"}
+The signed area $|\Delta_t|$ is a quadratic function of $t$.
+:::
+
+## Sperner's Condition
+
+At time $t = 0$, $\Delta_0$ is a triangulation of $(v^R, v^G, v^B)$, so:
+\begin{align*}
+|\Delta_0| = 1.
+\end{align*}
+
+If the triangulation satisfies **Sperner’s condition**, then for small values of $t > 0$, $\Delta_t$ continues to form a triangulation of the original triangle. This is the only step in the proof where we use Sperner’s condition!
+
+::: {#sperner-local-theorem .callout-note title="Theorem: The triangulation persists for small $t$"}
+If the coloring satisfies Sperner's condition, then there exists $\varepsilon > 0$ such that
+\begin{align*}
+|\Delta_t| = 1 \quad \text{for all } t \in [0, \varepsilon].
+\end{align*}
+:::
+
+But since $|\Delta_t|$ is a quadratic function and is constant on an interval, it must be constant everywhere.
+This gives us the full strength of Sperner’s Lemma:
+
+::: {#sperner-constant-theorem .callout-note title="Theorem: Signed area is constant in $t$"}
+If the coloring satisfies Sperner’s condition, then $|\Delta_t|$ is constant in $t$.
+In particular,
+\begin{align*}
+|\Delta_1| = |\Delta_0| = 1.
+\end{align*}
+:::
+
+By the [theorem above](#area-theorem), every non-`RGB` triangle contributes $0$ to $|\Delta_1| = \sum_\delta |\delta_1|$, so only `RGB` triangles matter. For an `RGB` triangle $\delta$, the vertices of $\delta_1$ are exactly $v^R, v^G, v^B$ in some order, so $|\delta_1| = \pm 1$: the sign is $+1$ if $\delta$'s vertices, read in its own (counterclockwise) order, visit the colors in the cyclic order $R \to G \to B$ — the same cyclic order as $(v^R, v^G, v^B)$ itself — and $-1$ if they visit them in the reverse cyclic order $R \to B \to G$. (This is exactly the light-vs-dark hatching in the app above: light ⟋-hatched triangles are the $+1$'s, dark ⟍-hatched triangles are the $-1$'s.) Summing over all triangles,
+\begin{align*}
+|\Delta_1| = |\{\text{counterclockwise `RGB`}\}| - |\{\text{clockwise `RGB`}\}|.
+\end{align*}
+Combined with $|\Delta_1| = 1$ from the [theorem above](#sperner-constant-theorem), this gives us the following strengthening:
+
+::: {#sperner-corollary .callout-note title="Corollary: Sperner's lemma, strong form"}
+If the coloring satisfies Sperner’s condition, then
+\begin{align*}
+|\{ \text{counterclockwise oriented RGB triangles} \}|
+=
+|\{ \text{clockwise oriented RGB triangles} \}| + 1.
+\end{align*}
+:::
+
+Sperner’s condition is crucial in asserting that $|\Delta_t|$ is constant. If the condition is violated, $\Delta_t$ is no longer a triangulation of the original triangle — even for small $t > 0$ — and thus we cannot conclude that $|\Delta_t|$ remains constant. 
 
 ## Questions
 
