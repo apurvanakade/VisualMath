@@ -1,5 +1,9 @@
 ---
 title: "Bisection Method"
+author:
+  - Dhruv Azad
+  - Apurva Nakade
+date: 2026-06-25
 order: 1
 image: bisection.png
 categories:

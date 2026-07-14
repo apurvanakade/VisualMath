@@ -1,0 +1,19 @@
+---
+title: "Computational Math"
+author: Apurva Nakade
+date: 2026-07-14
+listing:
+  contents: "/*/index.qmd"
+  type: grid
+  sort: "date desc"
+  fields: [image, title, description, categories]
+  categories: true
+---
+
+<!--
+Copyright (c) 2026 Apurva Nakade. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Apurva Nakade
+-->
+
+Computational math covers numerical methods for problems that rarely have closed-form solutions: finding roots of equations, interpolating between sample points, and approximating solutions to differential equations. Each topic below pairs a short introduction with interactive apps so you can see how a method behaves as its inputs change.

@@ -3,7 +3,8 @@ title: Sperner's Lemma - Combinatorial Proof
 author: Apurva Nakade
 date: 2025-05-16
 order: 3
-categories: [combinatorics, triangles, coloring, visualization, interactive]
+categories: [combinatorics, triangles, coloring, combinatorial proof]
+toc: false
 ---
 
 <!--
@@ -11,6 +12,8 @@ Copyright (c) 2025 Apurva Nakade. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
+
+This picture is a combinatorial proof of [Sperner's Lemma](../statement/index.qmd).
 
 ```{ojs}
 //| output: false
@@ -327,9 +330,7 @@ viewof mainPlot = Plot.plot({
 });
 ```
 
-This picture is a combinatorial proof of [Sperner's Lemma](../statement/index.qmd).
-
-Imagine each small triangle as a **room with three walls**. Next we do a trick that I do not know how to motivate: treat each `RG` edge as a **door**. Here's what we observe:
+Imagine each small triangle as a **room with three walls**. Treat each `RG` edge as a **door**. Here's what we observe:
 
 1. <span style="background-color:rgba(75, 0, 130, 0.55)">**RGB**</span> triangles have **exactly one** door.
 2. <span style="background-color:rgba(255, 215, 0, 1)">**RRG**</span> and <span style="background-color:rgba(255, 215, 0, 1)">**RGG**</span> triangles have **two** doors.
@@ -449,56 +450,36 @@ Using simple logic, we can deduce the following:
 
 Putting this all together gives us a key result:
 
-:::{#thm-even}
-
+::: {#even-theorem .callout-note title="Theorem: Doors plus RGB triangles is even"}
 The sum of the number of `RG` boundary edges, and the number of <span style="background-color:rgba(75, 0, 130, 0.55)">**RGB**</span> triangles must be **even**.
-
 :::
 
 From this, we immediately get:
 
-:::{#thm-same-parity}
-
+::: {#same-parity-theorem .callout-note title="Theorem: RGB triangles share parity with the boundary"}
 The number of <span style="background-color:rgba(75, 0, 130, 0.55)">**RGB**</span> triangles is **odd** if and only if the number of `RG` edges on the boundary is **odd**.
-
 :::
 
 So to conclude the proof, all that remains is to show:
 
-:::{#cnj-boundary-odd}
-
+::: {#boundary-odd-conjecture .callout-note title="Conjecture: Odd number of RG boundary edges"}
 The number of `RG` boundary edges is odd.
-
 :::
 
 **Sperner's condition** implies that the only `RG` boundary edges must appear on the bottom edge (the edge running from the red vertex to the green vertex — the blue vertex can't be an endpoint of an `RG` edge), which reduces the problem to the following.
 
-:::{#cnj-bottom}
-
+::: {#bottom-conjecture .callout-note title="Conjecture: Odd number of RG edges on the bottom"}
 The number of `RG` boundary edges on the bottom edge is odd.
-
 :::
 
 This has a short, elegant proof — but it's also easy to *think* you've proven it when you haven't, so rather than writing it out, here it is as a genuine exercise. Try each step before opening the next.
 
 ::: {.callout-tip title="Exercise"}
-Prove @cnj-bottom: the bottom edge is a sequence of points colored red or green, starting red and ending green (by Sperner's condition, no blue is possible there). Call the sequence of colors $x_0, x_1, \dots, x_M$, read left to right.
+Prove the [conjecture above](#bottom-conjecture): the bottom edge is a sequence of points colored red or green, starting red and ending green (by Sperner's condition, no blue is possible there). Call the sequence of colors $x_0, x_1, \dots, x_M$, read left to right.
 
 1. Encode each color as a number: $x_i = 0$ if the $i$-th point is red, $x_i = 1$ if it's green. What are $x_0$ and $x_M$?
 2. An `RG` edge is an index $i$ with $x_i \neq x_{i+1}$. Write the total number of `RG` edges as a sum involving the $x_i$ — without an absolute value or a case split. (Consider working modulo 2.)
 3. Combine steps 1 and 2 to conclude the number of `RG` edges is odd.
-:::
-
-::: {.callout-note collapse="true" title="Hint for step 2"}
-Look at the telescoping sum $x_M - x_0 = \sum_{i=0}^{M-1} (x_{i+1} - x_i)$. Each term is $0$ when the colors agree and $\pm 1$ when they differ. What is that sum modulo 2?
-:::
-
-::: {.callout-note collapse="true" title="Solution sketch"}
-Modulo 2, $x_{i+1} - x_i \equiv x_{i+1} + x_i$, which is $0$ when $x_i = x_{i+1}$ (colors agree) and $1$ when $x_i \neq x_{i+1}$ (an `RG` edge). So
-\begin{align*}
-\sum_{i=0}^{M-1} (x_{i+1} - x_i) \equiv \#\{\text{`RG` edges}\} \pmod 2.
-\end{align*}
-The left side telescopes to $x_M - x_0 = 1 - 0 = 1$. Hence the number of `RG` edges is odd.
 :::
 
 Try it below: click **Regenerate colors** a few times and check that the count is always odd, no matter how the interior points are colored.
@@ -580,12 +561,7 @@ viewof boundaryPlot = Plot.plot({
 
 ## Questions
 
-The app at the top of this page demonstrates the proof by dividing a triangle uniformly into smaller triangles. However, Sperner's Lemma is much more general: it applies to **any triangulation** of a triangle, as long as the vertices are colored according to Sperner's condition. The proof itself never relies on the triangulation being uniform — so it holds for *any* triangulation. That said, the app is harder to generalize for arbitrary triangulations.
+- Design an app for visualizing this proof for any triangulation of a triangle, not just uniform subdivisions. How would you generate random triangulations? How would you efficiently loop through all the triangles?
 
-- **How does one generate random triangulations?**
-
-One natural approach is to use **Delaunay triangulations**, but how random are these triangulations? Once you have such a triangulation, the next step is:
-
-- **How do you efficiently loop through all the triangles?**
-
-While this isn't a research question, implementing a general Sperner's Lemma checker on arbitrary triangulations would be a neat exercise, combining computational geometry with combinatorics.
+- This proof generalizes to an $n$-simplex for any $n$. For $n=1$, we recover the case of a line segment. For $n=2$, we have Sperner's lemma. What is the statement for $n=3$? How would you visualize it?
+  - For $n=2$, the case of a line segment can be thought of as an intermediate value theorem: if a continuous function $f$ has $f(a) < 0$ and $f(b) > 0$, then there is a point $c \in (a, b)$ with $f(c) = 0$. Do you see it? What is the analogous statement for $n=3$? 
