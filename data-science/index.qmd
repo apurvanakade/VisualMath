@@ -1,7 +1,7 @@
 ---
-title: "Discrete Math"
+title: "Data Science"
 author: Apurva Nakade
-date: 2026-07-14
+date: 2026-07-17
 listing:
   contents: "/*/*/index.qmd"
   type: grid
@@ -16,4 +16,4 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Apurva Nakade
 -->
 
-Discrete math explores combinatorial and geometric structures built from precise, countable objects rather than continuous ones. Each topic below walks through a classical result step by step, using interactive diagrams to make the underlying combinatorics tangible.
+Data science methods learn patterns from noisy, finite samples rather than solving a fixed equation exactly. Each topic below pairs a short introduction with interactive apps so you can see how a method's behavior changes as the data or model complexity changes.

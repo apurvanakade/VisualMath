@@ -3,7 +3,7 @@ title: "Computational Math"
 author: Apurva Nakade
 date: 2026-07-14
 listing:
-  contents: "/*/index.qmd"
+  contents: "/*/*/index.qmd"
   type: grid
   sort: "date desc"
   fields: [image, title, description, categories]
