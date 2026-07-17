@@ -45,6 +45,11 @@ website:
             contents: "computational-math/differential-equations/*/index.qmd"
         - section: "Discrete Math"
           href: discrete-math/index.qmd
-          contents: 
+          contents:
           - section: discrete-math/sperners-lemma/index.qmd
             contents: "discrete-math/sperners-lemma/*/index.qmd"
+        - section: "Data Science"
+          href: data-science/index.qmd
+          contents:
+          - section: data-science/model-fitting/index.qmd
+            contents: "data-science/model-fitting/*/index.qmd"
