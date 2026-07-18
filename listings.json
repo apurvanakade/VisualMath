@@ -1,58 +1,64 @@
 [
   {
-    "listing": "/computational-math/index.html",
-    "items": [
-      "/computational-math/differential-equations/index.html",
-      "/computational-math/piecewise-interpolation/index.html",
-      "/computational-math/root-finding/index.html"
-    ]
-  },
-  {
-    "listing": "/computational-math/differential-equations/index.html",
-    "items": [
-      "/computational-math/differential-equations/adaptive-methods/index.html",
-      "/computational-math/differential-equations/butcher-tableau/index.html",
-      "/computational-math/differential-equations/explicit-methods/index.html",
-      "/computational-math/differential-equations/implicit-methods/index.html"
-    ]
-  },
-  {
-    "listing": "/discrete-math/sperners-lemma/index.html",
-    "items": [
-      "/discrete-math/sperners-lemma/geometric-proof/index.html",
-      "/discrete-math/sperners-lemma/combinatorial-proof/index.html",
-      "/discrete-math/sperners-lemma/statement/index.html",
-      "/discrete-math/sperners-lemma/barycentric-coordinates/index.html"
-    ]
-  },
-  {
-    "listing": "/discrete-math/index.html",
-    "items": [
-      "/discrete-math/sperners-lemma/index.html"
-    ]
-  },
-  {
     "listing": "/index.html",
     "items": [
-      "/computational-math/index.html",
-      "/discrete-math/index.html"
+      "/model-fitting/polynomial-fit/index.html",
+      "/differential-equations/adaptive-methods/index.html",
+      "/differential-equations/butcher-tableau/index.html",
+      "/differential-equations/explicit-methods/index.html",
+      "/differential-equations/implicit-methods/index.html",
+      "/piecewise-interpolation/adaptive-integration/index.html",
+      "/piecewise-interpolation/integration/index.html",
+      "/piecewise-interpolation/linear-cubic/index.html",
+      "/root-finding/bisection-method/index.html",
+      "/root-finding/fixed-point/index.html",
+      "/root-finding/newton-method/index.html",
+      "/root-finding/secant-method/index.html",
+      "/sperners-lemma/geometric-proof/index.html",
+      "/sperners-lemma/combinatorial-proof/index.html",
+      "/sperners-lemma/statement/index.html",
+      "/sperners-lemma/barycentric-coordinates/index.html"
     ]
   },
   {
-    "listing": "/computational-math/piecewise-interpolation/index.html",
+    "listing": "/differential-equations/index.html",
     "items": [
-      "/computational-math/piecewise-interpolation/adaptive-integration/index.html",
-      "/computational-math/piecewise-interpolation/integration/index.html",
-      "/computational-math/piecewise-interpolation/linear-cubic/index.html"
+      "/differential-equations/adaptive-methods/index.html",
+      "/differential-equations/butcher-tableau/index.html",
+      "/differential-equations/explicit-methods/index.html",
+      "/differential-equations/implicit-methods/index.html"
     ]
   },
   {
-    "listing": "/computational-math/root-finding/index.html",
+    "listing": "/root-finding/index.html",
     "items": [
-      "/computational-math/root-finding/bisection-method/index.html",
-      "/computational-math/root-finding/fixed-point/index.html",
-      "/computational-math/root-finding/newton-method/index.html",
-      "/computational-math/root-finding/secant-method/index.html"
+      "/root-finding/bisection-method/index.html",
+      "/root-finding/fixed-point/index.html",
+      "/root-finding/newton-method/index.html",
+      "/root-finding/secant-method/index.html"
+    ]
+  },
+  {
+    "listing": "/sperners-lemma/index.html",
+    "items": [
+      "/sperners-lemma/geometric-proof/index.html",
+      "/sperners-lemma/combinatorial-proof/index.html",
+      "/sperners-lemma/statement/index.html",
+      "/sperners-lemma/barycentric-coordinates/index.html"
+    ]
+  },
+  {
+    "listing": "/piecewise-interpolation/index.html",
+    "items": [
+      "/piecewise-interpolation/adaptive-integration/index.html",
+      "/piecewise-interpolation/integration/index.html",
+      "/piecewise-interpolation/linear-cubic/index.html"
+    ]
+  },
+  {
+    "listing": "/model-fitting/index.html",
+    "items": [
+      "/model-fitting/polynomial-fit/index.html"
     ]
   }
 ]
