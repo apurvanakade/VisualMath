@@ -4,7 +4,7 @@ subtitle: "Interactive, browser-based visualizations of numerical methods."
 author: Apurva Nakade
 date: 2026-06-25
 listing:
-  contents: "/*/index.qmd"
+  contents: "/*/*/index.qmd"
   type: grid
   sort: "date desc"
   fields: [image, title, description, categories]
