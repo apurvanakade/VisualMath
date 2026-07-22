@@ -1,95 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.591Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/model-fitting/polynomial-fit/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.593Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/adaptive-methods/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.449Z</lastmod>
   </url>
   <url>
     <loc>https://apurvanakade.github.io/VisualMath/differential-equations/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.591Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/explicit-methods/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.591Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/CONTRIBUTING.html</loc>
-    <lastmod>2026-07-21T13:05:08.590Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/adaptive-integration/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.593Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/integration/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.593Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/statement/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.596Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/barycentric-coordinates/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.596Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/secant-method/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.595Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/newton-method/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.595Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/fixed-point/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.595Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/bisection-method/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.594Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/root-finding/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.595Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/geometric-proof/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.596Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/combinatorial-proof/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.596Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.596Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/linear-cubic/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.594Z</lastmod>
-  </url>
-  <url>
-    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.593Z</lastmod>
+    <lastmod>2026-07-22T12:32:02.449Z</lastmod>
   </url>
   <url>
     <loc>https://apurvanakade.github.io/VisualMath/differential-equations/butcher-tableau/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.591Z</lastmod>
+    <lastmod>2026-07-22T12:32:02.449Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/adaptive-methods/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.591Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/root-finding/bisection-method/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.452Z</lastmod>
   </url>
   <url>
-    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/implicit-methods/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.591Z</lastmod>
+    <loc>https://apurvanakade.github.io/VisualMath/root-finding/newton-method/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.452Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/root-finding/secant-method/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.452Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/adaptive-integration/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.451Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/linear-cubic/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.451Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/model-fitting/polynomial-fit/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.451Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/geometric-proof/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.453Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.453Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/combinatorial-proof/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.453Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/barycentric-coordinates/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.453Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/sperners-lemma/statement/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.453Z</lastmod>
   </url>
   <url>
     <loc>https://apurvanakade.github.io/VisualMath/model-fitting/index.html</loc>
-    <lastmod>2026-07-21T13:05:08.593Z</lastmod>
+    <lastmod>2026-07-22T12:32:02.450Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/CONTRIBUTING.html</loc>
+    <lastmod>2026-07-22T12:32:02.449Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/integration/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.451Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/piecewise-interpolation/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.451Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/root-finding/fixed-point/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.452Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/root-finding/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.452Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.449Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/explicit-methods/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.449Z</lastmod>
+  </url>
+  <url>
+    <loc>https://apurvanakade.github.io/VisualMath/differential-equations/implicit-methods/index.html</loc>
+    <lastmod>2026-07-22T12:32:02.449Z</lastmod>
   </url>
 </urlset>

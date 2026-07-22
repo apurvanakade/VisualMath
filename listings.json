@@ -1,5 +1,46 @@
 [
   {
+    "listing": "/differential-equations/index.html",
+    "items": [
+      "/differential-equations/adaptive-methods/index.html",
+      "/differential-equations/butcher-tableau/index.html",
+      "/differential-equations/explicit-methods/index.html",
+      "/differential-equations/implicit-methods/index.html"
+    ]
+  },
+  {
+    "listing": "/sperners-lemma/index.html",
+    "items": [
+      "/sperners-lemma/geometric-proof/index.html",
+      "/sperners-lemma/combinatorial-proof/index.html",
+      "/sperners-lemma/statement/index.html",
+      "/sperners-lemma/barycentric-coordinates/index.html"
+    ]
+  },
+  {
+    "listing": "/model-fitting/index.html",
+    "items": [
+      "/model-fitting/polynomial-fit/index.html"
+    ]
+  },
+  {
+    "listing": "/piecewise-interpolation/index.html",
+    "items": [
+      "/piecewise-interpolation/adaptive-integration/index.html",
+      "/piecewise-interpolation/integration/index.html",
+      "/piecewise-interpolation/linear-cubic/index.html"
+    ]
+  },
+  {
+    "listing": "/root-finding/index.html",
+    "items": [
+      "/root-finding/bisection-method/index.html",
+      "/root-finding/fixed-point/index.html",
+      "/root-finding/newton-method/index.html",
+      "/root-finding/secant-method/index.html"
+    ]
+  },
+  {
     "listing": "/index.html",
     "items": [
       "/model-fitting/polynomial-fit/index.html",
@@ -18,47 +59,6 @@
       "/sperners-lemma/combinatorial-proof/index.html",
       "/sperners-lemma/statement/index.html",
       "/sperners-lemma/barycentric-coordinates/index.html"
-    ]
-  },
-  {
-    "listing": "/differential-equations/index.html",
-    "items": [
-      "/differential-equations/adaptive-methods/index.html",
-      "/differential-equations/butcher-tableau/index.html",
-      "/differential-equations/explicit-methods/index.html",
-      "/differential-equations/implicit-methods/index.html"
-    ]
-  },
-  {
-    "listing": "/root-finding/index.html",
-    "items": [
-      "/root-finding/bisection-method/index.html",
-      "/root-finding/fixed-point/index.html",
-      "/root-finding/newton-method/index.html",
-      "/root-finding/secant-method/index.html"
-    ]
-  },
-  {
-    "listing": "/sperners-lemma/index.html",
-    "items": [
-      "/sperners-lemma/geometric-proof/index.html",
-      "/sperners-lemma/combinatorial-proof/index.html",
-      "/sperners-lemma/statement/index.html",
-      "/sperners-lemma/barycentric-coordinates/index.html"
-    ]
-  },
-  {
-    "listing": "/piecewise-interpolation/index.html",
-    "items": [
-      "/piecewise-interpolation/adaptive-integration/index.html",
-      "/piecewise-interpolation/integration/index.html",
-      "/piecewise-interpolation/linear-cubic/index.html"
-    ]
-  },
-  {
-    "listing": "/model-fitting/index.html",
-    "items": [
-      "/model-fitting/polynomial-fit/index.html"
     ]
   }
 ]
