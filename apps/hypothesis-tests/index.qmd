@@ -1,0 +1,999 @@
+---
+title: "t, F, and Chi-Square Tests"
+topic: "Hypothesis Testing"
+description: "Run a t-test, F-test, or chi-square test and watch the statistic land on its null distribution, with the p-value tail shaded."
+author: Dhruv Azad
+date: 2026-09-06
+order: 1
+image: hypothesis-tests.png
+categories:
+  - Statistics
+  - Hypothesis Testing
+  - t-Test
+  - F-Test
+  - Chi-Square Test
+  - p-Value
+  - Sampling Distributions
+---
+
+<!--
+Copyright (c) 2026 Dhruv Azad. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Dhruv Azad
+-->
+
+```{ojs}
+//| output: false
+// VM is the shared utility library, loaded globally via _includes/head-scripts.html (js/**). This page uses VM.stats.studentTDist / fDist / chiSquareDist, VM.expressions.makeNumber, VM.plotting.paddedRange / colors / alpha / layout / config / emptyState / autoResize, VM.sampling.seededRandom / gaussianRandom, VM.ui.renderTable / applyExampleParams.
+VM = window.VM
+```
+
+```{ojs}
+//| output: false
+// vmTheme makes the chart colors reactive to a dark-mode toggle: the chart
+// chrome repaints itself via the relayout patch in
+// plotly-fullscreen-button.js, but the trace colors are baked into the
+// traces this page builds, so they only repaint when a plot cell re-runs.
+vmTheme = Generators.observe(notify => VM.plotting.onThemeChange(notify))
+chartColors = VM.plotting.colors(vmTheme)
+```
+
+```{ojs}
+//| output: false
+// The three tests differ only in which sampling distribution the statistic
+// is compared against and in the shape of their input data. testMeta holds
+// the per-test display strings and example presets; result/setup/distPlot
+// switch on `activeTest` for the math.
+testMeta = ({
+  t: {
+    label: "t-test",
+    symbol: "t",
+    full: "Two-sample t-test",
+    blurb: "Two-sample t-test — is the difference between the two group means larger than sampling noise would produce?",
+    examples: [
+      {title: "A clear difference", params: {mean1: "52", sd1: "6", n1: "30", mean2: "45", sd2: "6", n2: "30"}},
+      {title: "Not significant", params: {mean1: "50", sd1: "8", n1: "20", mean2: "48", sd2: "8", n2: "20"}},
+      {title: "Significant but a trivial effect", params: {mean1: "100.4", sd1: "5", n1: "400", mean2: "100.0", sd2: "5", n2: "400"}},
+      {title: "Small samples, wide spread", params: {mean1: "31", sd1: "12", n1: "6", mean2: "22", sd2: "10", n2: "6"}},
+      {title: "One group far more variable", params: {mean1: "20", sd1: "2", n1: "25", mean2: "24", sd2: "9", n2: "25"}}
+    ]
+  },
+  F: {
+    label: "F-test",
+    symbol: "F",
+    full: "F-test for equal variances",
+    blurb: "F-test for equal variances — is one group's spread significantly larger than the other's? (The means are ignored.)",
+    examples: [
+      {title: "Equal variances", params: {mean1: "50", sd1: "5", n1: "20", mean2: "50", sd2: "5.2", n2: "20"}},
+      {title: "One group 3× more variable", params: {mean1: "50", sd1: "9", n1: "15", mean2: "50", sd2: "3", n2: "15"}},
+      {title: "Borderline ratio", params: {mean1: "50", sd1: "6", n1: "12", mean2: "50", sd2: "4", n2: "12"}},
+      {title: "Large samples catch a small ratio", params: {mean1: "50", sd1: "5.5", n1: "200", mean2: "50", sd2: "5", n2: "200"}}
+    ]
+  },
+  chi: {
+    label: "χ²-test",
+    symbol: "χ²",
+    full: "Chi-square goodness-of-fit",
+    blurb: "Chi-square goodness-of-fit — do the observed category counts match the counts a reference model predicts?",
+    examples: [
+      {title: "Fair die (fits)", params: {observed: "9, 11, 10, 8, 12, 10", expected: "uniform"}},
+      {title: "Loaded die", params: {observed: "6, 8, 9, 10, 12, 25", expected: "uniform"}},
+      {title: "Mendel's peas (9:3:3:1)", params: {observed: "315, 108, 101, 32", expected: "0.5625, 0.1875, 0.1875, 0.0625"}},
+      {title: "Clear deviation from uniform", params: {observed: "40, 20, 20, 20", expected: "uniform"}}
+    ]
+  }
+})
+```
+
+```{ojs}
+// The test toggle. A small segmented control implementing Observable
+// Inputs' view contract (a `value` property + an "input" event on change),
+// so `viewof activeTest` works like any other input -- including
+// URL-restore on load and applyExampleParams's set-and-dispatch protocol.
+viewof activeTest = {
+  const params = new URLSearchParams(window.location.search)
+  const ids = ["t", "F", "chi"]
+  let current = ids.includes(params.get("test")) ? params.get("test") : "t"
+
+  const root = document.createElement("div")
+  root.className = "htest-segmented"
+  root.setAttribute("role", "tablist")
+
+  const buttons = new Map()
+  for (const id of ids) {
+    const button = document.createElement("button")
+    button.type = "button"
+    button.className = "htest-seg-btn"
+    button.textContent = testMeta[id].label
+    button.addEventListener("click", () => {
+      if (current === id) return
+      current = id
+      paint()
+      root.dispatchEvent(new Event("input", {bubbles: true}))
+    })
+    buttons.set(id, button)
+    root.append(button)
+  }
+
+  const paint = () => {
+    for (const [id, button] of buttons) {
+      if (id === current) button.setAttribute("aria-current", "true")
+      else button.removeAttribute("aria-current")
+    }
+  }
+  paint()
+
+  Object.defineProperty(root, "value", {
+    get() { return current },
+    set(next) { if (buttons.has(next)) { current = next; paint() } }
+  })
+  return root
+}
+```
+
+```{ojs}
+md`${testMeta[activeTest].blurb}`
+```
+
+<div class="ojs-panel">
+
+<div id="htest-group-tf">
+
+<div class="ojs-grid">
+
+```{ojs}
+viewof mean1 = {
+  const params = new URLSearchParams(window.location.search)
+  const input = Inputs.text({label: "Group 1 mean x̅1", value: params.get("mean1") ?? "52", placeholder: "Example: 52"})
+  input.dataset.exampleField = "mean1"
+  return input
+}
+```
+
+```{ojs}
+viewof sd1 = {
+  const params = new URLSearchParams(window.location.search)
+  const input = Inputs.text({label: "Group 1 SD s₁", value: params.get("sd1") ?? "6", placeholder: "Example: 6"})
+  input.dataset.exampleField = "sd1"
+  return input
+}
+```
+
+```{ojs}
+viewof n1 = {
+  const params = new URLSearchParams(window.location.search)
+  const input = Inputs.text({label: "Group 1 size n₁", value: params.get("n1") ?? "30", placeholder: "Example: 30"})
+  input.dataset.exampleField = "n1"
+  return input
+}
+```
+
+</div>
+
+<div class="ojs-grid">
+
+```{ojs}
+viewof mean2 = {
+  const params = new URLSearchParams(window.location.search)
+  const input = Inputs.text({label: "Group 2 mean x̅2", value: params.get("mean2") ?? "45", placeholder: "Example: 45"})
+  input.dataset.exampleField = "mean2"
+  return input
+}
+```
+
+```{ojs}
+viewof sd2 = {
+  const params = new URLSearchParams(window.location.search)
+  const input = Inputs.text({label: "Group 2 SD s₂", value: params.get("sd2") ?? "6", placeholder: "Example: 6"})
+  input.dataset.exampleField = "sd2"
+  return input
+}
+```
+
+```{ojs}
+viewof n2 = {
+  const params = new URLSearchParams(window.location.search)
+  const input = Inputs.text({label: "Group 2 size n₂", value: params.get("n2") ?? "30", placeholder: "Example: 30"})
+  input.dataset.exampleField = "n2"
+  return input
+}
+```
+
+</div>
+
+</div>
+
+<div id="htest-group-chi">
+
+<div class="ojs-grid">
+
+```{ojs}
+viewof observed = {
+  const params = new URLSearchParams(window.location.search)
+  const input = Inputs.text({label: "Observed counts", value: params.get("observed") ?? "6, 8, 9, 10, 12, 25", placeholder: "Example: 6, 8, 9, 10, 12, 25"})
+  input.classList.add("ojs-fill")
+  input.dataset.exampleField = "observed"
+  return input
+}
+```
+
+```{ojs}
+viewof expected = {
+  const params = new URLSearchParams(window.location.search)
+  const input = Inputs.text({label: "Expected (counts, probabilities, or “uniform”)", value: params.get("expected") ?? "uniform", placeholder: "Example: uniform  or  0.5625, 0.1875, 0.1875, 0.0625"})
+  input.classList.add("ojs-fill")
+  input.dataset.exampleField = "expected"
+  return input
+}
+```
+
+</div>
+
+</div>
+
+```{ojs}
+viewof exampleSelect = {
+  // Rebuilt whenever activeTest changes, so the list always matches the
+  // current test; the leading null is a "pick one" placeholder.
+  activeTest
+  const options = [null, ...testMeta[activeTest].examples]
+  const select = Inputs.select(options, {label: "Try an example", format: e => e ? e.title : "Pick an example…", value: null})
+  select.classList.add("ojs-fill")
+  return select
+}
+```
+
+```{ojs}
+//| output: false
+// One flat map of every field across all three tests -- the keys are
+// disjoint (t/F use the group fields, chi uses observed/expected), so
+// applyExampleParams only ever touches the keys an example actually sets.
+exampleFieldSelectors = ({
+  mean1: '[data-example-field="mean1"]',
+  sd1: '[data-example-field="sd1"]',
+  n1: '[data-example-field="n1"]',
+  mean2: '[data-example-field="mean2"]',
+  sd2: '[data-example-field="sd2"]',
+  n2: '[data-example-field="n2"]',
+  observed: '[data-example-field="observed"]',
+  expected: '[data-example-field="expected"]'
+})
+```
+
+```{ojs}
+//| output: false
+// A one-time native "change" listener on the rebuilt <select> (not an OJS
+// cell reactive on exampleSelect's value -- a <select> fires both "input"
+// and "change" per pick, which would run a reactive cell twice and race).
+// This cell re-runs when viewof exampleSelect is rebuilt on a test switch,
+// re-attaching to the fresh node.
+applyExampleFromSelect = {
+  const nativeSelect = (viewof exampleSelect).querySelector("select")
+  if (!nativeSelect) return
+  nativeSelect.addEventListener("change", () => {
+    const example = (viewof exampleSelect).value
+    if (!example) return
+    VM.ui.applyExampleParams(exampleFieldSelectors, example.params, viewof runTrigger)
+  })
+}
+```
+
+```{ojs}
+// Run test commits the data fields above -- edits don't take effect (and
+// don't recompute result/plots on every keystroke) until this is clicked.
+// The alpha slider and the alternative-hypothesis control below stay live.
+viewof runTrigger = {
+  const button = Inputs.button("Run test", {value: 0, reduce: v => v + 1})
+  button.classList.add("ojs-auto", "ojs-end")
+  return button
+}
+```
+
+<div class="ojs-grid" id="htest-tail-field">
+
+```{ojs}
+// Always-live: switches which tail(s) count toward the p-value. Its own
+// group below the commit button, like every other always-live panel
+// control on the site. Hidden for the chi-square test, which is
+// inherently one-sided (right tail).
+viewof tail = {
+  const params = new URLSearchParams(window.location.search)
+  const value = ["two-sided", "greater", "less"].includes(params.get("tail")) ? params.get("tail") : "two-sided"
+  return Inputs.select(["two-sided", "greater", "less"], {label: "Alternative hypothesis", value})
+}
+```
+
+</div>
+
+</div>
+
+```{ojs}
+//| output: false
+// Shows the field group that matches the active test and hides the other,
+// and hides the tail control for chi-square. The groups all stay in the
+// DOM either way, so document.querySelector (data-example-field) still
+// finds every field regardless of which test is showing.
+applyTestVisibility = {
+  const test = activeTest
+  const tf = document.getElementById("htest-group-tf")
+  const chi = document.getElementById("htest-group-chi")
+  const tailField = document.getElementById("htest-tail-field")
+  if (tf) tf.style.display = test === "chi" ? "none" : ""
+  if (chi) chi.style.display = test === "chi" ? "" : "none"
+  if (tailField) tailField.style.display = test === "chi" ? "none" : ""
+  return test
+}
+```
+
+```{ojs}
+//| output: false
+// committed snapshots the data fields when Run test fires (it reads the
+// stable `viewof` DOM nodes, not the reactive values, so it doesn't rerun
+// on keystrokes) and writes every field back into the URL so the address
+// bar is a shareable link. It still runs once on load, so the first render
+// uses the URL/default values with no click.
+committed = {
+  runTrigger
+  const math = window.math
+  const num = text => VM.expressions.makeNumber(math, text)
+
+  const raw = {
+    mean1: (viewof mean1).value, sd1: (viewof sd1).value, n1: (viewof n1).value,
+    mean2: (viewof mean2).value, sd2: (viewof sd2).value, n2: (viewof n2).value,
+    observed: (viewof observed).value, expected: (viewof expected).value
+  }
+
+  const params = new URLSearchParams(window.location.search)
+  for (const key of Object.keys(raw)) params.set(key, raw[key])
+  history.replaceState(null, "", `${window.location.pathname}?${params}`)
+
+  return {
+    mean1: num(raw.mean1), sd1: num(raw.sd1), n1: num(raw.n1),
+    mean2: num(raw.mean2), sd2: num(raw.sd2), n2: num(raw.n2),
+    observedText: raw.observed, expectedText: raw.expected,
+    seedKey: [raw.mean1, raw.sd1, raw.n1, raw.mean2, raw.sd2, raw.n2].join("|")
+  }
+}
+```
+
+```{ojs}
+//| output: false
+// Keeps the always-live controls (the test toggle, alpha, and the
+// alternative) in the URL alongside the committed data fields.
+urlSyncControls = {
+  const params = new URLSearchParams(window.location.search)
+  params.set("test", activeTest)
+  params.set("alpha", String(alpha))
+  params.set("tail", tail)
+  history.replaceState(null, "", `${window.location.pathname}?${params}`)
+}
+```
+
+```{ojs}
+//| output: false
+// Inverts a monotone CDF by bisection -- used for the critical value(s)
+// drawn on the distribution. `lo`/`hi` bracket the root; 120 halvings take
+// the interval far below double precision.
+quantile = function (cdf, p, lo, hi) {
+  let a = lo
+  let b = hi
+  for (let i = 0; i < 120; i++) {
+    const mid = 0.5 * (a + b)
+    if (cdf(mid) < p) a = mid
+    else b = mid
+  }
+  return 0.5 * (a + b)
+}
+```
+
+```{ojs}
+//| output: false
+// result: turns the committed inputs into a test statistic, its null
+// distribution, a p-value, the critical value(s) at the current alpha, and
+// a reject / fail-to-reject decision. Returns { ok: false } on unusable
+// input, which the plots render as an empty state.
+result = {
+  const test = activeTest
+  const alphaVal = alpha
+  const c = committed
+
+  if (test === "t" || test === "F") {
+    const {mean1, sd1, n1, mean2, sd2, n2} = c
+    let finite = true
+    for (const v of [mean1, sd1, n1, mean2, sd2, n2]) {
+      if (!Number.isFinite(v)) finite = false
+    }
+    if (!finite || sd1 <= 0 || sd2 <= 0 || n1 < 2 || n2 < 2) return {ok: false, test}
+
+    if (test === "t") {
+      const df = n1 + n2 - 2
+      const pooledVar = ((n1 - 1) * sd1 * sd1 + (n2 - 1) * sd2 * sd2) / df
+      const se = Math.sqrt(pooledVar * (1 / n1 + 1 / n2))
+      const statistic = (mean1 - mean2) / se
+      const cdf = x => VM.stats.studentTDist(x, df).cdf
+      const pdf = x => VM.stats.studentTDist(x, df).pdf
+      const Q = p => quantile(cdf, p, -1e4, 1e4)
+
+      let pValue, critLines, pValueTails, critAbs
+      if (tail === "two-sided") {
+        pValue = 2 * (1 - cdf(Math.abs(statistic)))
+        critAbs = Q(1 - alphaVal / 2)
+        critLines = [-critAbs, critAbs]
+        pValueTails = [{from: -Infinity, to: -Math.abs(statistic)}, {from: Math.abs(statistic), to: Infinity}]
+      } else if (tail === "greater") {
+        pValue = 1 - cdf(statistic)
+        critAbs = Q(1 - alphaVal)
+        critLines = [critAbs]
+        pValueTails = [{from: statistic, to: Infinity}]
+      } else {
+        pValue = cdf(statistic)
+        critAbs = Q(1 - alphaVal)
+        critLines = [-critAbs]
+        pValueTails = [{from: -Infinity, to: statistic}]
+      }
+
+      return {
+        ok: true, test, df, statistic, pdf, cdf,
+        pValue, critLines, pValueTails, critAbs, se, pooledVar,
+        reject: pValue < alphaVal,
+        mean1, mean2, sd1, sd2, n1, n2
+      }
+    }
+
+    // F-test: ratio of the two sample variances.
+    const df1 = n1 - 1
+    const df2 = n2 - 1
+    const statistic = (sd1 * sd1) / (sd2 * sd2)
+    const cdf = x => VM.stats.fDist(x, df1, df2).cdf
+    const pdf = x => VM.stats.fDist(x, df1, df2).pdf
+    const Q = p => quantile(cdf, p, 0, 1e7)
+    const cprob = cdf(statistic)
+
+    let pValue, critLines, pValueTails
+    if (tail === "two-sided") {
+      const minTail = Math.min(cprob, 1 - cprob)
+      pValue = 2 * minTail
+      critLines = [Q(alphaVal / 2), Q(1 - alphaVal / 2)]
+      pValueTails = [{from: -Infinity, to: Q(minTail)}, {from: Q(1 - minTail), to: Infinity}]
+    } else if (tail === "greater") {
+      pValue = 1 - cprob
+      critLines = [Q(1 - alphaVal)]
+      pValueTails = [{from: statistic, to: Infinity}]
+    } else {
+      pValue = cprob
+      critLines = [Q(alphaVal)]
+      pValueTails = [{from: -Infinity, to: statistic}]
+    }
+
+    return {
+      ok: true, test, df1, df2, statistic, pdf, cdf,
+      pValue, critLines, pValueTails,
+      reject: pValue < alphaVal,
+      mean1, mean2, sd1, sd2, n1, n2
+    }
+  }
+
+  // Chi-square goodness-of-fit.
+  const math = window.math
+  const parseList = text => {
+    const out = []
+    for (const token of String(text).split(/[,\s]+/)) {
+      if (token === "") continue
+      const value = VM.expressions.makeNumber(math, token)
+      out.push(value)
+    }
+    return out
+  }
+
+  const obs = parseList(c.observedText)
+  let obsValid = obs.length >= 2
+  for (const v of obs) {
+    if (!Number.isFinite(v) || v < 0) obsValid = false
+  }
+  if (!obsValid) return {ok: false, test}
+
+  let total = 0
+  for (const v of obs) total += v
+
+  const expText = String(c.expectedText).trim().toLowerCase()
+  const exp = []
+  if (expText === "" || expText === "uniform") {
+    for (let i = 0; i < obs.length; i++) exp.push(total / obs.length)
+  } else {
+    const list = parseList(c.expectedText)
+    let listValid = list.length === obs.length
+    let listSum = 0
+    for (const v of list) {
+      if (!Number.isFinite(v) || v <= 0) listValid = false
+      listSum += v
+    }
+    if (!listValid) return {ok: false, test}
+    // A list that sums to 1 is read as probabilities; otherwise as raw
+    // expected counts.
+    const asProbabilities = Math.abs(listSum - 1) < 1e-6
+    for (const v of list) exp.push(asProbabilities ? v * total : v)
+  }
+
+  const df = obs.length - 1
+  const categories = []
+  let statistic = 0
+  for (let i = 0; i < obs.length; i++) {
+    const contrib = (obs[i] - exp[i]) * (obs[i] - exp[i]) / exp[i]
+    statistic += contrib
+    categories.push({label: `${i + 1}`, o: obs[i], e: exp[i], contrib})
+  }
+  const cdf = x => VM.stats.chiSquareDist(x, df).cdf
+  const pdf = x => VM.stats.chiSquareDist(x, df).pdf
+  const critValue = quantile(cdf, 1 - alphaVal, 0, 1e7)
+  const pValue = 1 - cdf(statistic)
+
+  return {
+    ok: true, test, df, statistic, pdf, cdf, categories, total,
+    pValue, critLines: [critValue], pValueTails: [{from: statistic, to: Infinity}],
+    reject: pValue < alphaVal
+  }
+}
+```
+
+```{ojs}
+//| output: false
+// setup: samples the active null distribution and turns result's abstract
+// tail intervals into polygons the chart can fill.
+setup = {
+  const r = result
+  if (!r.ok) return {ok: false, test: r.test}
+  const test = r.test
+
+  let lo, hi
+  let crit = 0
+  for (const value of r.critLines) crit = Math.max(crit, Math.abs(value))
+  if (test === "t") {
+    const reach = Math.max(4, Math.abs(r.statistic) * 1.15, crit * 1.25)
+    lo = -reach
+    hi = reach
+  } else {
+    lo = 0
+    const base = test === "chi" ? r.df * 2.2 + 6 : 4
+    hi = Math.max(r.statistic * 1.4, crit * 1.3, base, 5)
+  }
+
+  const N = 420
+  const xs = []
+  const ys = []
+  const eps = test === "t" ? 0 : (hi - lo) / N * 0.5
+  for (let i = 0; i < N; i++) {
+    let x
+    if (test === "t") x = lo + (hi - lo) * i / (N - 1)
+    else x = eps + (hi - eps) * i / (N - 1)
+    xs.push(x)
+    ys.push(r.pdf(x))
+  }
+
+  // y-axis max: skip the first few samples so an F/chi density that blows
+  // up near 0 (df1 = 1, or df < 2) doesn't set the whole scale.
+  let ymax = 0
+  const startAt = test === "t" ? 0 : Math.round(N * 0.04)
+  for (let i = startAt; i < ys.length; i++) {
+    if (Number.isFinite(ys[i]) && ys[i] > ymax) ymax = ys[i]
+  }
+  if (!(ymax > 0)) ymax = 1
+
+  const clampX = x => Math.max(lo, Math.min(hi, x))
+  const shades = []
+  for (const region of r.pValueTails) {
+    const from = clampX(region.from === -Infinity ? lo : region.from)
+    const to = clampX(region.to === Infinity ? hi : region.to)
+    if (!(to > from)) continue
+    const seg = {x: [], y: []}
+    const steps = 100
+    for (let i = 0; i <= steps; i++) {
+      const x = from + (to - from) * i / steps
+      let px = x
+      if (test !== "t" && px <= 0) px = 1e-9
+      seg.x.push(x)
+      seg.y.push(r.pdf(px))
+    }
+    shades.push(seg)
+  }
+
+  return {ok: true, test, xs, ys, ymax, lo, hi, shades, statLine: r.statistic, critLines: r.critLines}
+}
+```
+
+```{ojs}
+//| output: false
+// dataPlot: the "what the data looks like" panel above the distribution.
+// For t / F it draws each group as a strip of jittered points (seeded from
+// the committed stats, so stable across re-renders) with its mean and
+// +/- 1 and 2 SD whiskers; the t view adds an observed-difference vs.
+// significance-threshold comparison, the F view shades each group's +/- 1
+// SD band so the width ratio is the F ratio. For chi-square it draws
+// observed vs. expected counts as grouped bars, labelled with each
+// category's contribution to the statistic.
+dataPlot = {
+  const Plotly = window.Plotly
+  let _plotDiv = null
+
+  const hashString = s => {
+    let h = 2166136261
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i)
+      h = Math.imul(h, 16777619)
+    }
+    return h >>> 0
+  }
+
+  return (r, c, colors) => {
+    const data = []
+    const shapes = []
+    const annotations = []
+    let layout
+
+    if (!r.ok) {
+      layout = VM.plotting.layout({
+        xaxis: {visible: false},
+        yaxis: {visible: false},
+        annotations: VM.plotting.emptyState("Check the inputs above — every field needs a number, sizes ≥ 2, SDs > 0.")
+      })
+    } else if (r.test === "chi") {
+      const xs = []
+      const obs = []
+      const exp = []
+      const contribText = []
+      for (const cat of r.categories) {
+        xs.push(cat.label)
+        obs.push(cat.o)
+        exp.push(cat.e)
+        contribText.push(cat.contrib.toFixed(2))
+      }
+      data.push({
+        x: xs, y: exp, type: "bar", name: "Expected",
+        marker: {color: VM.plotting.alpha("muted", 0.45), line: {color: colors.muted, width: 1}},
+        hovertemplate: "category %{x}<br>expected %{y:.2f}<extra></extra>"
+      })
+      data.push({
+        x: xs, y: obs, type: "bar", name: "Observed",
+        marker: {color: colors.fn},
+        text: contribText, textposition: "outside",
+        hovertemplate: "category %{x}<br>observed %{y}<extra></extra>"
+      })
+      annotations.push({
+        x: 0.5, xref: "paper", y: 1.06, yref: "paper", xanchor: "center", showarrow: false,
+        text: `each bar label is that category's (O−E)²/E — they sum to χ² = ${r.statistic.toFixed(2)}`,
+        font: {size: 11, color: colors.ink}
+      })
+      layout = VM.plotting.layout({
+        barmode: "group",
+        xaxis: {title: "category", type: "category"},
+        yaxis: {title: "count", rangemode: "tozero"},
+        showlegend: true,
+        legend: {orientation: "h", y: -0.2},
+        margin: {t: 44},
+        annotations
+      })
+    } else {
+      const groups = [
+        {mean: c.mean1, sd: c.sd1, n: c.n1, y: 1, token: "ok", color: colors.ok, name: "Group 1"},
+        {mean: c.mean2, sd: c.sd2, n: c.n2, y: 0, token: "alt", color: colors.alt, name: "Group 2"}
+      ]
+      const rng = VM.sampling.seededRandom(hashString(c.seedKey))
+      const gauss = VM.sampling.gaussianRandom(rng)
+      const allX = []
+
+      for (const g of groups) {
+        const k = Math.max(6, Math.min(60, Math.round(g.n)))
+        const px = []
+        const py = []
+        for (let i = 0; i < k; i++) {
+          const xv = g.mean + g.sd * gauss()
+          px.push(xv)
+          py.push(g.y + (rng() - 0.5) * 0.34)
+          allX.push(xv)
+        }
+        allX.push(g.mean - 2.5 * g.sd, g.mean + 2.5 * g.sd)
+
+        if (r.test === "F") {
+          shapes.push({
+            type: "rect", xref: "x", yref: "y",
+            x0: g.mean - g.sd, x1: g.mean + g.sd, y0: g.y - 0.24, y1: g.y + 0.24,
+            fillcolor: VM.plotting.alpha(g.token, 0.16), line: {width: 0}, layer: "below"
+          })
+        }
+        shapes.push({type: "line", xref: "x", yref: "y", x0: g.mean - 2 * g.sd, x1: g.mean + 2 * g.sd, y0: g.y, y1: g.y, line: {color: colors.muted, width: 1.5}})
+        shapes.push({type: "line", xref: "x", yref: "y", x0: g.mean - g.sd, x1: g.mean + g.sd, y0: g.y, y1: g.y, line: {color: g.color, width: 4}})
+
+        data.push({
+          x: px, y: py, type: "scatter", mode: "markers", name: g.name, showlegend: false,
+          marker: {color: VM.plotting.alpha(g.token, 0.5), size: 7, line: {color: g.color, width: 0.5}},
+          hovertemplate: `${g.name}<br>value ≈ %{x:.3g}<extra></extra>`
+        })
+        data.push({
+          x: [g.mean], y: [g.y], type: "scatter", mode: "markers", showlegend: false,
+          marker: {color: g.color, size: 15, symbol: "diamond", line: {color: colors.halo, width: 1.5}},
+          hovertemplate: `${g.name} mean = %{x:.4g}<extra></extra>`
+        })
+      }
+
+      if (r.test === "t") {
+        const dObs = Math.abs(c.mean1 - c.mean2)
+        const threshold = r.critAbs * r.se
+        const x0 = Math.min(c.mean1, c.mean2)
+        allX.push(x0 + dObs, x0 + threshold)
+        shapes.push({type: "line", xref: "x", yref: "y", x0, x1: x0 + threshold, y0: 1.74, y1: 1.74, line: {color: colors.accent2, width: 3, dash: "dot"}})
+        shapes.push({type: "line", xref: "x", yref: "y", x0, x1: x0 + dObs, y0: 1.52, y1: 1.52, line: {color: r.reject ? colors.warn : colors.muted, width: 7}})
+        annotations.push({x: x0 + dObs, y: 1.52, yref: "y", xanchor: "left", showarrow: false, text: `  observed Δ = ${dObs.toFixed(2)}`, font: {size: 10, color: colors.ink}})
+        annotations.push({x: x0 + threshold, y: 1.74, yref: "y", xanchor: "left", showarrow: false, text: `  significance threshold = ${threshold.toFixed(2)}`, font: {size: 10, color: colors.ink}})
+      } else {
+        annotations.push({
+          x: 0.5, xref: "paper", y: 1.9, yref: "y", xanchor: "center", showarrow: false,
+          text: `s₁ = ${c.sd1.toFixed(2)},  s₂ = ${c.sd2.toFixed(2)}   →   F = s₁² / s₂² = ${r.statistic.toFixed(3)}`,
+          font: {size: 11, color: colors.ink}
+        })
+      }
+
+      const xRange = VM.plotting.paddedRange(allX, {relativePadding: 0.08, minPadding: 1})
+      layout = VM.plotting.layout({
+        xaxis: {title: "value", range: [xRange.lo, xRange.hi], zeroline: false},
+        yaxis: {range: [-0.7, r.test === "t" ? 2.0 : 2.05], tickvals: [0, 1], ticktext: ["Group 2", "Group 1"], zeroline: false},
+        shapes,
+        annotations,
+        showlegend: false,
+        hovermode: "closest"
+      })
+    }
+
+    const config = VM.plotting.config()
+    if (!_plotDiv) {
+      _plotDiv = document.createElement("div")
+      _plotDiv.className = "htest-data-box"
+      Plotly.newPlot(_plotDiv, data, layout, config)
+      VM.plotting.autoResize(_plotDiv)
+    } else {
+      Plotly.react(_plotDiv, data, layout, config)
+    }
+    return _plotDiv
+  }
+}
+```
+
+```{ojs}
+//| output: false
+// distPlot: the null sampling distribution, with the observed statistic
+// marked, the critical value(s) at the current alpha dashed in, and the
+// p-value tail(s) shaded.
+distPlot = {
+  const Plotly = window.Plotly
+  let _plotDiv = null
+
+  return (s, r, colors) => {
+    const data = []
+    const shapes = []
+    const annotations = []
+    const sym = s.ok ? testMeta[r.test].symbol : ""
+
+    if (!s.ok) {
+      const layout = VM.plotting.layout({
+        xaxis: {visible: false},
+        yaxis: {visible: false},
+        annotations: VM.plotting.emptyState("No result to show yet.")
+      })
+      if (!_plotDiv) {
+        _plotDiv = document.createElement("div")
+        _plotDiv.className = "plotly-box-large"
+        Plotly.newPlot(_plotDiv, [], layout, VM.plotting.config())
+        VM.plotting.autoResize(_plotDiv)
+      } else {
+        Plotly.react(_plotDiv, [], layout, VM.plotting.config())
+      }
+      return _plotDiv
+    }
+
+    for (const seg of s.shades) {
+      data.push({
+        x: seg.x, y: seg.y, type: "scatter", mode: "none", fill: "tozeroy",
+        fillcolor: VM.plotting.alpha("warn", 0.4), showlegend: false, hoverinfo: "skip"
+      })
+    }
+    data.push({
+      x: s.xs, y: s.ys, type: "scatter", mode: "lines", name: "null distribution", showlegend: false,
+      line: {color: colors.fn, width: 2.5},
+      hovertemplate: `${sym} = %{x:.3g}<br>density %{y:.3g}<extra></extra>`
+    })
+
+    for (const cx of s.critLines) {
+      if (cx < s.lo || cx > s.hi) continue
+      shapes.push({type: "line", xref: "x", yref: "paper", x0: cx, x1: cx, y0: 0, y1: 1, line: {color: colors.accent2, width: 1.5, dash: "dash"}})
+    }
+    annotations.push({
+      x: s.critLines.length && s.critLines[s.critLines.length - 1] <= s.hi ? s.critLines[s.critLines.length - 1] : s.hi,
+      y: 1, yref: "paper", yanchor: "bottom", xanchor: "center", showarrow: false,
+      text: `critical value${s.critLines.length > 1 ? "s" : ""} at α = ${alpha}`,
+      font: {size: 10, color: colors.accent2}
+    })
+
+    if (s.statLine >= s.lo && s.statLine <= s.hi) {
+      shapes.push({type: "line", xref: "x", yref: "paper", x0: s.statLine, x1: s.statLine, y0: 0, y1: 1, line: {color: colors.ink, width: 2}})
+      annotations.push({
+        x: s.statLine, y: 0.5, yref: "paper", yanchor: "bottom", xanchor: "left", showarrow: false,
+        text: `  ${sym} = ${r.statistic.toFixed(3)}`,
+        font: {size: 12, color: colors.ink}
+      })
+    }
+
+    const pText = r.pValue < 1e-4 ? "p < 0.0001" : `p = ${r.pValue.toFixed(4)}`
+    annotations.push({
+      x: 0.98, xref: "paper", y: 0.96, yref: "paper", xanchor: "right", yanchor: "top", showarrow: false,
+      text: `${pText}  ·  ${r.reject ? "reject H₀" : "fail to reject H₀"}`,
+      font: {size: 13, color: r.reject ? colors.warn : colors.ink},
+      bgcolor: VM.plotting.alpha(r.reject ? "warn" : "muted", 0.12),
+      borderpad: 4
+    })
+
+    const layout = VM.plotting.layout({
+      xaxis: {title: `${sym} statistic`, range: [s.lo, s.hi], zeroline: r.test === "t"},
+      yaxis: {title: "density", range: [0, s.ymax * 1.18], rangemode: "tozero"},
+      shapes,
+      annotations,
+      hovermode: "closest",
+      uirevision: "static"
+    })
+
+    if (!_plotDiv) {
+      _plotDiv = document.createElement("div")
+      _plotDiv.className = "plotly-box-large"
+      Plotly.newPlot(_plotDiv, data, layout, VM.plotting.config())
+      VM.plotting.autoResize(_plotDiv)
+    } else {
+      Plotly.react(_plotDiv, data, layout, VM.plotting.config())
+    }
+    return _plotDiv
+  }
+}
+```
+
+```{ojs}
+dataPlot(result, committed, chartColors)
+```
+
+<div class="ojs-plot-overlay">
+
+```{ojs}
+distPlot(setup, result, chartColors)
+```
+
+<div class="ojs-step-overlay">
+
+```{ojs}
+viewof alpha = {
+  const params = new URLSearchParams(window.location.search)
+  const parsed = Number(params.get("alpha"))
+  const value = parsed >= 0.005 && parsed <= 0.2 ? parsed : 0.05
+  const input = Inputs.range([0.005, 0.2], {step: 0.005, value, label: "α (significance level)"})
+  input.classList.add("ojs-fill")
+  return input
+}
+```
+
+</div>
+
+</div>
+
+```{ojs}
+// A one-line plain-language readout of the decision.
+verdict = {
+  const r = result
+  if (!r.ok) {
+    return html`<div class="htest-verdict htest-verdict--none">Enter valid inputs above and click <strong>Run test</strong>.</div>`
+  }
+  const name = testMeta[r.test].full
+  const sym = testMeta[r.test].symbol
+  let dfText = `${r.df}`
+  if (r.test === "F") dfText = `${r.df1}, ${r.df2}`
+  const pText = r.pValue < 1e-4 ? "p < 0.0001" : `p = ${r.pValue.toFixed(4)}`
+  const call = r.reject
+    ? `Reject H₀ at α = ${alpha}.`
+    : `Fail to reject H₀ at α = ${alpha}.`
+  return html`<div class="htest-verdict ${r.reject ? "htest-verdict--reject" : "htest-verdict--keep"}">
+    <strong>${name}:</strong> ${sym}(${dfText}) = ${r.statistic.toFixed(3)}, ${pText}. ${call}
+  </div>`
+}
+```
+
+:::: {.callout-note collapse="true" title="Test details"}
+
+```{ojs}
+detailsTable = {
+  const r = result
+  if (!r.ok) return document.createElement("div")
+
+  if (r.test === "t") {
+    const rows = [
+      ["Mean difference x̅1 − x̅2", (r.mean1 - r.mean2).toPrecision(6)],
+      ["Pooled variance sₚ²", r.pooledVar.toPrecision(6)],
+      ["Standard error", r.se.toPrecision(6)],
+      ["t statistic", r.statistic.toPrecision(6)],
+      ["Degrees of freedom", String(r.df)],
+      ["Critical |t| at α", r.critAbs.toPrecision(6)],
+      ["Least significant difference", (r.critAbs * r.se).toPrecision(6)],
+      ["p-value", r.pValue.toExponential(4)],
+      ["Decision", r.reject ? "reject H₀" : "fail to reject H₀"]
+    ]
+    return VM.ui.renderTable({html, headers: ["Quantity", "Value"], rows, csvHeaders: ["Quantity", "Value"], filename: "t-test-details.csv"})
+  }
+
+  if (r.test === "F") {
+    const critParts = []
+    for (const value of r.critLines) critParts.push(value.toPrecision(5))
+    const critText = critParts.join(",  ")
+    const rows = [
+      ["Group 1 variance s₁²", (r.sd1 * r.sd1).toPrecision(6)],
+      ["Group 2 variance s₂²", (r.sd2 * r.sd2).toPrecision(6)],
+      ["F = s₁² / s₂²", r.statistic.toPrecision(6)],
+      ["Degrees of freedom", `${r.df1}, ${r.df2}`],
+      ["Critical value(s) at α", critText],
+      ["p-value", r.pValue.toExponential(4)],
+      ["Decision", r.reject ? "reject H₀" : "fail to reject H₀"]
+    ]
+    return VM.ui.renderTable({html, headers: ["Quantity", "Value"], rows, csvHeaders: ["Quantity", "Value"], filename: "f-test-details.csv"})
+  }
+
+  const rows = []
+  for (const cat of r.categories) {
+    rows.push([cat.label, cat.o.toString(), cat.e.toPrecision(5), (cat.o - cat.e).toPrecision(4), cat.contrib.toPrecision(5)])
+  }
+  rows.push(["Σ", r.total.toString(), r.total.toPrecision(5), "0", r.statistic.toPrecision(5)])
+  return VM.ui.renderTable({
+    html,
+    headers: ["Category", "Observed", "Expected", "O − E", "(O − E)² / E"],
+    csvHeaders: ["Category", "Observed", "Expected", "O - E", "(O - E)^2 / E"],
+    filename: "chi-square-details.csv",
+    rows
+  })
+}
+```
+
+```{ojs}
+//| output: false
+detailsCaption = {
+  if (!result.ok) return "No result yet."
+  let dfText = String(result.df)
+  if (result.test === "F") dfText = `${result.df1}, ${result.df2}`
+  let alt = ""
+  if (result.test !== "chi") alt = `, alternative **${tail}**`
+  return `Degrees of freedom **${dfText}**, tested at α = **${alpha}**${alt}.`
+}
+```
+
+```{ojs}
+md`${detailsCaption} The p-value is the probability, *if H₀ were true*, of a statistic at least as extreme as the one observed — the shaded tail area on the chart above.`
+```
+
+::::
+
+## The three tests
+
+All three answer the same shape of question — *is what we observed more extreme than chance alone would usually produce?* — by reducing the data to a single number and asking where that number falls on a known reference distribution. The toggle at the top switches which test (and which distribution) is in view; the two-group summary is shared between the t-test and the F-test, so you can flip between "are the means different?" and "are the spreads different?" on the same data.
+
+### t-test
+
+The two-sample $t$-test compares two group means. With pooled variance $s_p^2$ and standard error $\text{SE} = s_p\sqrt{\tfrac{1}{n_1} + \tfrac{1}{n_2}}$,
+
+$$
+t = \frac{\bar x_1 - \bar x_2}{\text{SE}}, \qquad \text{df} = n_1 + n_2 - 2 .
+$$
+
+Under $H_0: \mu_1 = \mu_2$ this follows Student's $t$ distribution. The data panel shows the observed mean gap against the **least significant difference** $t^* \cdot \text{SE}$: when the gap bar is longer than the threshold bar, the result is significant. This page uses the pooled (equal-variance) form; with very unequal spreads, Welch's $t$-test is the better choice.
+
+### F-test
+
+The $F$-test compares two variances. With $F = s_1^2 / s_2^2$ and degrees of freedom $(n_1 - 1,\ n_2 - 1)$, this follows the $F$ distribution under $H_0: \sigma_1^2 = \sigma_2^2$. Because $F$ is a ratio, the null value is $1$, not $0$, and the distribution is not symmetric. The data panel shades each group's $\pm 1$ SD band — the ratio of their widths, squared, is $F$. The $F$-test is sensitive to non-normal data, more so than the $t$-test.
+
+### Chi-square test
+
+The $\chi^2$ goodness-of-fit test compares observed category counts $O_i$ to the counts $E_i$ a reference model predicts:
+
+$$
+\chi^2 = \sum_{i} \frac{(O_i - E_i)^2}{E_i}, \qquad \text{df} = k - 1 .
+$$
+
+Each term is one category's contribution — the bar labels in the data panel — and they sum to the statistic. Large values mean the observed counts stray far from the model, so the test is always one-sided (right tail). It relies on a large-sample approximation; a common rule of thumb is every $E_i \ge 5$.
