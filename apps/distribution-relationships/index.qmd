@@ -225,6 +225,22 @@ Authors: Dhruv Azad, Apurva Nakade
   border-top-style: dashed;
 }
 
+/* The shape key. Same box the diagram draws, at the same two corner radii,
+   so the swatch is the thing it stands for rather than a description of it. */
+.ojs-graph-legend-box {
+  display: inline-block;
+  width: 1.5rem;
+  height: 0.85rem;
+  border: 1.5px solid var(--vm-border);
+  background: var(--vm-surface);
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+
+.ojs-graph-legend-box.is-discrete { border-radius: 2px; }
+
+.ojs-graph-legend-box.is-continuous { border-radius: 7px; }
+
 /* ── Detail blurb ────────────────────────────────────────────────── */
 
 /* Built as a DOM node rather than markdown, since its content changes with
@@ -325,40 +341,51 @@ Authors: Dhruv Azad, Apurva Nakade
 
 ```{ojs}
 //| output: false
-// graphNodes: x, y seed the d3-force layout and keep anchoring it (see the
-// forceX/forceY in relationship-graph.js) -- they encode the semantic
-// grouping a physics simulation has no way to recover on its own: discrete
-// family on the left, continuous on the right, Normal centered as the hub
-// several edges converge on. The simulation resolves exact spacing and
-// guarantees no two boxes overlap, so these are intent, not final positions.
-// Laid out in three bands that follow the mathematics rather than the
-// alphabet: the discrete families across the top-left, the continuous ones
-// they pass into down the middle-left, and the normal and everything derived
-// from it on the right. The coordinates are the layout -- forceX/forceY hold
-// each box at its own anchor and collision only nudges neighbours apart, so
-// the diagram renders the same way every time instead of settling wherever a
-// free simulation happens to throw it.
+// graphNodes: x, y are the box's final position in the SVG's own viewBox
+// units -- relationship-graph.js places each box exactly there and nothing
+// moves it afterwards (the old d3-force layout, even anchored, rotated pairs
+// and bowed edges into a tangle). The arrangement follows the mathematics,
+// reading top to bottom the way the reference chart on johndcook.com does:
+//
+//   top       the discrete families, counting on the right (Bernoulli into
+//             Binomial into Poisson) and waiting on the left (Geometric into
+//             Negative Binomial), meeting at Poisson. The waiting pair sits
+//             a row lower than the counting chain, directly above what it
+//             feeds -- from the top row its edges into Exponential and
+//             Poisson crossed most of the diagram to get there
+//   middle    the continuous families they pass into, Exponential directly
+//             under Poisson with its own relatives spread beneath it
+//   right     the normal and everything derived from it, in its own column
+//             so the several edges that converge on Normal stay short
+//
+// Columns are shared between rows on purpose: a vertical edge (Normal to
+// Chi-squared, Geometric to Negative Binomial) is the easiest kind to read,
+// so distributions that relate directly are given the same x where possible.
+//
+// kind picks the box shape -- "discrete" draws square corners, "continuous"
+// rounded ones -- so the one property every distribution here has is legible
+// from the picture rather than only from the blurb below it.
 graphNodes = [
-  // Discrete, top-left.
-  {id: "hypergeometric", label: "Hypergeometric", x: 114, y: 69},
-  {id: "bernoulli", label: "Bernoulli", x: 87, y: 212},
-  {id: "binomial", label: "Binomial", x: 309, y: 137},
-  {id: "poisson", label: "Poisson", x: 538, y: 76},
-  {id: "geometric", label: "Geometric", x: 106, y: 347},
-  {id: "negativeBinomial", label: "Negative Binomial", x: 312, y: 258},
-  // Continuous, middle and lower-left.
-  {id: "weibull", label: "Weibull", x: 107, y: 489},
-  {id: "exponential", label: "Exponential", x: 458, y: 432},
-  {id: "uniform", label: "Uniform", x: 166, y: 614},
-  {id: "beta", label: "Beta", x: 302, y: 728},
-  {id: "gamma", label: "Gamma", x: 597, y: 596},
-  // The normal and its sampling distributions, right.
-  {id: "normal", label: "Normal", x: 685, y: 253},
-  {id: "lognormal", label: "Lognormal", x: 885, y: 91},
-  {id: "chiSquared", label: "Chi-squared", x: 724, y: 498},
-  {id: "studentT", label: "Student's t", x: 872, y: 719},
-  {id: "f", label: "F-distribution", x: 677, y: 748},
-  {id: "cauchy", label: "Cauchy", x: 924, y: 621}
+  // Discrete: the waiting-time pair top-left, the counting chain top-right.
+  {id: "geometric", label: "Geometric", kind: "discrete", x: 140, y: 165},
+  {id: "negativeBinomial", label: "Negative Binomial", kind: "discrete", x: 370, y: 165},
+  {id: "bernoulli", label: "Bernoulli", kind: "discrete", x: 660, y: 60},
+  {id: "hypergeometric", label: "Hypergeometric", kind: "discrete", x: 960, y: 60},
+  {id: "binomial", label: "Binomial", kind: "discrete", x: 800, y: 180},
+  {id: "poisson", label: "Poisson", kind: "discrete", x: 545, y: 300},
+  // Continuous: Exponential inherits Poisson's column, the rest fan out below.
+  {id: "exponential", label: "Exponential", kind: "continuous", x: 280, y: 300},
+  {id: "weibull", label: "Weibull", kind: "continuous", x: 135, y: 455},
+  {id: "uniform", label: "Uniform", kind: "continuous", x: 300, y: 590},
+  {id: "gamma", label: "Gamma", kind: "continuous", x: 560, y: 455},
+  {id: "beta", label: "Beta", kind: "continuous", x: 450, y: 680},
+  // The normal and its sampling distributions, right-hand column.
+  {id: "normal", label: "Normal", kind: "continuous", x: 830, y: 390},
+  {id: "lognormal", label: "Lognormal", kind: "continuous", x: 1010, y: 245},
+  {id: "chiSquared", label: "Chi-squared", kind: "continuous", x: 830, y: 570},
+  {id: "cauchy", label: "Cauchy", kind: "continuous", x: 1040, y: 590},
+  {id: "studentT", label: "Student's t", kind: "continuous", x: 1010, y: 720},
+  {id: "f", label: "F-distribution", kind: "continuous", x: 700, y: 800}
 ]
 ```
 
@@ -369,8 +396,19 @@ graphNodes = [
 // relationship (large-n, CLT-type) -- same convention as the reference
 // chart at johndcook.com/blog/distribution_chart.
 //
-// Clicking an edge shows the identity and a short note in the detail panel
-// below the graph (see edgeText).
+// `label` is the sentence behind the tooltip and the screen-reader name;
+// clicking an edge shows the full identity in the detail panel below the
+// graph (see edgeText). Nothing is written on the edges themselves: with 27
+// of them, a formula on each crowded the picture more than it explained it,
+// and the panel is where a statement has room to be read anyway.
+//
+// `bend` is only for the handful of edges that a straight line would run
+// through a box (Chi-squared to Exponential crosses the middle of the
+// diagram) or that would land exactly on top of an opposite-direction twin
+// (Chi-squared and F relate both ways). The same positive bend on a pair of
+// opposed edges throws them to opposite sides, since the perpendicular it is
+// measured along flips with the direction of travel. Everything else is
+// straight, which is the point of the hand-placed layout.
 graphEdges = [
   {id: "hypergeometric-binomial", from: "hypergeometric", to: "binomial", type: "limit", label: "Hypergeometric → Binomial: large population"},
   {id: "bernoulli-binomial", from: "bernoulli", to: "binomial", type: "exact", bidirectional: true, label: "Bernoulli ↔ Binomial: sum of n trials / n = 1"},
@@ -392,12 +430,12 @@ graphEdges = [
   {id: "normal-cauchy", from: "normal", to: "cauchy", type: "exact", label: "Normal → Cauchy: ratio of two normals"},
   {id: "normal-chisquared", from: "normal", to: "chiSquared", type: "exact", label: "Normal → Chi-squared: sum of k squares"},
   {id: "gamma-chisquared", from: "gamma", to: "chiSquared", type: "exact", bidirectional: true, label: "Gamma ↔ Chi-squared: special case"},
-  {id: "chisquared-exponential", from: "chiSquared", to: "exponential", type: "exact", label: "Chi-squared → Exponential: special case k = 2"},
+  {id: "chisquared-exponential", from: "chiSquared", to: "exponential", type: "exact", bend: 0.115, label: "Chi-squared → Exponential: special case k = 2"},
   {id: "chisquared-studentt", from: "chiSquared", to: "studentT", type: "exact", label: "Chi-squared → Student's t"},
-  {id: "chisquared-f", from: "chiSquared", to: "f", type: "exact", label: "Chi-squared → F-distribution"},
-  {id: "f-chisquared", from: "f", to: "chiSquared", type: "limit", label: "F → Chi-squared: second d.f. → ∞"},
+  {id: "chisquared-f", from: "chiSquared", to: "f", type: "exact", bend: 0.09, label: "Chi-squared → F-distribution"},
+  {id: "f-chisquared", from: "f", to: "chiSquared", type: "limit", bend: 0.09, label: "F → Chi-squared: second d.f. → ∞"},
   {id: "studentt-cauchy", from: "studentT", to: "cauchy", type: "exact", label: "Student's t → Cauchy: special case k = 1"},
-  {id: "studentt-normal", from: "studentT", to: "normal", type: "limit", label: "Student's t → Normal: k → ∞"},
+  {id: "studentt-normal", from: "studentT", to: "normal", type: "limit", bend: 0.085, label: "Student's t → Normal: k → ∞"},
   {id: "studentt-f", from: "studentT", to: "f", type: "exact", label: "Student's t → F: square of t"}
 ]
 ```
@@ -754,11 +792,13 @@ edgeText = ({
 })
 ```
 
-Solid edges are exact relationships — a special case, a sum, or a transformation; dashed edges are limiting relationships that only hold as a parameter grows large.
+Solid edges are exact relationships — a special case, a sum, or a transformation; dashed edges are limiting relationships that only hold as a parameter grows large. Square boxes are discrete distributions, rounded ones continuous.
 
 <div class="ojs-graph-legend">
 <span><span class="ojs-graph-legend-swatch is-exact"></span>Exact relationship</span>
 <span><span class="ojs-graph-legend-swatch is-limit"></span>Limiting relationship (large-n / CLT)</span>
+<span><span class="ojs-graph-legend-box is-discrete"></span>Discrete</span>
+<span><span class="ojs-graph-legend-box is-continuous"></span>Continuous</span>
 </div>
 
 ```{ojs}
@@ -795,8 +835,14 @@ initialSelection = {
 
 ```{ojs}
 viewof selection = VM.relationshipGraph(graphNodes, graphEdges, {
-  width: 1000,
-  height: 780,
+  // The viewBox, not a pixel size -- the container is width: 100% and the
+  // SVG scales to it, so these only set the diagram's aspect ratio and the
+  // units graphNodes' coordinates are expressed in. Nearly square, which is
+  // what the layout needs: the mathematics reads top to bottom (discrete
+  // families, then the continuous ones they pass into), so the diagram gets
+  // more height than a chart on this site usually would.
+  width: 1120,
+  height: 860,
   value: initialSelection
 })
 ```
