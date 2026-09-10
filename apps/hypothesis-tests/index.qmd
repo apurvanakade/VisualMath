@@ -184,7 +184,7 @@ viewof mean2 = {
 ```{ojs}
 viewof sd2 = {
   const params = new URLSearchParams(window.location.search)
-  const input = Inputs.text({label: "Group 2 SD s₂", value: params.get("sd2") ?? "6", placeholder: "Example: 6"})
+  const input = Inputs.text({label: "Group 2 SD s₂", value: params.get("sd2") ?? "4.5", placeholder: "Example: 4.5"})
   input.dataset.exampleField = "sd2"
   return input
 }
@@ -289,7 +289,7 @@ viewof runTrigger = {
 }
 ```
 
-<div class="ojs-grid" id="htest-tail-field">
+<div id="htest-tail-field">
 
 ```{ojs}
 // Always-live: switches which tail(s) count toward the p-value. Its own
@@ -297,11 +297,25 @@ viewof runTrigger = {
 // control on the site. Hidden for the chi-square test, which is
 // inherently one-sided (right tail).
 viewof tail = {
+  activeTest
   const params = new URLSearchParams(window.location.search)
   const value = ["two-sided", "greater", "less"].includes(params.get("tail")) ? params.get("tail") : "two-sided"
-  return Inputs.select(["two-sided", "greater", "less"], {label: "Alternative hypothesis", value})
+  const labels = activeTest === "F"
+    ? {
+        "two-sided": "Two-sided — the spreads just differ",
+        "greater": "One-sided — Group 1 is more variable",
+        "less": "One-sided — Group 1 is less variable"
+      }
+    : {
+        "two-sided": "Two-sided — the means just differ",
+        "greater": "One-sided — Group 1's mean is higher",
+        "less": "One-sided — Group 1's mean is lower"
+      }
+  return Inputs.select(["two-sided", "greater", "less"], {label: "What counts as a difference?", value, format: key => labels[key]})
 }
 ```
+
+<div class="htest-explain">Leave this on <strong>two-sided</strong> unless you committed to a direction <em>before</em> seeing the data. A one-sided test puts all of the false-alarm risk in one tail, so it flags a difference in that direction sooner — and is blind to one going the other way.</div>
 
 </div>
 
@@ -719,10 +733,10 @@ dataPlot = {
         const threshold = r.critAbs * r.se
         const x0 = Math.min(c.mean1, c.mean2)
         allX.push(x0 + dObs, x0 + threshold)
-        shapes.push({type: "line", xref: "x", yref: "y", x0, x1: x0 + threshold, y0: 1.74, y1: 1.74, line: {color: colors.accent2, width: 3, dash: "dot"}})
-        shapes.push({type: "line", xref: "x", yref: "y", x0, x1: x0 + dObs, y0: 1.52, y1: 1.52, line: {color: r.reject ? colors.warn : colors.muted, width: 7}})
-        annotations.push({x: x0 + dObs, y: 1.52, yref: "y", xanchor: "left", showarrow: false, text: `  observed Δ = ${dObs.toFixed(2)}`, font: {size: 10, color: colors.ink}})
-        annotations.push({x: x0 + threshold, y: 1.74, yref: "y", xanchor: "left", showarrow: false, text: `  significance threshold = ${threshold.toFixed(2)}`, font: {size: 10, color: colors.ink}})
+        shapes.push({type: "line", xref: "x", yref: "y", x0, x1: x0 + threshold, y0: 1.78, y1: 1.78, line: {color: colors.accent2, width: 3, dash: "dot"}})
+        shapes.push({type: "line", xref: "x", yref: "y", x0, x1: x0 + dObs, y0: 1.55, y1: 1.55, line: {color: r.reject ? colors.warn : colors.muted, width: 7}})
+        annotations.push({x: x0 + dObs, y: 1.55, yref: "y", xanchor: "left", showarrow: false, text: `  your gap = ${dObs.toFixed(2)}`, font: {size: 11, color: colors.ink}})
+        annotations.push({x: x0 + threshold, y: 1.78, yref: "y", xanchor: "left", showarrow: false, text: `  gap needed to be significant = ${threshold.toFixed(2)}`, font: {size: 11, color: colors.ink}})
       } else {
         annotations.push({
           x: 0.5, xref: "paper", y: 1.9, yref: "y", xanchor: "center", showarrow: false,
@@ -734,7 +748,7 @@ dataPlot = {
       const xRange = VM.plotting.paddedRange(allX, {relativePadding: 0.08, minPadding: 1})
       layout = VM.plotting.layout({
         xaxis: {title: "value", range: [xRange.lo, xRange.hi], zeroline: false},
-        yaxis: {range: [-0.7, r.test === "t" ? 2.0 : 2.05], tickvals: [0, 1], ticktext: ["Group 2", "Group 1"], zeroline: false},
+        yaxis: {range: [-0.7, r.test === "t" ? 2.1 : 2.05], tickvals: [0, 1], ticktext: ["Group 2", "Group 1"], zeroline: false},
         shapes,
         annotations,
         showlegend: false,
@@ -779,7 +793,7 @@ distPlot = {
       })
       if (!_plotDiv) {
         _plotDiv = document.createElement("div")
-        _plotDiv.className = "plotly-box-large"
+        _plotDiv.className = "htest-dist-box"
         Plotly.newPlot(_plotDiv, [], layout, VM.plotting.config())
         VM.plotting.autoResize(_plotDiv)
       } else {
@@ -788,11 +802,22 @@ distPlot = {
       return _plotDiv
     }
 
-    for (const seg of s.shades) {
-      data.push({
-        x: seg.x, y: seg.y, type: "scatter", mode: "none", fill: "tozeroy",
-        fillcolor: VM.plotting.alpha("warn", 0.4), showlegend: false, hoverinfo: "skip"
+    // When the statistic sits at the centre of the distribution (p ≈ 1),
+    // "as extreme or more" is essentially the whole curve -- shading all of
+    // it just reads as a bug, so show a note instead.
+    if (r.pValue > 0.99) {
+      annotations.push({
+        x: 0.5, xref: "paper", y: 0.55, yref: "paper", xanchor: "center", showarrow: false,
+        text: "your statistic sits in the middle of the distribution —<br>almost every value is \"as extreme or more\", so p ≈ 1",
+        font: {size: 11, color: colors.ink}
       })
+    } else {
+      for (const seg of s.shades) {
+        data.push({
+          x: seg.x, y: seg.y, type: "scatter", mode: "none", fill: "tozeroy",
+          fillcolor: VM.plotting.alpha("warn", 0.4), showlegend: false, hoverinfo: "skip"
+        })
+      }
     }
     data.push({
       x: s.xs, y: s.ys, type: "scatter", mode: "lines", name: "null distribution", showlegend: false,
@@ -823,7 +848,7 @@ distPlot = {
     const pText = r.pValue < 1e-4 ? "p < 0.0001" : `p = ${r.pValue.toFixed(4)}`
     annotations.push({
       x: 0.98, xref: "paper", y: 0.96, yref: "paper", xanchor: "right", yanchor: "top", showarrow: false,
-      text: `${pText}  ·  ${r.reject ? "reject H₀" : "fail to reject H₀"}`,
+      text: `${pText}  ·  ${r.reject ? "significant" : "not significant"} at α = ${alpha}`,
       font: {size: 13, color: r.reject ? colors.warn : colors.ink},
       bgcolor: VM.plotting.alpha(r.reject ? "warn" : "muted", 0.12),
       borderpad: 4
@@ -840,7 +865,7 @@ distPlot = {
 
     if (!_plotDiv) {
       _plotDiv = document.createElement("div")
-      _plotDiv.className = "plotly-box-large"
+      _plotDiv.className = "htest-dist-box"
       Plotly.newPlot(_plotDiv, data, layout, VM.plotting.config())
       VM.plotting.autoResize(_plotDiv)
     } else {
@@ -852,8 +877,54 @@ distPlot = {
 ```
 
 ```{ojs}
+step1Label = {
+  const body = activeTest === "chi"
+    ? "the counts you entered, drawn as bars — what you observed against what the model expects."
+    : "the numbers you entered, drawn out as points (simulated for illustration), with each group's mean and spread."
+  return md`<div class="htest-steplabel"><strong>Step 1 · Your data</strong> — ${body}</div>`
+}
+```
+
+```{ojs}
 dataPlot(result, committed, chartColors)
 ```
+
+```{ojs}
+dataKey = {
+  if (activeTest === "chi") {
+    return md`<div class="htest-explain">Bars compare the <strong>observed</strong> counts (solid) with the <strong>expected</strong> counts the model predicts (outline). The number above each pair is that category's (O−E)²/E — its share of the total mismatch.</div>`
+  }
+  const common = "● one simulated observation &nbsp;·&nbsp; ◆ the group mean &nbsp;·&nbsp; thick bar = mean ± 1 SD &nbsp;·&nbsp; thin line = mean ± 2 SD"
+  if (activeTest === "F") {
+    return md`<div class="htest-explain">${common}. The <strong>shaded band</strong> is each group's ± 1 SD; square the ratio of the two band widths and you get <em>F</em>.</div>`
+  }
+  return md`<div class="htest-explain">${common}. Near the top, the <strong>solid bar</strong> is the gap between the means you actually have and the <strong>dotted bar</strong> is how wide that gap would need to be to count as significant.</div>`
+}
+```
+
+```{ojs}
+bridge = {
+  const r = result
+  if (!r.ok) return md``
+  if (r.test === "t") {
+    return md`<div class="htest-bridge">Boil the two groups down to <strong>one number</strong>: divide the gap between the means by its standard error.<br>
+<code>t = (${r.mean1.toFixed(2)} − ${r.mean2.toFixed(2)}) / ${r.se.toFixed(3)} = ${r.statistic.toFixed(3)}</code><br>
+The gap is <strong>${Math.abs(r.statistic).toFixed(2)} standard errors</strong> wide. Now see how often plain noise produces a <em>t</em> that far from 0:</div>`
+  }
+  if (r.test === "F") {
+    return md`<div class="htest-bridge">Boil the two groups down to <strong>one number</strong>: the ratio of their variances.<br>
+<code>F = ${(r.sd1 * r.sd1).toFixed(2)} / ${(r.sd2 * r.sd2).toFixed(2)} = ${r.statistic.toFixed(3)}</code><br>
+Equal spreads would put this near 1. Now see how often noise alone pushes it this far:</div>`
+  }
+  const parts = []
+  for (const cat of r.categories) parts.push(cat.contrib.toFixed(2))
+  return md`<div class="htest-bridge">Boil the whole table down to <strong>one number</strong>: add up every category's (O−E)²/E.<br>
+<code>χ² = ${parts.join(" + ")} = ${r.statistic.toFixed(2)}</code><br>
+A perfect fit would give 0. Now see how large χ² usually gets from noise alone:</div>`
+}
+```
+
+<div class="htest-steplabel"><strong>Step 2 · Compare it to chance</strong> — the curve is every value the statistic could take if H₀ (no real difference) were true. Your value is the solid vertical line; the shaded tail is the p-value.</div>
 
 <div class="ojs-plot-overlay">
 
@@ -878,23 +949,52 @@ viewof alpha = {
 
 </div>
 
+<div class="htest-explain">The dashed line(s) mark the <strong>critical value</strong> — the cutoff where the shaded tail holds exactly α of the area under the curve. Drag <strong>α</strong> on the chart to demand more or less evidence: it is your tolerance for a false alarm (calling a difference real when it isn't), and 0.05 is the conventional default. The result is "significant" when your line lands past the dashed one.</div>
+
 ```{ojs}
-// A one-line plain-language readout of the decision.
+// A plain-language readout of the decision, with the formal notation kept
+// as a smaller second line rather than leading with it.
 verdict = {
   const r = result
   if (!r.ok) {
     return html`<div class="htest-verdict htest-verdict--none">Enter valid inputs above and click <strong>Run test</strong>.</div>`
   }
+
+  // Turn a p-value into "how often chance alone would do this".
+  const chance = p => {
+    if (p < 1e-4) return "less than 1 in 10,000 times"
+    if (p > 0.99) return "almost always"
+    if (p < 0.5) return `about 1 in ${Math.round(1 / p)} times`
+    return `about ${Math.round(p * 100)}% of the time`
+  }
+
   const name = testMeta[r.test].full
   const sym = testMeta[r.test].symbol
   let dfText = `${r.df}`
   if (r.test === "F") dfText = `${r.df1}, ${r.df2}`
   const pText = r.pValue < 1e-4 ? "p < 0.0001" : `p = ${r.pValue.toFixed(4)}`
-  const call = r.reject
-    ? `Reject H₀ at α = ${alpha}.`
-    : `Fail to reject H₀ at α = ${alpha}.`
+
+  let plain
+  if (r.test === "t") {
+    const gap = Math.abs(r.mean1 - r.mean2)
+    const dir = r.mean1 >= r.mean2 ? "higher" : "lower"
+    plain = r.reject
+      ? html`Group 1's mean is <strong>${gap.toPrecision(3)}</strong> ${dir} than Group 2's. If the two groups were really the same, a gap that size would turn up ${chance(r.pValue)} — so this is <strong>more than noise: the difference looks real.</strong>`
+      : html`Group 1's mean is <strong>${gap.toPrecision(3)}</strong> ${dir} than Group 2's, but a gap that size would still turn up ${chance(r.pValue)} even if the groups were the same. <strong>Not enough evidence to call it a real difference.</strong>`
+  } else if (r.test === "F") {
+    const vr = (r.sd1 * r.sd1) / (r.sd2 * r.sd2)
+    plain = r.reject
+      ? html`Group 1's variance is <strong>${vr.toPrecision(3)}×</strong> Group 2's. A ratio this far from 1 would happen ${chance(r.pValue)} if the spreads were truly equal — so <strong>the spreads really do differ.</strong>`
+      : html`Group 1's variance is <strong>${vr.toPrecision(3)}×</strong> Group 2's, but a ratio that far from 1 would happen ${chance(r.pValue)} even with equal spreads. <strong>Not enough evidence that the spreads differ.</strong>`
+  } else {
+    plain = r.reject
+      ? html`The observed counts pull away from the model by <strong>χ² = ${r.statistic.toFixed(2)}</strong>. A mismatch that large would happen ${chance(r.pValue)} if the model were right — so <strong>the data doesn't fit the model.</strong>`
+      : html`The observed counts pull away from the model by <strong>χ² = ${r.statistic.toFixed(2)}</strong>, which would happen ${chance(r.pValue)} even if the model were right. <strong>No real evidence against the model.</strong>`
+  }
+
   return html`<div class="htest-verdict ${r.reject ? "htest-verdict--reject" : "htest-verdict--keep"}">
-    <strong>${name}:</strong> ${sym}(${dfText}) = ${r.statistic.toFixed(3)}, ${pText}. ${call}
+    <div class="htest-verdict-plain">${plain}</div>
+    <div class="htest-verdict-formal">${name} · ${sym}(${dfText}) = ${r.statistic.toFixed(3)} · ${pText} · ${r.reject ? "reject H₀" : "fail to reject H₀"} at α = ${alpha}</div>
   </div>`
 }
 ```

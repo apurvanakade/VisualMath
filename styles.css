@@ -1415,6 +1415,48 @@ mjx-container[display="true"] {
   min-height: 260px;
 }
 
+/* Distribution chart -- deliberately wider-than-tall (unlike the 78vh
+ * .plotly-box-large) so the null curve and its tail fill the box instead of
+ * being squished into the lower third of a very tall rectangle. */
+.htest-dist-box {
+  width: 100%;
+  height: 440px;
+  min-height: 360px;
+}
+
+/* "Step 1 / Step 2" labels that tie the data panel to the distribution. */
+.htest-steplabel {
+  margin: 1.1rem 0 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.htest-steplabel strong { color: var(--vm-accent); }
+
+/* Muted plain-language helper text under a control or chart. */
+.htest-explain {
+  margin: 0.45rem 0 0.2rem;
+  font-size: 0.85rem;
+  color: var(--vm-text-soft);
+  line-height: 1.55;
+}
+
+/* The live "boil it down to one number" line between the two charts. */
+.htest-bridge {
+  margin: 0.7rem 0;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--vm-border);
+  border-radius: var(--vm-radius-sm);
+  background: var(--vm-surface);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+.htest-bridge code {
+  font-size: 0.95em;
+  background: var(--vm-surface-hover);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
 /* One-line plain-language readout of the test decision, under the chart. */
 .htest-verdict {
   margin: 0.6rem 0 0.25rem;
@@ -1429,3 +1471,11 @@ mjx-container[display="true"] {
 .htest-verdict--reject { border-left-color: #dc2626; }
 .htest-verdict--keep { border-left-color: #16a34a; }
 .htest-verdict--none { border-left-color: var(--vm-border); color: var(--vm-text-soft); }
+
+.htest-verdict-plain { line-height: 1.55; }
+.htest-verdict-formal {
+  margin-top: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--vm-text-soft);
+  font-variant-numeric: tabular-nums;
+}
